@@ -25,7 +25,7 @@
                 "args": [
                     {
                         //"value": "C:\\Users\\albs_\\source\\repos\\penguim-platformer\\go-penguin.rom",
-                        "value": "${file}.rom",
+                        "value": "${fileBasenameNoExtension}.rom",
                         "quoting": "strong"
                     },
                     {

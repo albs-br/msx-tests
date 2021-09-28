@@ -1,4 +1,6 @@
-FNAME "load-image.s.rom"      ; output file
+FNAME "load-image.rom"      ; output file
+
+PageSize:	    equ	0x4000	        ; 16kB
 
 ; Compilation address
     org 0x4000, 0xbeff	                    ; 0x8000 can be also used here if Rom size is 16kB or less.
@@ -56,11 +58,15 @@ Execute:
 .endlessLoop:
             jp      .endlessLoop
 
-
-
 PaletteData:
     INCBIN "Images/palette.bin"
 
 ImageData:
     INCBIN "Images/test1-split-file.SC5"
 .size:      equ $ - ImageData
+
+End:
+
+    db      "End ROM started at 0x4000"
+
+	ds PageSize - ($ - 0x4000), 255	; Fill the unused area with 0FFh

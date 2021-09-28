@@ -109,6 +109,7 @@ BIOS_H_DSKF: equ 0FE12h ; last def. pass 3
 BIOS_CONLO: equ 0F66Ah ; last def. pass 3
 BIOS_SLTTBL: equ 0FCC5h ; last def. pass 3
 BIOS_DSCTMP: equ 0F698h ; last def. pass 3
+End: equ 0506Bh ; last def. pass 3
 BIOS_H_LOC: equ 0FE99h ; last def. pass 3
 BIOS_H_CVS: equ 0FE44h ; last def. pass 3
 BIOS_MIVCNT: equ 0F951h ; last def. pass 3
@@ -232,6 +233,7 @@ BIOS_H_MKI: equ 0FE30h ; last def. pass 3
 BIOS_H_RSLF: equ 0FE8Fh ; last def. pass 3
 BIOS_FNKSB: equ 0C9h ; last def. pass 3
 BIOS_ARYTAB: equ 0F6C4h ; last def. pass 3
+PageSize: equ 04000h ; last def. pass 3
 BIOS_CHRGTR: equ 010h ; last def. pass 3
 BIOS_ONELIN: equ 0F6B9h ; last def. pass 3
 BIOS_QUEBAK: equ 0F971h ; last def. pass 3

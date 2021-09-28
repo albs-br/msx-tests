@@ -1,4 +1,4 @@
-FNAME "set-palette.s.rom"      ; output file
+FNAME "set-palette.rom"      ; output file
 
 ; Compilation address
     org 0x4000, 0xbeff	                    ; 0x8000 can be also used here if Rom size is 16kB or less.
