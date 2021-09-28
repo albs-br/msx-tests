@@ -27,6 +27,7 @@ BIOS_ERRTXT: equ 0F6B7h ; last def. pass 3
 BIOS_CPNCNT8: equ 0F93Bh ; last def. pass 3
 BIOS_DECCNT: equ 0F7F4h ; last def. pass 3
 BIOS_H_PHYD: equ 0FFA7h ; last def. pass 3
+debug_1: equ 0C001h ; last def. pass 3
 BIOS_SAVVOL: equ 0FB39h ; last def. pass 3
 BIOS_H_LPTO: equ 0FFB6h ; last def. pass 3
 BIOS_AVCSAV: equ 0FAF7h ; last def. pass 3
@@ -82,6 +83,7 @@ BIOS_INIPLT: equ 0141h ; last def. pass 3
 BIOS_DEVNUM: equ 0FB17h ; last def. pass 3
 BIOS_SLTATR: equ 0FCC9h ; last def. pass 3
 BIOS_H_WIDT: equ 0FF84h ; last def. pass 3
+debug_0: equ 0C000h ; last def. pass 3
 BIOS_GRPNAM: equ 0F3C7h ; last def. pass 3
 BIOS_VDP_DW: equ 07h ; last def. pass 3
 BIOS_YSAVE: equ 0FB00h ; last def. pass 3
@@ -110,7 +112,7 @@ BIOS_H_DSKF: equ 0FE12h ; last def. pass 3
 BIOS_CONLO: equ 0F66Ah ; last def. pass 3
 BIOS_SLTTBL: equ 0FCC5h ; last def. pass 3
 BIOS_DSCTMP: equ 0F698h ; last def. pass 3
-End: equ 040ADh ; last def. pass 3
+End: equ 04094h ; last def. pass 3
 BIOS_H_LOC: equ 0FE99h ; last def. pass 3
 BIOS_H_CVS: equ 0FE44h ; last def. pass 3
 BIOS_MIVCNT: equ 0F951h ; last def. pass 3
@@ -133,7 +135,7 @@ BIOS_LOHMSK: equ 0F949h ; last def. pass 3
 ImageData: equ 08000h ; last def. pass 3
 BIOS_RDSLT: equ 0Ch ; last def. pass 3
 BIOS_AUTFLG: equ 0F6AAh ; last def. pass 3
-Execute.endlessLoop: equ 0408Ah ; last def. pass 3
+Execute.endlessLoop: equ 04091h ; last def. pass 3
 BIOS_CPCNT: equ 0F939h ; last def. pass 3
 BIOS_DCOMPR: equ 020h ; last def. pass 3
 BIOS_INTCNT: equ 0FCA2h ; last def. pass 3
@@ -518,7 +520,6 @@ BIOS_TAPION: equ 0E1h ; last def. pass 3
 BIOS_CSTYLE: equ 0FCAAh ; last def. pass 3
 BIOS_BUFMIN: equ 0F55Dh ; last def. pass 3
 BIOS_H_LSET: equ 0FE21h ; last def. pass 3
-PaletteData: equ 0408Dh ; last def. pass 3
 BIOS_CSRY: equ 0F3DCh ; last def. pass 3
 BIOS_CSRX: equ 0F3DDh ; last def. pass 3
 EnableRomPage2: equ 04028h ; last def. pass 3
