@@ -19,3 +19,33 @@ LoadPalette:
             djnz    .loop
             
 			ret
+
+
+
+; Typical routine to select the ROM on page 8000h-BFFFh from page 4000h-7FFFh
+EnableRomPage2:
+; source: https://www.msx.org/wiki/Develop_a_program_in_cartridge_ROM#Typical_examples_to_make_a_32kB_ROM
+
+	call	BIOS_RSLREG
+	rrca
+	rrca
+	and	    3	;Keep bits corresponding to the page 4000h-7FFFh
+	ld	    c,a
+	ld	    b,0
+	ld	    hl, BIOS_EXPTBL
+	add	    hl,bc
+	ld	    a,(hl)
+	and	    80h
+	or	    c
+	ld	    c,a
+	inc	    hl
+	inc	    hl
+	inc	    hl
+	inc	    hl
+	ld	    a,(hl)
+	and	    0Ch
+	or	    c
+	ld	    h,080h
+	call	BIOS_ENASLT		; Select the ROM on page 8000h-BFFFh
+
+    ret
