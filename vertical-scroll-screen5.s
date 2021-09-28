@@ -1,4 +1,4 @@
-FNAME "load-image.rom"      ; output file
+FNAME "vertical-scroll-screen5.rom"      ; output file
 
 PageSize:	    equ	0x4000	        ; 16kB
 Seg_P8000_SW:	equ	0x7000	        ; Segment switch for page 0x8000-BFFFh (ASCII 16k Mapper)
@@ -41,13 +41,6 @@ Execute:
 	ld	    (Seg_P8000_SW), a
     ; load 32-byte palette data
     ld      hl, ImageData_2.palette ; PaletteData
-                    ; ; debug
-                    ; ld      a, (hl)
-                    ; ld      (debug_0), a
-                    ; inc     hl
-                    ; ld      a, (hl)
-                    ; ld      (debug_1), a
-                    ; ld      hl, ImageData_2.palette ; PaletteData
     call    LoadPalette
 
 	; enable page 1
@@ -68,12 +61,29 @@ Execute:
     ld		bc, ImageData_2.size					; Block length
     call 	BIOS_LDIRVM        						; Block transfer to VRAM from memory
 
-.endlessLoop:
-    jp      .endlessLoop
 
-;PaletteData:
-    ;INCBIN "Images/aerofighters-palette.bin"
-    ;INCBIN "Images/metalslug-palette.bin"
+
+    xor     a
+    ld      (VerticalScroll), a
+
+.loop:
+    ld      a, (BIOS_JIFFY)
+    ld      b, a
+.waitVBlank:
+    ld      a, (BIOS_JIFFY)
+    cp      b
+    jp      z, .waitVBlank
+
+    ; vertical scroll
+    ld      hl, VerticalScroll
+    dec     (hl)
+    ld      b, (hl)         ; data
+    ld      c, 23           ; register #
+    call    BIOS_WRTVDP
+
+
+
+    jp      .loop
 
 
 End:
@@ -105,6 +115,9 @@ ImageData_2:
 
 ; RAM
 	org     0xc000, 0xe5ff                   ; for machines with 16kb of RAM (use it if you need 16kb RAM, will crash on 8kb machines, such as the Casio PV-7)
+
+
+VerticalScroll:     rb 1
 
 debug_0:    rb 1
 debug_1:    rb 1
