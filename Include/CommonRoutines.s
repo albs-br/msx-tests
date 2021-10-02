@@ -49,3 +49,20 @@ EnableRomPage2:
 	call	BIOS_ENASLT		; Select the ROM on page 8000h-BFFFh
 
     ret
+
+
+Wait:
+	ld		c, 3 * 60
+
+	.loop:
+		ld      a, (BIOS_JIFFY)
+		ld      b, a
+	.waitVBlank:
+		ld      a, (BIOS_JIFFY)
+		cp      b
+		jp      z, .waitVBlank
+
+	dec		c
+	jp		nz, .loop
+
+	ret
