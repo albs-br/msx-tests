@@ -25,45 +25,64 @@ Execute:
 
     ; set 192 lines
     ld      b, 0000 0000 b  ; data
-    ld      c, 0x09         ; register #
+    ld      c, 9            ; register #
     call    BIOS_WRTVDP
 
-    ; set SPRPAT to 0xF000
+    ; disable sprites
+    ; set color 0 to transparent
+    ld      b, 0000 1010 b  ; data
+    ld      c, 8            ; register #
+    call    BIOS_WRTVDP
 
-    ; set SPRCOL to 0xF800
+; ---- set SPRATR to 0x1fa00 (SPRCOL is automatically set 512 bytes before SPRATR, so 0x1f800)
+    ; bits:    16 14        7
+    ;           |  |        |
+    ; 0x1fa00 = 1 1111 1010 1000 0000
+    ; high bits (aaaaaaaa: bits 14 to 7)
+    ld      b, 1111 0101 b  ; data
+    ld      c, 5            ; register #
+    call    BIOS_WRTVDP
+    ; low bits (000000aa: bits 16 to 15)
+    ld      b, 0000 0011 b  ; data
+    ld      c, 11           ; register #
+    call    BIOS_WRTVDP
 
-    ; set SPRATR to 0xFA00
+; ---- set SPRPAT to 0x1f000
+    ; bits:    16     11
+    ;           |      |
+    ; 0x1fa00 = 1 1111 0000 0000 0000
+    ; high bits (00aaaaaa: bits 16 to 11)
+    ld      b, 0011 1110 b  ; data
+    ld      c, 6            ; register #
+    call    BIOS_WRTVDP
 
 
 
 ; --------- Load first screen     
-	; enable page 1
-    ld	    a, 13
-	ld	    (Seg_P8000_SW), a
-    ; write to VRAM bitmap area
-    ld		hl, ImageData_13        			    ; RAM address (source)
-    ld		de, 0 + (0 * (256 * 64))                ; VRAM address (destiny)
-    ld		bc, ImageData_13.size				    ; Block length
-    call 	BIOS_LDIRVM        						; Block transfer to VRAM from memory
-            
-    ; -- Load middle part of first image on last 64 lines
     ld	    a, 14
 	ld	    (Seg_P8000_SW), a
     ; write to VRAM bitmap area
-    ld		hl, ImageData_14      				    ; RAM address (source)
-    ld		de, 0 + (1 * (256 * 64))                ; VRAM address (destiny)
-    ld		bc, ImageData_14.size					; Block length
+    ld		hl, ImageData_14        			    ; RAM address (source)
+    ld		de, 0 + (0 * (256 * 64))                ; VRAM address (destiny)
+    ld		bc, ImageData_14.size				    ; Block length
     call 	BIOS_LDIRVM        						; Block transfer to VRAM from memory
-
-	
-    ; -- Load bottom part of first image on last 64 lines
-    ; enable page 15
+            
+    ; -- Load middle part of first image on last 64 lines
     ld	    a, 15
 	ld	    (Seg_P8000_SW), a
     ; write to VRAM bitmap area
     ld		hl, ImageData_15      				    ; RAM address (source)
-    ld		de, 0 + (2 * (256 * 64))                ; VRAM address (destiny)
+    ld		de, 0 + (1 * (256 * 64))                ; VRAM address (destiny)
     ld		bc, ImageData_15.size					; Block length
+    call 	BIOS_LDIRVM        						; Block transfer to VRAM from memory
+
+    ; -- Load bottom part of first image on last 64 lines
+    ld	    a, 16
+	ld	    (Seg_P8000_SW), a
+    ; write to VRAM bitmap area
+    ld		hl, ImageData_16      				    ; RAM address (source)
+    ld		de, 0 + (2 * (256 * 64))                ; VRAM address (destiny)
+    ld		bc, ImageData_16.size					; Block length
     call 	BIOS_LDIRVM        						; Block transfer to VRAM from memory
 
     call    BIOS_ENASCR
@@ -80,10 +99,12 @@ Execute:
     ; ld		bc, ImageData_4.size					; Block length
     ; call 	BIOS_LDIRVM        						; Block transfer to VRAM from memory
 
+ADDR_LAST_LINE_OF_PAGE: equ 0x8000 + (63 * 256)
+
     ; initialize variables for scrolling on last line of the next page
-    ld      a, 12
+    ld      a, 13
     ld      (CurrentMegaROMPage), a
-    ld      hl, 63 * 256
+    ld      hl, ADDR_LAST_LINE_OF_PAGE
     ld      (CurrentAddrLineScroll), hl
     ld      hl, 255 * 256
     ld      (CurrentVRAMAddrLineScroll), hl
@@ -104,24 +125,33 @@ Execute:
 
     ; load next line from bitmap on the last line of virtual screen (256 lines)
     ; that will be the next to be shown on top of screen
-    ; ld	    a, (CurrentMegaROMPage)
-	; ld	    (Seg_P8000_SW), a
-    ; ld      hl, (CurrentAddrLineScroll)             ; RAM address (source)
-    ; ld		de, (CurrentVRAMAddrLineScroll)         ; VRAM address (destiny)
-    ; ld		bc, 256					                ; Block length
-    ; call 	BIOS_LDIRVM        						; Block transfer to VRAM from memory
-	ld	    hl, (CurrentVRAMAddrLineScroll)		; VRAM start address
-    ld      bc, 256                             ; number of bytes
-    ld      a, 00011100 b                       ; value
-    call    BIOS_FILVRM                         ; Fill VRAM
+    ld	    a, (CurrentMegaROMPage)
+	ld	    (Seg_P8000_SW), a
+    ld      hl, (CurrentAddrLineScroll)             ; RAM address (source)
+    ld		de, (CurrentVRAMAddrLineScroll)         ; VRAM address (destiny)
+    ld		bc, 256					                ; Block length
+    call 	BIOS_LDIRVM        						; Block transfer to VRAM from memory
+	; ld	    hl, (CurrentVRAMAddrLineScroll)		; VRAM start address
+    ; ld      bc, 256                             ; number of bytes
+    ; ld      a, 00011100 b                       ; value
+    ; call    BIOS_FILVRM                         ; Fill VRAM
 
     ; update vars
     ld      de, (CurrentVRAMAddrLineScroll)
     dec     d                                       ; de = de - 256
     ld      hl, (CurrentAddrLineScroll)
     dec     h                                       ; hl = hl - 256
-.endlessLoop:
-    jp      z, .endlessLoop
+    ld      a, h
+    cp      0x80 - 1
+    jp      z, .decPage
+    jp      .dontDecPage
+.decPage:
+    ld      a, (CurrentMegaROMPage)
+    dec     a
+    jp      z, .stopScroll
+    ld      (CurrentMegaROMPage), a
+    ld      hl, ADDR_LAST_LINE_OF_PAGE
+.dontDecPage:
     ld      (CurrentAddrLineScroll), hl
     ld      (CurrentVRAMAddrLineScroll), de
 
@@ -136,6 +166,9 @@ Execute:
 
 
     jp      .loop
+
+.stopScroll:
+    jp      .stopScroll
 
 
 End:

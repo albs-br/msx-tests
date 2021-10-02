@@ -52,7 +52,7 @@ EnableRomPage2:
 
 
 Wait:
-	ld		c, 3 * 60
+	ld		c, 15
 
 	.loop:
 		ld      a, (BIOS_JIFFY)
