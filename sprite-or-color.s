@@ -1,4 +1,4 @@
-FNAME "vertical-scroll-screen11.rom"      ; output file
+FNAME "sprite-or-color.rom"      ; output file
 
 PageSize:	    equ	0x4000	        ; 16kB
 Seg_P8000_SW:	equ	0x7000	        ; Segment switch for page 0x8000-BFFFh (ASCII 16k Mapper)
@@ -60,38 +60,73 @@ Execute:
     ld      c, 6            ; register #
     call    BIOS_WRTVDP
 
-NAMTBL:     equ 0x00000
+NAMTBL:     equ 0x0000
+SPRPAT:     equ 0xf000 ; actually 0x1f000, but 17 bits address are not accepted
+SPRCOL:     equ 0xf800
+SPRATR:     equ 0xfa00
 
 ; --------- Load first screen     
-    ld	    a, 14
-	ld	    (Seg_P8000_SW), a
-    ; write to VRAM bitmap area
-    ld		hl, ImageData_14        			    ; RAM address (source)
-    ld		de, NAMTBL + (0 * (256 * 64))                ; VRAM address (destiny)
-    ld		bc, ImageData_14.size				    ; Block length
-    call 	BIOS_LDIRVM        						; Block transfer to VRAM from memory
+    ; ld	    a, 14
+	; ld	    (Seg_P8000_SW), a
+    ; ; write to VRAM bitmap area
+    ; ld		hl, ImageData_14        			    ; RAM address (source)
+    ; ld		de, NAMTBL + (0 * (256 * 64))           ; VRAM address (destiny)
+    ; ld		bc, ImageData_14.size				    ; Block length
+    ; call 	BIOS_LDIRVM        						; Block transfer to VRAM from memory
             
-    ; -- Load middle part of first image on last 64 lines
-    ld	    a, 15
-	ld	    (Seg_P8000_SW), a
-    ; write to VRAM bitmap area
-    ld		hl, ImageData_15      				    ; RAM address (source)
-    ld		de, NAMTBL + (1 * (256 * 64))                ; VRAM address (destiny)
-    ld		bc, ImageData_15.size					; Block length
-    call 	BIOS_LDIRVM        						; Block transfer to VRAM from memory
+    ; ; -- Load middle part of first image on last 64 lines
+    ; ld	    a, 15
+	; ld	    (Seg_P8000_SW), a
+    ; ; write to VRAM bitmap area
+    ; ld		hl, ImageData_15      				    ; RAM address (source)
+    ; ld		de, NAMTBL + (1 * (256 * 64))           ; VRAM address (destiny)
+    ; ld		bc, ImageData_15.size					; Block length
+    ; call 	BIOS_LDIRVM        						; Block transfer to VRAM from memory
 
-    ; -- Load bottom part of first image on last 64 lines
-    ld	    a, 16
-	ld	    (Seg_P8000_SW), a
-    ; write to VRAM bitmap area
-    ld		hl, ImageData_16      				    ; RAM address (source)
-    ld		de, NAMTBL + (2 * (256 * 64))                ; VRAM address (destiny)
-    ld		bc, ImageData_16.size					; Block length
-    call 	BIOS_LDIRVM        						; Block transfer to VRAM from memory
+    ; ; -- Load bottom part of first image on last 64 lines
+    ; ld	    a, 16
+	; ld	    (Seg_P8000_SW), a
+    ; ; write to VRAM bitmap area
+    ; ld		hl, ImageData_16      				    ; RAM address (source)
+    ; ld		de, NAMTBL + (2 * (256 * 64))           ; VRAM address (destiny)
+    ; ld		bc, ImageData_16.size					; Block length
+    ; call 	BIOS_LDIRVM        						; Block transfer to VRAM from memory
 
     call    BIOS_ENASCR
 
-; --------- 
+
+; --------- Load sprites
+
+    ; set VRAM to second page (addresses started at 0x10000)
+    ; high bits (00000aaa: bits 16 to 14)
+    ld      b, 0000 0100 b  ; data
+    ld      c, 14            ; register #
+    call    BIOS_WRTVDP
+
+
+    ld		hl, SpritePattern_1   				    ; RAM address (source)
+    ld		de, SPRPAT + (0 * 32)                   ; VRAM address (destiny)
+    ld		bc, 32					                ; Block length
+    call 	BIOS_LDIRVM        						; Block transfer to VRAM from memory
+
+    ld		hl, SpriteColors_1   				    ; RAM address (source)
+    ld		de, SPRCOL + (0 * 16)                   ; VRAM address (destiny)
+    ld		bc, 16					                ; Block length
+    call 	BIOS_LDIRVM        						; Block transfer to VRAM from memory
+
+    ld		hl, SpriteAttributes_1 				    ; RAM address (source)
+    ld		de, SPRATR + (0 * 4)                    ; VRAM address (destiny)
+    ld		bc, SpriteAttributes_1.size             ; Block length
+    call 	BIOS_LDIRVM        						; Block transfer to VRAM from memory
+
+; -----------
+
+    ; set VRAM to first page (addresses started at 0x10000)
+    ; high bits (00000aaa: bits 16 to 14)
+    ld      b, 0000 0000 b  ; data
+    ld      c, 14            ; register #
+    call    BIOS_WRTVDP
+
 
 ADDR_LAST_LINE_OF_PAGE: equ 0x8000 + (63 * 256)
 
@@ -116,8 +151,8 @@ ADDR_LAST_LINE_OF_PAGE: equ 0x8000 + (63 * 256)
     jp      z, .waitVBlank
 
     ;call    Wait
-; .endlessLoop:
-;     jp  .endlessLoop
+.endlessLoop:
+    jp  .endlessLoop
 
     ; load next line from bitmap on the last line of virtual screen (256 lines)
     ; that will be the next to be shown on top of screen
@@ -169,10 +204,50 @@ ADDR_LAST_LINE_OF_PAGE: equ 0x8000 + (63 * 256)
 
 End:
 
+SpritePattern_1:
+    DB 11111111b
+    DB 11111111b
+    DB 11111111b
+    DB 11111111b
+    DB 11111111b
+    DB 11111111b
+    DB 11111111b
+    DB 11111111b
+    DB 11111111b
+    DB 11111111b
+    DB 11111111b
+    DB 11111111b
+    DB 11111111b
+    DB 11111111b
+    DB 11111111b
+    DB 11111111b
+    DB 11111111b
+    DB 11111111b
+    DB 11111111b
+    DB 11111111b
+    DB 11111111b
+    DB 11111111b
+    DB 11111111b
+    DB 11111111b
+    DB 11111111b
+    DB 11111111b
+    DB 11111111b
+    DB 11111111b
+    DB 11111111b
+    DB 11111111b
+    DB 11111111b
+    DB 11111111b
+
+SpriteColors_1:
+    db 0x0a, 0x0a, 0x0a, 0x0a, 0x0a, 0x0a, 0x0a, 0x0a, 0x0a, 0x0a, 0x0a, 0x0a, 0x0a, 0x0a, 0x0a, 0x0a
+
     db      "End ROM started at 0x4000"
 
 	ds PageSize - ($ - 0x4000), 255	; Fill the unused area with 0xFF
 
+SpriteAttributes_1:
+    db 88, 120, 0, 0
+.size:  equ $ - SpriteAttributes_1
 
 ; MegaROM pages at 0x8000
 ; ------- Page 1
