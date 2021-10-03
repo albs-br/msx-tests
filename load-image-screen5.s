@@ -1,4 +1,4 @@
-FNAME "load-image.rom"      ; output file
+FNAME "load-image-screen5.rom"      ; output file
 
 PageSize:	    equ	0x4000	        ; 16kB
 Seg_P8000_SW:	equ	0x7000	        ; Segment switch for page 0x8000-BFFFh (ASCII 16k Mapper)

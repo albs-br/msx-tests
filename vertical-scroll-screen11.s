@@ -18,8 +18,12 @@ Execute:
 	ld	    (Seg_P8000_SW), a
 
     ; change to screen 11
-    ld      a, 11
+    ; it's needed to set screen 8 and change the YJK and YAE bits of R#25 manually
+    ld      a, 8
     call    BIOS_CHGMOD
+    ld      b, 0001 1000 b      ; data
+    ld      c, 25               ; register #
+    call    BIOS_WRTVDP
 
     call    BIOS_DISSCR
 
