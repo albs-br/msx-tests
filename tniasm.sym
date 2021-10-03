@@ -140,7 +140,7 @@ BIOS_ESCCNT: equ 0FCA7h ; last def. pass 3
 BIOS_RTYCNT: equ 0FC9Ah ; last def. pass 3
 BIOS_MEMSIZ: equ 0F672h ; last def. pass 3
 BIOS_H_INDS: equ 0FE8Ah ; last def. pass 3
-ADDR_LAST_LINE_OF_PAGE.decPage: equ 04109h ; last def. pass 3
+ADDR_LAST_LINE_OF_PAGE.decPage: equ 0410Ch ; last def. pass 3
 BIOS_H_FORM: equ 0FFACh ; last def. pass 3
 BIOS_EXPTBL: equ 0FCC1h ; last def. pass 3
 ImageData_5: equ 08000h ; last def. pass 3
@@ -541,6 +541,7 @@ BIOS_CALSLT: equ 01Ch ; last def. pass 3
 Wait: equ 04049h ; last def. pass 3
 BIOS_H_NTFL: equ 0FE62h ; last def. pass 3
 BIOS_USRTAB: equ 0F39Ah ; last def. pass 3
+ADDR_LAST_LINE_OF_PAGE.endlessLoop: equ 040E4h ; last def. pass 3
 BIOS_H_ATTR: equ 0FE1Ch ; last def. pass 3
 BIOS_CS120: equ 0F3FCh ; last def. pass 3
 BIOS_SETPAG: equ 013Dh ; last def. pass 3

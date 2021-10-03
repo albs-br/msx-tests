@@ -1,4 +1,4 @@
-FNAME "vertical-scroll-screen8.rom"      ; output file
+FNAME "vertical-scroll-screen11.rom"      ; output file
 
 PageSize:	    equ	0x4000	        ; 16kB
 Seg_P8000_SW:	equ	0x7000	        ; Segment switch for page 0x8000-BFFFh (ASCII 16k Mapper)
@@ -17,8 +17,8 @@ Execute:
     ld	    a, 1
 	ld	    (Seg_P8000_SW), a
 
-    ; change to screen 8
-    ld      a, 8
+    ; change to screen 11
+    ld      a, 11
     call    BIOS_CHGMOD
 
     call    BIOS_DISSCR
@@ -32,6 +32,11 @@ Execute:
     ld      b, 0000 1000 b  ; data
     ld      c, 8            ; register #
     call    BIOS_WRTVDP
+
+    ; set NAMTBL to 0x00000
+    ; ld      b, 0011 1111 b  ; data
+    ; ld      c, 2            ; register #
+    ; call    BIOS_WRTVDP
 
 ; ---- set SPRATR to 0x1fa00 (SPRCOL is automatically set 512 bytes before SPRATR, so 0x1f800)
     ; bits:    16 14        7
@@ -121,6 +126,8 @@ ADDR_LAST_LINE_OF_PAGE: equ 0x8000 + (63 * 256)
     jp      z, .waitVBlank
 
     ;call    Wait
+.endlessLoop:
+    jp  .endlessLoop
 
     ; load next line from bitmap on the last line of virtual screen (256 lines)
     ; that will be the next to be shown on top of screen
@@ -181,112 +188,112 @@ End:
 ; ------- Page 1
 	org	0x8000, 0xBFFF
 ImageData_1:
-    INCBIN "Images/aerofighters_0.sr8.new"
+    INCBIN "Images/aerofighters_0.sra.new"
 .size:      equ $ - ImageData_1
 	ds PageSize - ($ - 0x8000), 255
 
 ; ------- Page 2
 	org	0x8000, 0xBFFF
 ImageData_2:
-    INCBIN "Images/aerofighters_1.sr8.new"
+    INCBIN "Images/aerofighters_1.sra.new"
 .size:      equ $ - ImageData_2
 	ds PageSize - ($ - 0x8000), 255
 
 ; ------- Page 3
 	org	0x8000, 0xBFFF
 ImageData_3:
-    INCBIN "Images/aerofighters_2.sr8.new"
+    INCBIN "Images/aerofighters_2.sra.new"
 .size:      equ $ - ImageData_3
 	ds PageSize - ($ - 0x8000), 255
 
 ; ------- Page 4
 	org	0x8000, 0xBFFF
 ImageData_4:
-    INCBIN "Images/aerofighters_3.sr8.new"
+    INCBIN "Images/aerofighters_3.sra.new"
 .size:      equ $ - ImageData_4
 	ds PageSize - ($ - 0x8000), 255
 
 ; ------- Page 5
 	org	0x8000, 0xBFFF
 ImageData_5:
-    INCBIN "Images/aerofighters_4.sr8.new"
+    INCBIN "Images/aerofighters_4.sra.new"
 .size:      equ $ - ImageData_5
 	ds PageSize - ($ - 0x8000), 255
 
 ; ------- Page 6
 	org	0x8000, 0xBFFF
 ImageData_6:
-    INCBIN "Images/aerofighters_5.sr8.new"
+    INCBIN "Images/aerofighters_5.sra.new"
 .size:      equ $ - ImageData_6
 	ds PageSize - ($ - 0x8000), 255
 
 ; ------- Page 7
 	org	0x8000, 0xBFFF
 ImageData_7:
-    INCBIN "Images/aerofighters_6.sr8.new"
+    INCBIN "Images/aerofighters_6.sra.new"
 .size:      equ $ - ImageData_7
 	ds PageSize - ($ - 0x8000), 255
 
 ; ------- Page 8
 	org	0x8000, 0xBFFF
 ImageData_8:
-    INCBIN "Images/aerofighters_7.sr8.new"
+    INCBIN "Images/aerofighters_7.sra.new"
 .size:      equ $ - ImageData_8
 	ds PageSize - ($ - 0x8000), 255
 
 ; ------- Page 9
 	org	0x8000, 0xBFFF
 ImageData_9:
-    INCBIN "Images/aerofighters_8.sr8.new"
+    INCBIN "Images/aerofighters_8.sra.new"
 .size:      equ $ - ImageData_9
 	ds PageSize - ($ - 0x8000), 255
 
 ; ------- Page 10
 	org	0x8000, 0xBFFF
 ImageData_10:
-    INCBIN "Images/aerofighters_9.sr8.new"
+    INCBIN "Images/aerofighters_9.sra.new"
 .size:      equ $ - ImageData_10
 	ds PageSize - ($ - 0x8000), 255
 
 ; ------- Page 11
 	org	0x8000, 0xBFFF
 ImageData_11:
-    INCBIN "Images/aerofighters_10.sr8.new"
+    INCBIN "Images/aerofighters_10.sra.new"
 .size:      equ $ - ImageData_11
 	ds PageSize - ($ - 0x8000), 255
 
 ; ------- Page 12
 	org	0x8000, 0xBFFF
 ImageData_12:
-    INCBIN "Images/aerofighters_11.sr8.new"
+    INCBIN "Images/aerofighters_11.sra.new"
 .size:      equ $ - ImageData_12
 	ds PageSize - ($ - 0x8000), 255
 
 ; ------- Page 13
 	org	0x8000, 0xBFFF
 ImageData_13:
-    INCBIN "Images/aerofighters_12.sr8.new"
+    INCBIN "Images/aerofighters_12.sra.new"
 .size:      equ $ - ImageData_13
 	ds PageSize - ($ - 0x8000), 255
 
 ; ------- Page 14
 	org	0x8000, 0xBFFF
 ImageData_14:
-    INCBIN "Images/aerofighters_13.sr8.new"
+    INCBIN "Images/aerofighters_13.sra.new"
 .size:      equ $ - ImageData_14
 	ds PageSize - ($ - 0x8000), 255
 
 ; ------- Page 15
 	org	0x8000, 0xBFFF
 ImageData_15:
-    INCBIN "Images/aerofighters_14.sr8.new"
+    INCBIN "Images/aerofighters_14.sra.new"
 .size:      equ $ - ImageData_15
 	ds PageSize - ($ - 0x8000), 255
 
 ; ------- Page 16
 	org	0x8000, 0xBFFF
 ImageData_16:
-    INCBIN "Images/aerofighters_15.sr8.new"
+    INCBIN "Images/aerofighters_15.sra.new"
 .size:      equ $ - ImageData_16
 	ds PageSize - ($ - 0x8000), 255
 
