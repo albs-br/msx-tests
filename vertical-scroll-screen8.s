@@ -37,11 +37,11 @@ Execute:
     ; bits:    16 14        7
     ;           |  |        |
     ; 0x1fa00 = 1 1111 1010 1000 0000
-    ; high bits (aaaaaaaa: bits 14 to 7)
+    ; low bits (aaaaaaaa: bits 14 to 7)
     ld      b, 1111 0101 b  ; data
     ld      c, 5            ; register #
     call    BIOS_WRTVDP
-    ; low bits (000000aa: bits 16 to 15)
+    ; high bits (000000aa: bits 16 to 15)
     ld      b, 0000 0011 b  ; data
     ld      c, 11           ; register #
     call    BIOS_WRTVDP
@@ -55,14 +55,14 @@ Execute:
     ld      c, 6            ; register #
     call    BIOS_WRTVDP
 
-
+NAMTBL:     equ 0x00000
 
 ; --------- Load first screen     
     ld	    a, 14
 	ld	    (Seg_P8000_SW), a
     ; write to VRAM bitmap area
     ld		hl, ImageData_14        			    ; RAM address (source)
-    ld		de, 0 + (0 * (256 * 64))                ; VRAM address (destiny)
+    ld		de, NAMTBL + (0 * (256 * 64))                ; VRAM address (destiny)
     ld		bc, ImageData_14.size				    ; Block length
     call 	BIOS_LDIRVM        						; Block transfer to VRAM from memory
             
@@ -71,7 +71,7 @@ Execute:
 	ld	    (Seg_P8000_SW), a
     ; write to VRAM bitmap area
     ld		hl, ImageData_15      				    ; RAM address (source)
-    ld		de, 0 + (1 * (256 * 64))                ; VRAM address (destiny)
+    ld		de, NAMTBL + (1 * (256 * 64))                ; VRAM address (destiny)
     ld		bc, ImageData_15.size					; Block length
     call 	BIOS_LDIRVM        						; Block transfer to VRAM from memory
 
@@ -80,7 +80,7 @@ Execute:
 	ld	    (Seg_P8000_SW), a
     ; write to VRAM bitmap area
     ld		hl, ImageData_16      				    ; RAM address (source)
-    ld		de, 0 + (2 * (256 * 64))                ; VRAM address (destiny)
+    ld		de, NAMTBL + (2 * (256 * 64))                ; VRAM address (destiny)
     ld		bc, ImageData_16.size					; Block length
     call 	BIOS_LDIRVM        						; Block transfer to VRAM from memory
 
