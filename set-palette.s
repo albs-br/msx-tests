@@ -53,28 +53,38 @@ Execute:
             ld c, 0x09 ; register #
             call WRTVDP
             
+
+
             ; ---------- set palette
 			; set palette register number in register R#16 (Color palette address pointer)
-			LD b, 0    ; data
+			ld b, 0    ; data
             ld c, 16   ; register #
-            call WRTVDP
-            ld c, 0x9a ; V9938 port #2
-            DI
-            ld a, 0x70 ; data 1 (red 0-7; blue 0-7)
-            OUT (C), A
-            ld a, 0x00 ; data 2 (0000; green 0-7)
-            OUT (C), A
-            EI
-            DI
-            ld a, 0x07 ; data 1 (red 0-7; blue 0-7)
-            OUT (C), A
-            ld a, 0x00 ; data 2 (0000; green 0-7)
-            OUT (C), A
-            EI
+            call wrtvdp
             
+            ; set color #0 (if transparency is enabled will not bee visible)
+            ld c, 0x9a ; v9938 port #2
+            ld a, 0x00 ; data 1 (red 0-7; blue 0-7)
+            di
+            out (c), a
+            ld a, 0x00 ; data 2 (0000; green 0-7)
+            ei
+            out (c), a
+
+            ; set color #1
+            ld a, 0x77 ; data 1 (red 0-7; blue 0-7)
+            di
+            out (c), a
+            ld a, 0x00 ; data 2 (0000; green 0-7)
+            ei
+            out (c), a
+            
+
+
             ld hl, PaletteData
             call LoadPalette
             
+
+
             ; write to VRAM bitmap area
             ld hl, 128*191 ; start of line number 191
             ld a, 0x87     ; color 8 on first pixel, color 7 on second pixel
@@ -108,13 +118,13 @@ LoadPalette:
 
 			ld b, 16
 LoadPalette.loop:
-			DI
-              ld a, (hl)
-              OUT (C), A
-              inc hl
-              ld a, (hl)
-              OUT (C), A
-            EI
+            ld a, (hl)
+			di
+            out (c), a
+            inc hl
+            ld a, (hl)
+            ei
+            out (c), a
             inc hl
             djnz LoadPalette.loop
             
