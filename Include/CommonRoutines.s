@@ -66,3 +66,85 @@ Wait:
 	jp		nz, .loop
 
 	ret
+
+
+
+;
+; Set VDP address counter to write from address AHL (17-bit)
+; Enables the interrupts
+;
+SetVdp_Write:
+    rlc h
+    rla
+    rlc h
+    rla
+    srl h
+    srl h
+    di
+    out (PORT_1),a
+    ld a,14 + 128
+    out (PORT_1),a
+    ld a,l
+    nop
+    out (PORT_1),a
+    ld a,h
+    or 64
+    ei
+    out (PORT_1),a
+    ret
+
+;
+; Set VDP address counter to read from address AHL (17-bit)
+; Enables the interrupts
+;
+SetVdp_Read:
+    rlc h
+    rla
+    rlc h
+    rla
+    srl h
+    srl h
+    di
+    out (PORT_1),a
+    ld a,14 + 128
+    out (PORT_1),a
+    ld a,l
+    nop
+    out (PORT_1),a
+    ld a,h
+    ei
+    out (PORT_1),a
+    ret
+
+
+; TODO:
+ClearVram_MSX2:
+    ; clear VRAM
+    ; set address counter (bits 16 to 14)
+    ld      b, 0000 0000 b  ; data
+    ld      c, 6            ; register #
+    call    BIOS_WRTVDP
+
+    ; set address counter (bits 7 to 0)
+    ld      c, PORT_1
+    ld      a, 0000 0000 b
+    di
+    out     (c), a
+    ; set address counter (bits 13 to 8) and operation mode
+    ;           0: read, 1: write
+    ;           |
+    ld      a, 0100 0000 b
+    ei
+    out     (c), a
+    ; write to VRAM
+    xor     a
+    ld      b, 0 ;256 iterations
+    ld      c, PORT_0
+.loop:
+    di
+        out (c), a
+    ei
+    dec     b
+    jp      nz, .loop
+	
+	ret

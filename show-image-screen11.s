@@ -8,6 +8,7 @@ Seg_P8000_SW:	equ	0x7000	        ; Segment switch for page 0x8000-0xBFFF (ASCII 
 
     INCLUDE "Include/RomHeader.s"
     INCLUDE "Include/MsxBios.s"
+    INCLUDE "Include/MsxConstants.s"
     INCLUDE "Include/CommonRoutines.s"
 
 Execute:
@@ -28,8 +29,6 @@ Execute:
 
     call    BIOS_DISSCR
 
-REG8SAV: equ 0xFFE7
-REG9SAV: equ 0xFFE8
 
     ; set 192 lines
     ld      b, 0000 0000 b  ; data
