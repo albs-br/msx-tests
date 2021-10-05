@@ -102,16 +102,16 @@ Execute:
             call DrawPalette
             
             ; wait for key
-            CALL CHGET
+            call CHGET
             
             xor a
             call CHGMOD
-            RET
+            ret
 
 ; Load palette data pointed by HL
 LoadPalette:
 			; set palette register number in register R#16 (Color palette address pointer)
-			LD b, 0    ; data
+			ld b, 0    ; data
             ld c, 16   ; register #
             call WRTVDP
             ld c, 0x9a ; V9938 port #2
@@ -136,12 +136,12 @@ DrawPalette:
             ld b, 16
             xor a
 DrawPalette.loop:
-			PUSH HL
-            	PUSH BC
+			push hl
+            	push bc
                 	push af
             			call Draw8x8block
-                    POP AF
-                POP BC
+                    pop af
+                pop bc
             pop hl
             ld de, 4 ;0 + (128 * 8)
             add hl, de
@@ -167,22 +167,22 @@ Draw8x8block:
             add hl, de
             jp .loop1
             
-			RET
+			ret
 
 PaletteData:
 			;  data 1 (red 0-7; blue 0-7); data 2 (0000; green 0-7)
 			db 0x00, 0x00 ; Color index 0
 			db 0x77, 0x00 ; Color index 1
-			db 0x70, 0x07 ; Color index 2
-			db 0x70, 0x00 ; Color index 3
-			db 0x07, 0x00 ; Color index 4
-			db 0x07, 0x07 ; Color index 5
-			db 0x00, 0x07 ; Color index 6
-			db 0x40, 0x00 ; Color index 7
-			db 0x04, 0x00 ; Color index 8
-			db 0x00, 0x04 ; Color index 9
-			db 0x44, 0x00 ; Color index 10
-			db 0x40, 0x04 ; Color index 11
+			db 0x10, 0x00 ; Color index 2
+			db 0x20, 0x00 ; Color index 3
+			db 0x30, 0x00 ; Color index 4
+			db 0x40, 0x00 ; Color index 5
+			db 0x50, 0x00 ; Color index 6
+			db 0x60, 0x00 ; Color index 7
+			db 0x70, 0x00 ; Color index 8
+			db 0x11, 0x01 ; Color index 9
+			db 0x22, 0x02 ; Color index 10
+			db 0x33, 0x03 ; Color index 11
 			db 0x77, 0x07 ; Color index 12
 			db 0x66, 0x06 ; Color index 13
 			db 0x55, 0x05 ; Color index 14
