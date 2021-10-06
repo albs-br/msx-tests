@@ -25,7 +25,7 @@ Execute:
 
 
 
-    ;call    ClearVram_MSX2
+    call    ClearVram_MSX2
 
 
     ; set 192 lines
