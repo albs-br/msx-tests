@@ -8,6 +8,7 @@ Seg_P8000_SW:	equ	0x7000	        ; Segment switch for page 0x8000-BFFFh (ASCII 1
 
     INCLUDE "Include/RomHeader.s"
     INCLUDE "Include/MsxBios.s"
+    INCLUDE "Include/MsxConstants.s"
     INCLUDE "Include/CommonRoutines.s"
 
 Execute:
@@ -26,7 +27,7 @@ Execute:
     ; será visto. Entretanto, setando o bit 5 de R#8, a função de transparente
     ; será desativada e a cor 0 poderá ser definida por P#0.    
     ; set color 0 to non transparent
-    ld      b, 0010 0000 b  ; data
+    ld      b, 0010 1000 b  ; data
     ld      c, 0x08         ; register #
     call    BIOS_WRTVDP
     

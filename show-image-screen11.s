@@ -31,26 +31,24 @@ Execute:
 
 
     ; set 192 lines
-    ld      b, 0000 0000 b  ; data
-    ld      c, 9            ; register #
-    call    BIOS_WRTVDP
-    ; ld      a,(REG9SAV) 
-    ; ;and     07Fh	
-    ; and     0111 1111 b
-    ; ld      b, a
+    ; ld      b, 0000 0000 b  ; data
     ; ld      c, 9            ; register #
     ; call    BIOS_WRTVDP
+    ld      a,(REG9SAV) 
+    and     0111 1111 b
+    ld      b, a
+    ld      c, 9            ; register #
+    call    BIOS_WRTVDP
 
     ; set color 0 to transparent
-    ld      b, 0000 1000 b  ; data
-    ld      c, 8            ; register #
-    call    BIOS_WRTVDP
-    ; ld      a,(REG8SAV) 
-    ; ; and     0DFh	
-    ; and     1101 1111 b
-    ; ld      b, a
+    ; ld      b, 0000 1000 b  ; data
     ; ld      c, 8            ; register #
     ; call    BIOS_WRTVDP
+    ld      a,(REG8SAV) 
+    and     1101 1111 b
+    ld      b, a
+    ld      c, 8            ; register #
+    call    BIOS_WRTVDP
 
     ; set NAMTBL to 0x00000
     ; ld      b, 0011 1111 b  ; data
@@ -63,11 +61,46 @@ NAMTBL:     equ 0x00000
     ld	    a, 1
 	ld	    (Seg_P8000_SW), a
     ; write to VRAM bitmap area
-    ld		hl, ImageData_1        			        ; RAM address (source)
-    ld		de, NAMTBL + (0 * (256 * 64))           ; VRAM address (destiny)
-    ld		bc, ImageData_1.size				    ; Block length
-    call 	BIOS_LDIRVM        						; Block transfer to VRAM from memory
-            
+    ; ld		hl, ImageData_1        			        ; RAM address (source)
+    ; ld		de, NAMTBL + (0 * (256 * 64))           ; VRAM address (destiny)
+    ; ld		bc, ImageData_1.size				    ; Block length
+    ; call 	BIOS_LDIRVM        						; Block transfer to VRAM from memory
+
+; TODO: this must be a subroutine:
+    ld      a, 0000 0000 b
+    ld      hl, NAMTBL + (0 * (256 * 64))
+    call    SetVdp_Write
+    ld      d, 64
+    ld      hl, ImageData_1
+    ld      c, PORT_0        ; you can also write ld bc,#nn9B, which is faster
+    ld      b, 0
+.loop_1:
+    otir
+    dec     d
+    jp      nz, .loop_1
+
+
+
+    ld	    a, 2
+	ld	    (Seg_P8000_SW), a
+    ; write to VRAM bitmap area
+    ; ld		hl, ImageData_2        			        ; RAM address (source)
+    ; ld		de, NAMTBL + (1 * (256 * 64))           ; VRAM address (destiny)
+    ; ld		bc, ImageData_2.size				    ; Block length
+    ; call 	BIOS_LDIRVM        						; Block transfer to VRAM from memory
+    ld      a, 0000 0000 b
+    ld      hl, NAMTBL + (1 * (256 * 64))
+    call    SetVdp_Write
+    ld      d, 64
+    ld      hl, ImageData_2
+    ld      c, PORT_0        ; you can also write ld bc,#nn9B, which is faster
+    ld      b, 0
+.loop_2:
+    otir
+    dec     d
+    jp      nz, .loop_2
+
+
 
     call    BIOS_ENASCR
 
@@ -94,6 +127,14 @@ ImageData_1:
     INCBIN "Images/aerofighters_0.sra.new"
     ;INCBIN "Images/aerofighters_0.sr8.new"
 .size:      equ $ - ImageData_1
+	ds PageSize - ($ - 0x8000), 255
+
+; ------- Page 2
+	org	0x8000, 0xBFFF
+ImageData_2:
+    INCBIN "Images/aerofighters_1.sra.new"
+    ;INCBIN "Images/aerofighters_1.sr8.new"
+.size:      equ $ - ImageData_2
 	ds PageSize - ($ - 0x8000), 255
 
 
