@@ -30,6 +30,9 @@ Execute:
     call    BIOS_DISSCR
 
 
+    call    ClearVram_MSX2
+
+
     ; set 192 lines
     ; ld      b, 0000 0000 b  ; data
     ; ld      c, 9            ; register #
