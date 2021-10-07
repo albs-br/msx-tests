@@ -100,6 +100,8 @@ NAMTBL:     equ 0x00000
 
 ADDR_LAST_LINE_OF_PAGE: equ 0x8000 + (63 * 256)
 
+
+.start:
     ; initialize variables for scrolling on last line of the next page
     ld      a, 13
     ld      (CurrentMegaROMPage), a

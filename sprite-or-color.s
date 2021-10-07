@@ -80,9 +80,9 @@ SPRATR:     equ 0xfa00
     ld      a, 0000 0001 b
     ld      hl, SPRPAT + 32
     call    SetVdp_Write
-    ld      b, SpritePattern_1.size
+    ld      b, SpritePattern_2.size
     ld      c, PORT_0        ; you can also write ld bc,#nn9B, which is faster
-    ld      hl, SpritePattern_1
+    ld      hl, SpritePattern_2
     otir
 
 
@@ -132,39 +132,80 @@ SPRATR:     equ 0xfa00
 End:
 
 SpritePattern_1:
+    DB 00000111b
+    DB 00011111b
+    DB 00111111b
+    DB 01111111b
+    DB 01110011b
+    DB 11110011b
     DB 11111111b
     DB 11111111b
+
     DB 11111111b
     DB 11111111b
+    DB 11110111b
+    DB 01111011b
+    DB 01111100b
+    DB 00111111b
+    DB 00011111b
+    DB 00000111b
+
+    DB 11100000b
     DB 11111000b
+    DB 11111100b
+    DB 11111110b
+    DB 11001110b
+    DB 11001111b
+    DB 11111111b
+    DB 11111111b
+    
+    DB 11111111b
+    DB 11111111b
+    DB 11101111b
+    DB 11011110b
+    DB 00111110b
+    DB 11111100b
     DB 11111000b
-    DB 11111000b
-    DB 11111000b
-    DB 11111111b
-    DB 11111111b
-    DB 11111111b
-    DB 11111111b
-    DB 11111111b
-    DB 11111111b
-    DB 11111111b
-    DB 11111111b
-    DB 11111111b
-    DB 11111111b
-    DB 11111111b
-    DB 11111111b
-    DB 11111111b
-    DB 11111111b
-    DB 11111111b
-    DB 11111111b
-    DB 11111111b
-    DB 11111111b
-    DB 11111111b
-    DB 11111111b
-    DB 11111111b
-    DB 11111111b
-    DB 11111111b
-    DB 11111111b
+    DB 11100000b
 .size:  equ $ - SpritePattern_1
+
+SpritePattern_2:
+    DB 00000111b
+    DB 00011000b
+    DB 00100000b
+    DB 01000000b
+    DB 01001100b
+    DB 10001100b
+    DB 10000000b
+    DB 10000000b
+
+    DB 11111111b
+    DB 11111111b
+    DB 11110111b
+    DB 01111011b
+    DB 01111100b
+    DB 00111111b
+    DB 00011111b
+    DB 00000111b
+
+    DB 11100000b
+    DB 11111000b
+    DB 11111100b
+    DB 11111110b
+    DB 11001110b
+    DB 11001111b
+    DB 11111111b
+    DB 11111111b
+    
+    DB 11111111b
+    DB 11111111b
+    DB 11101111b
+    DB 11011110b
+    DB 00111110b
+    DB 11111100b
+    DB 11111000b
+    DB 11100000b
+.size:  equ $ - SpritePattern_2
 
 SpriteColors_1:
     ;db 0x02, 0x0a, 0x03, 0x03, 0x08, 0x08, 0x03, 0x0a, 0x04, 0x07, 0x0a, 0x0a, 0x0a, 0x0a, 0x0f, 0x0f
@@ -209,7 +250,7 @@ SpriteColors_2:
 SpriteAttributes:
     ;   Y, X, Pattern, Reserved
     db  90, 100, 0, 0
-    db  90, 112, 0, 0
+    db  90, 100, 4, 0
 .size:  equ $ - SpriteAttributes
 
 
