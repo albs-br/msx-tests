@@ -1,9 +1,10 @@
 FNAME "sprite-or-color.rom"      ; output file
 
 PageSize:	    equ	0x4000	        ; 16kB
+Seg_P8000_SW:	equ	0x7000	        ; Segment switch for page 0x8000-0xBFFF (ASCII 16k Mapper)
 
 ; Compilation address
-    org 0x4000, 0x7fff	                    ; 0x8000 can be also used here if Rom size is 16kB or less.
+    org 0x4000, 0xbeff	                    ; 0x8000 can be also used here if Rom size is 16kB or less.
 
     INCLUDE "Include/RomHeader.s"
     INCLUDE "Include/MsxBios.s"
@@ -11,43 +12,30 @@ PageSize:	    equ	0x4000	        ; 16kB
     INCLUDE "Include/CommonRoutines.s"
 
 Execute:
+    call    EnableRomPage2
 
+	; enable page 1
+    ld	    a, 1
+	ld	    (Seg_P8000_SW), a
 
-    ; change to screen 11
-    ; it's needed to set screen 8 and change the YJK and YAE bits of R#25 manually
-    ld      a, 8
-    call    BIOS_CHGMOD
-    ld      b, 0001 1000 b      ; data
-    ld      c, 25               ; register #
-    call    BIOS_WRTVDP
+    call    Screen11
 
     call    BIOS_DISSCR
 
-
-
     call    ClearVram_MSX2
 
+    call    SetSprites16x16
 
-    ; set 192 lines
-    ld      b, 0000 0000 b  ; data
-    ld      c, 9            ; register #
-    call    BIOS_WRTVDP
+    call    Set192Lines
 
-    ; set color 0 to transparent
-    ld      b, 0000 1000 b  ; data
-    ld      c, 8            ; register #
-    call    BIOS_WRTVDP
+    call    SetColor0ToTransparent
 
     ; set Video RAM active (instead of Expansion RAM)
-    ld      b, 0000 0000 b  ; data
-    ld      c, 45            ; register #
-    call    BIOS_WRTVDP
-
-
-    ; set NAMTBL to 0x00000
-    ; ld      b, 0011 1111 b  ; data
-    ; ld      c, 2            ; register #
+    ; ld      b, 0000 0000 b  ; data
+    ; ld      c, 45            ; register #
     ; call    BIOS_WRTVDP
+
+
 
 ; ---- set SPRATR to 0x1fa00 (SPRCOL is automatically set 512 bytes before SPRATR, so 0x1f800)
     ; bits:    16 14        7
@@ -76,47 +64,10 @@ SPRPAT:     equ 0xf000 ; actually 0x1f000, but 17 bits address are not accepted
 SPRCOL:     equ 0xf800
 SPRATR:     equ 0xfa00
 
-; --------- Load first screen     
-    ; ld	    a, 14
-	; ld	    (Seg_P8000_SW), a
-    ; ; write to VRAM bitmap area
-    ; ld		hl, ImageData_14        			    ; RAM address (source)
-    ; ld		de, NAMTBL + (0 * (256 * 64))           ; VRAM address (destiny)
-    ; ld		bc, ImageData_14.size				    ; Block length
-    ; call 	BIOS_LDIRVM        						; Block transfer to VRAM from memory
-            
-    ; ; -- Load middle part of first image on last 64 lines
-    ; ld	    a, 15
-	; ld	    (Seg_P8000_SW), a
-    ; ; write to VRAM bitmap area
-    ; ld		hl, ImageData_15      				    ; RAM address (source)
-    ; ld		de, NAMTBL + (1 * (256 * 64))           ; VRAM address (destiny)
-    ; ld		bc, ImageData_15.size					; Block length
-    ; call 	BIOS_LDIRVM        						; Block transfer to VRAM from memory
-
-    ; ; -- Load bottom part of first image on last 64 lines
-    ; ld	    a, 16
-	; ld	    (Seg_P8000_SW), a
-    ; ; write to VRAM bitmap area
-    ; ld		hl, ImageData_16      				    ; RAM address (source)
-    ; ld		de, NAMTBL + (2 * (256 * 64))           ; VRAM address (destiny)
-    ; ld		bc, ImageData_16.size					; Block length
-    ; call 	BIOS_LDIRVM        						; Block transfer to VRAM from memory
-
-
 
 ; --------- Load sprites
 
-; .loop:
-;     ld      a, (BIOS_JIFFY)
-;     ld      b, a
-; .waitVBlank:
-;     ld      a, (BIOS_JIFFY)
-;     cp      b
-;     jp      z, .waitVBlank
-
-
-
+    ; Spr 0 pattern
     ld      a, 0000 0001 b
     ld      hl, SPRPAT
     call    SetVdp_Write
@@ -125,6 +76,17 @@ SPRATR:     equ 0xfa00
     ld      hl, SpritePattern_1
     otir
 
+    ; Spr 1 pattern
+    ld      a, 0000 0001 b
+    ld      hl, SPRPAT + 32
+    call    SetVdp_Write
+    ld      b, SpritePattern_1.size
+    ld      c, PORT_0        ; you can also write ld bc,#nn9B, which is faster
+    ld      hl, SpritePattern_1
+    otir
+
+
+    ; Spr 0 color
     ld      a, 0000 0001 b
     ld      hl, SPRCOL
     call    SetVdp_Write
@@ -133,37 +95,32 @@ SPRATR:     equ 0xfa00
     ld      hl, SpriteColors_1
     otir
 
+    ; Spr 1 color
+    ld      a, 0000 0001 b
+    ld      hl, SPRCOL + 16
+    call    SetVdp_Write
+    ld      b, SpriteColors_2.size
+    ld      c, PORT_0        ; you can also write ld bc,#nn9B, which is faster
+    ld      hl, SpriteColors_2
+    otir
+
+    ; Atributes of all sprites
     ld      a, 0000 0001 b
     ld      hl, SPRATR
     call    SetVdp_Write
-    ld      b, SpriteAttributes_1.size
+    ld      b, SpriteAttributes.size
     ld      c, PORT_0        ; you can also write ld bc,#nn9B, which is faster
-    ld      hl, SpriteAttributes_1
+    ld      hl, SpriteAttributes
     otir
-
-    ; ld		hl, SpritePattern_1   				    ; RAM address (source)
-    ; ld		de, SPRPAT + (0 * 32)                   ; VRAM address (destiny)
-    ; ld		bc, 32					                ; Block length
-    ; call 	BIOS_LDIRVM        						; Block transfer to VRAM from memory
-
-    ; ld		hl, SpriteColors_1   				    ; RAM address (source)
-    ; ld		de, SPRCOL + (0 * 16)                   ; VRAM address (destiny)
-    ; ld		bc, 16					                ; Block length
-    ; call 	BIOS_LDIRVM        						; Block transfer to VRAM from memory
-
-    ; ld		hl, SpriteAttributes_1 				    ; RAM address (source)
-    ; ld		de, SPRATR + (0 * 4)                    ; VRAM address (destiny)
-    ; ld		bc, SpriteAttributes_1.size             ; Block length
-    ; call 	BIOS_LDIRVM        						; Block transfer to VRAM from memory
 
 ; -----------
 
-    ; load test image
-    ld		hl, ImageTest 				            ; RAM address (source)
-    ld		de, NAMTBL                              ; VRAM address (destiny)
-    ld		bc, ImageTest.size                      ; Block length
-    call 	BIOS_LDIRVM        						; Block transfer to VRAM from memory
-
+    ; Load test bg image
+    ld		hl, ImageData_1        			        ; RAM address (source)
+    ld      a, 0                                    ; VRAM address (destiny, bit 16)
+    ld		de, NAMTBL + (1 * (256 * 64))           ; VRAM address (destiny, bits 15-0)
+    ld		c, 0 + (ImageData_1.size / 256)         ; Block length * 256
+    call    LDIRVM_MSX2
 
     call    BIOS_ENASCR
 
@@ -176,13 +133,13 @@ End:
 
 SpritePattern_1:
     DB 11111111b
-    DB 11000011b
-    DB 11000011b
     DB 11111111b
     DB 11111111b
     DB 11111111b
-    DB 11111111b
-    DB 11111111b
+    DB 11111000b
+    DB 11111000b
+    DB 11111000b
+    DB 11111000b
     DB 11111111b
     DB 11111111b
     DB 11111111b
@@ -210,12 +167,50 @@ SpritePattern_1:
 .size:  equ $ - SpritePattern_1
 
 SpriteColors_1:
-    db 0x02, 0x0a, 0x03, 0x03, 0x08, 0x08, 0x03, 0x0a, 0x04, 0x07, 0x0a, 0x0a, 0x0a, 0x0a, 0x0f, 0x0f
+    ;db 0x02, 0x0a, 0x03, 0x03, 0x08, 0x08, 0x03, 0x0a, 0x04, 0x07, 0x0a, 0x0a, 0x0a, 0x0a, 0x0f, 0x0f
+    db  4
+    db  4
+    db  4
+    db  4
+    db  4
+    db  4
+    db  4
+    db  4
+    db  4
+    db  4
+    db  4
+    db  4
+    db  4
+    db  4
+    db  4
+    db  4
 .size:  equ $ - SpriteColors_1
 
-SpriteAttributes_1:
-    db 90, 100, 0, 0
-.size:  equ $ - SpriteAttributes_1
+SpriteColors_2:
+    ; Only the sprite on the lower layer should have the bit 6 set to enable the OR-color
+    db  0100 0000 b + 2
+    db  0100 0000 b + 2
+    db  0100 0000 b + 2
+    db  0100 0000 b + 2
+    db  0100 0000 b + 2
+    db  0100 0000 b + 2
+    db  0100 0000 b + 2
+    db  0100 0000 b + 2
+    db  0100 0000 b + 2
+    db  0100 0000 b + 2
+    db  0100 0000 b + 2
+    db  0100 0000 b + 2
+    db  0100 0000 b + 2
+    db  0100 0000 b + 2
+    db  0100 0000 b + 2
+    db  0100 0000 b + 2
+.size:  equ $ - SpriteColors_2
+
+SpriteAttributes:
+    ;   Y, X, Pattern, Reserved
+    db  90, 100, 0, 0
+    db  90, 112, 0, 0
+.size:  equ $ - SpriteAttributes
 
 
 ImageTest:
@@ -232,6 +227,19 @@ ImageTest:
     db      "End ROM started at 0x4000"
 
 	ds PageSize - ($ - 0x4000), 255	; Fill the unused area with 0xFF
+
+
+
+
+	org	0x8000, 0xBFFF
+ImageData_1:
+    INCBIN "Images/aerofighters_0.sra.new"
+    ;INCBIN "Images/aerofighters_0.sr8.new"
+    ;INCBIN "Images/metalslug-xaa"
+.size:      equ $ - ImageData_1
+	ds PageSize - ($ - 0x8000), 255
+
+
 
 
 ; RAM

@@ -210,3 +210,66 @@ ClearVram_MSX2:
 	jp		nz, .loop_2
 
 	ret
+
+
+Screen11:
+    ; change to screen 11
+    ; it's needed to set screen 8 and change the YJK and YAE bits of R#25 manually
+    ld      a, 8
+    call    BIOS_CHGMOD
+    ld      b, 0001 1000 b  ; data
+    ld      c, 25            ; register #
+    call    BIOS_WRTVDP
+	ret
+
+SetSprites16x16:
+    ld      a, (REG1SAV)
+    or      0000 0010 b
+    ld      b, a
+    ld      c, 1            ; register #
+    call    BIOS_WRTVDP
+	ret
+
+Set192Lines:
+    ; set 192 lines
+    ; ld      b, 0000 0000 b  ; data
+    ; ld      c, 9            ; register #
+    ; call    BIOS_WRTVDP
+    ld      a, (REG9SAV)
+    and     0111 1111 b
+    ld      b, a
+    ld      c, 9            ; register #
+    call    BIOS_WRTVDP
+	ret
+
+SetColor0ToTransparent:
+    ; set color 0 to transparent
+    ; ld      b, 0000 1000 b  ; data
+    ; ld      c, 8            ; register #
+    ; call    BIOS_WRTVDP
+    ld      a, (REG8SAV)
+    and     1101 1111 b
+    ld      b, a
+    ld      c, 8            ; register #
+    call    BIOS_WRTVDP
+	ret
+
+; Inputs:
+; 	HL: source addr in RAM
+; 	ADE: 17 bits destiny addr in VRAM
+; 	C: number of bytes x 256 (e.g. C=64, total = 64 * 256 = 16384)
+LDIRVM_MSX2:
+    ;ld      a, 0000 0000 b
+    ex		de, hl
+	;ld      hl, NAMTBL + (0 * (256 * 64))
+    call    SetVdp_Write
+    ex		de, hl
+    ld      d, c
+    ;ld      hl, ImageData_1
+    ld      c, PORT_0        ; you can also write ld bc,#nn9B, which is faster
+    ld      b, 0
+.loop_1:
+    otir
+    dec     d
+    jp      nz, .loop_1
+	ret
