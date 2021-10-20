@@ -59,7 +59,7 @@ Execute:
 			; set palette register number in register R#16 (Color palette address pointer)
 			ld b, 0    ; data
             ld c, 16   ; register #
-            call wrtvdp
+            call WRTVDP
             
             ; set color #0 (if transparency is enabled will not bee visible)
             ld c, 0x9a ; v9938 port #2
