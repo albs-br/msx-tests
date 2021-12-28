@@ -8,6 +8,7 @@ Seg_P8000_SW:	equ	0x7000	        ; Segment switch for page 0x8000-BFFFh (ASCII 1
 
     INCLUDE "Include/RomHeader.s"
     INCLUDE "Include/MsxBios.s"
+    INCLUDE "Include/MsxConstants.s"
     INCLUDE "Include/CommonRoutines.s"
 
 Execute:
