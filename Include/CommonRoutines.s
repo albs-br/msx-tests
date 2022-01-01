@@ -273,3 +273,47 @@ LDIRVM_MSX2:
     dec     d
     jp      nz, .loop_1
 	ret
+
+
+
+; Fast DoCopy, by Grauw
+;   Input:  HL = pointer to 15-byte VDP command data
+;   Output: HL = updated
+;   Destroys: A, B, C
+DoCopy:
+    ld      a, 32
+    di
+    out     (PORT_1), a
+    ld      a, 17 + 128
+    out     (PORT_1), a
+    ld      c, 0x9B
+.vdpReady:
+    ld      a, 2
+    di
+    out     (PORT_1), a     ; select s#2
+    ld      a, 15 + 128
+    out     (PORT_1), a
+    in      a, (PORT_1)
+    rra
+    ld      a, 0          ; back to s#0, enable ints
+    out     (PORT_1), a
+    ld      a, 15 + 128
+    ei
+    out     (PORT_1), a     ; loop if vdp not ready (CE)
+    jp      c, .vdpReady
+    outi            ; 15x OUTI
+    outi            ; (faster than OTIR)
+    outi
+    outi
+    outi
+    outi
+    outi
+    outi
+    outi
+    outi
+    outi
+    outi
+    outi
+    outi
+    outi
+    ret
