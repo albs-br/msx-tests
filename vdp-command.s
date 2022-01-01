@@ -114,17 +114,17 @@ DoCopy:
 
 
 COPYBLOCK:
-   db 0,0,0,1
-   db 0,0,0,0
-   db 8,0,8,0
-   db 0,0, 0xD0        ; HMMM
+;    db 0,0,0,1       ; R#32, R#33, R#34, R#35
+;    db 0,0,0,0       ; R#36, R#37, R#38, R#39
+;    db 8,0,8,0       ; R#40, R#41, R#42, R#43
+;    db 0,0, 0xD0     ; R#44, R#45, R#46 = HMMM
 
 ; As an alternate notation, you might actually prefer the following:
 ;
-;    dw    #0000,#0100
-;    dw    #0000,#0000
-;    dw    #0010,#0090	; number of cols/lines
-;    db    0, 0, #D0
+   dw    0x0000, 0x0100 ; Source X (9 bits), Source Y (10 bits)
+   dw    0x0080, 0x0010 ; Destiny X (9 bits), Destiny Y (10 bits)
+   dw    0x0008, 0x0008	; number of cols/lines
+   db    0, 0, 0xD0
 
             ; use the label "start" as the entry point
             ;end start
