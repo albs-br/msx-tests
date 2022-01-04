@@ -26,7 +26,7 @@ Execute:
 .fillL1:
     ld      b, 128        	; one line in SC5 = 128 bytes
 .fillL2:
-    out     (0x98), a     	; could also have been done with
+    out     (PORT_0), a     	; could also have been done with
     djnz    .fillL2     	; a vdp command (probably faster)
     dec     c           	; (and could also use a fast loop)
     jp      nz, .fillL1

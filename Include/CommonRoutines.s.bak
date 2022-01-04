@@ -1,19 +1,16 @@
-; Common routines for MSX 2 (some work on MSX 1)
-; v.0.1.0 (when changed remember to update file on other projects)
-
 ; Fill all RAM with 0x00
-; ClearRam:
-;     ld      hl, RamStart        ; RAM start address
-;     ld      de, RamEnd + 1      ; RAM end address
+ClearRam:
+    ld      hl, RamStart        ; RAM start address
+    ld      de, RamEnd + 1      ; RAM end address
 
-; .loop:
-;     xor     a                   ; same as ld a, 0, but faster
-;     ld      (hl), a
+.loop:
+    xor     a                   ; same as ld a, 0, but faster
+    ld      (hl), a
 
-;     inc     hl
-;     call    BIOS_DCOMPR         ; Compare Contents Of HL & DE, Set Z-Flag IF (HL == DE), Set CY-Flag IF (HL < DE)
-;     ret     z
-;     jp      .loop
+    inc     hl
+    call    BIOS_DCOMPR         ; Compare Contents Of HL & DE, Set Z-Flag IF (HL == DE), Set CY-Flag IF (HL < DE)
+    ret     z
+    jp      .loop
 
 
 
@@ -344,17 +341,17 @@ LDIRVM_MSX2:
 ; Destroys: nothing
 ;Author: Ricardo Bittencourt aka RicBit (BrMSX, Tetrinet and several other projects)
 ; choose a random number in the set [0,255] with uniform distribution
-; RandomNumber:
-;     push    hl
-;         ld      hl, (Seed)
-;         add     hl, hl
-;         sbc     a, a
-;         and     0x83
-;         xor     l
-;         ld      l, a
-;         ld      (Seed), hl
-;     pop     hl
-;     ret
+RandomNumber:
+    push    hl
+        ld      hl, (Seed)
+        add     hl, hl
+        sbc     a, a
+        and     0x83
+        xor     l
+        ld      l, a
+        ld      (Seed), hl
+    pop     hl
+    ret
 
     ; The random number generated will be any number from 0 to FFh.
     ; Despite be a random number generator routine, your results will pass in several statistical tests.
@@ -412,295 +409,295 @@ CheckCollision_16x24_16x16:
 
 
 
-; ; Fade from black screen to palette pointed by HL
-; ; PS: early try, it's a bit strange, but I prefer to keep
-; ; Official FadeIn routine is below
-; FadeIn_Strange:
+; Fade from black screen to palette pointed by HL
+; PS: early try, it's a bit strange, but I prefer to keep
+; Official FadeIn routine is below
+FadeIn_Strange:
 
-;     ; save destiny palette
-;     ld      (FadeInDestinyPaletteAddr), hl
+    ; save destiny palette
+    ld      (FadeInDestinyPaletteAddr), hl
 
-;     ; reset temp palette
-;     ld      de, FadeInTempPalette
-;     ld      b, FadeInTempPalette.size
-;     xor     a
-; .loop_ResetPalette:
-;     ld      (de), a
-;     inc     de
-;     djnz    .loop_ResetPalette
+    ; reset temp palette
+    ld      de, FadeInTempPalette
+    ld      b, FadeInTempPalette.size
+    xor     a
+.loop_ResetPalette:
+    ld      (de), a
+    inc     de
+    djnz    .loop_ResetPalette
 
 
-;     ld      b, 7
-; .loopPalette:
-;     push    bc
+    ld      b, 7
+.loopPalette:
+    push    bc
 
-;         ld      de, FadeInTempPalette
-;         ld      b, 0 + (FadeInTempPalette.size / 2)
+        ld      de, FadeInTempPalette
+        ld      b, 0 + (FadeInTempPalette.size / 2)
 
-;         ; restore destiny palette
-;         ld      hl, (FadeInDestinyPaletteAddr)
+        ; restore destiny palette
+        ld      hl, (FadeInDestinyPaletteAddr)
 
-;         push    hl
-;             push    de
-;                 push    bc
-;                     ex      de, hl
-;                     call    LoadPalette
+        push    hl
+            push    de
+                push    bc
+                    ex      de, hl
+                    call    LoadPalette
                     
-;                     call    BIOS_ENASCR
+                    call    BIOS_ENASCR
 
-;                     ld      b, 5
-;                     call    Wait_B_Vblanks
-;                 pop     bc
-;             pop     de
-;         pop     hl
+                    ld      b, 5
+                    call    Wait_B_Vblanks
+                pop     bc
+            pop     de
+        pop     hl
 
 
-;     ; loop through all temp palette incrementing each component (RGB) of each color
-;     .loopColors:
-;         push    bc
+    ; loop through all temp palette incrementing each component (RGB) of each color
+    .loopColors:
+        push    bc
 
-;             ;ld      ixh, b
+            ;ld      ixh, b
 
-;             push    hl
-;                 push    de
-;                     ; read from temp palette
-;                     ld      a, (de)
-;                     ld      b, a
-;                     inc     de
-;                     ld      a, (de)
-;                     ld      c, a
+            push    hl
+                push    de
+                    ; read from temp palette
+                    ld      a, (de)
+                    ld      b, a
+                    inc     de
+                    ld      a, (de)
+                    ld      c, a
                     
-;                     ; ; set palette
-;                     ; push    de
-;                     ;     push    bc
-;                     ;         ld      a, ixh
-;                     ;         call    SetPaletteColor
-;                     ;     pop     bc
-;                     ; pop     de
+                    ; ; set palette
+                    ; push    de
+                    ;     push    bc
+                    ;         ld      a, ixh
+                    ;         call    SetPaletteColor
+                    ;     pop     bc
+                    ; pop     de
 
-;                     ; IYH = Red (0rrr 0000)
-;                     ; get RED component
-;                     ld      a, b
-;                     and     0111 0000b
-;                     ld      iyh, a
+                    ; IYH = Red (0rrr 0000)
+                    ; get RED component
+                    ld      a, b
+                    and     0111 0000b
+                    ld      iyh, a
 
-;                     ; compare with destiny palette
-;                     ld      a, (hl)
-;                     and     0111 0000b
-;                     cp      iyh                       ; if (a >= n) NC      ; if (a < n) C
-;                     ;ld      a, 
-;                     jp      z, .dontIncrementRed
+                    ; compare with destiny palette
+                    ld      a, (hl)
+                    and     0111 0000b
+                    cp      iyh                       ; if (a >= n) NC      ; if (a < n) C
+                    ;ld      a, 
+                    jp      z, .dontIncrementRed
 
-;                     ; increment RED
-;                     ld      a, iyh
-;                     ld      b, 0x10
-;                     add     a, b
-;                     ld      iyh, a
+                    ; increment RED
+                    ld      a, iyh
+                    ld      b, 0x10
+                    add     a, b
+                    ld      iyh, a
 
-; .dontIncrementRed:
-
-
-;                     ; IYL = Blue (0000 0bbb)
-;                     ; get BLUE component
-;                     dec     de
-;                     ld      a, (de)
-;                     and     0000 0111b
-;                     ld      iyl, a
-
-;                     ; compare with destiny palette
-;                     ld      a, (hl)
-;                     and     0000 0111b
-;                     cp      iyl                       ; if (a >= n) NC      ; if (a < n) C
-;                     jp      z, .dontIncrementBlue
-
-;                     ; increment BLUE
-;                     ;ld      a, iyl
-;                     ; ld      b, 0x01
-;                     ; add     a, b
-;                     inc     iyl
-;                     ;ld      iyh, a
+.dontIncrementRed:
 
 
-; .dontIncrementBlue:
+                    ; IYL = Blue (0000 0bbb)
+                    ; get BLUE component
+                    dec     de
+                    ld      a, (de)
+                    and     0000 0111b
+                    ld      iyl, a
 
-;                     ; save updated RED (IYH) and BLUE (IYL)
-;                     ld      a, iyh
-;                     or      iyl
-;                     ld      (de), a
+                    ; compare with destiny palette
+                    ld      a, (hl)
+                    and     0000 0111b
+                    cp      iyl                       ; if (a >= n) NC      ; if (a < n) C
+                    jp      z, .dontIncrementBlue
 
-
-
-
-;                     ; B = Green
-;                     ; get GREEN component
-;                     inc     de
-;                     ld      a, (de)
-;                     and     0000 0111b
-;                     ld      b, a
-
-;                     ; compare with destiny palette
-;                     inc     hl
-;                     ld      a, (hl)
-;                     and     0000 0111b
-;                     cp      b                       ; if (a >= n) NC      ; if (a < n) C
-;                     jp      z, .dontIncrementGreen
-
-;                     ; increment GREEN
-;                     inc     b
-
-; .dontIncrementGreen:
-;                     ; save updated GREEN
-;                     ld      a, b
-;                     ld      (de), a
+                    ; increment BLUE
+                    ;ld      a, iyl
+                    ; ld      b, 0x01
+                    ; add     a, b
+                    inc     iyl
+                    ;ld      iyh, a
 
 
-;                 pop     de
-;             pop     hl
+.dontIncrementBlue:
+
+                    ; save updated RED (IYH) and BLUE (IYL)
+                    ld      a, iyh
+                    or      iyl
+                    ld      (de), a
+
+
+
+
+                    ; B = Green
+                    ; get GREEN component
+                    inc     de
+                    ld      a, (de)
+                    and     0000 0111b
+                    ld      b, a
+
+                    ; compare with destiny palette
+                    inc     hl
+                    ld      a, (hl)
+                    and     0000 0111b
+                    cp      b                       ; if (a >= n) NC      ; if (a < n) C
+                    jp      z, .dontIncrementGreen
+
+                    ; increment GREEN
+                    inc     b
+
+.dontIncrementGreen:
+                    ; save updated GREEN
+                    ld      a, b
+                    ld      (de), a
+
+
+                pop     de
+            pop     hl
             
 
-;             ; increment pointers by 2
-;             inc     hl
-;             inc     hl
-;             inc     de
-;             inc     de
+            ; increment pointers by 2
+            inc     hl
+            inc     hl
+            inc     de
+            inc     de
 
 
 
-;         pop     bc
-;         djnz    .loopColors
+        pop     bc
+        djnz    .loopColors
 
 
 
-;     pop     bc
-;     djnz    .loopPalette
+    pop     bc
+    djnz    .loopPalette
 
 
 
-;     ret
+    ret
 
 
 
-; CreateFadeInOutPalette:
+CreateFadeInOutPalette:
 
 
-;     ; reset 8 temp palettes
-;     ld      de, FadeInTemp_8_Palettes
-;     ld      b, 0 ; FadeInTemp_8_Palettes.size        ; B=0 for 256 iterations
-;     xor     a
-; .loop_ResetPalettes:
-;     ld      (de), a
-;     inc     de
-;     djnz    .loop_ResetPalettes
-
-
-
-;     ; copy game palette to first position in FadeInTemp_8_Palettes
-;     ld      hl, GamePalette
-;     ld      de, FadeInTemp_8_Palettes
-;     ld      bc, 32
-;     ldir
-
-
-;     ld      hl, FadeInTemp_8_Palettes
-;     ld      de, FadeInTemp_8_Palettes + 32
+    ; reset 8 temp palettes
+    ld      de, FadeInTemp_8_Palettes
+    ld      b, 0 ; FadeInTemp_8_Palettes.size        ; B=0 for 256 iterations
+    xor     a
+.loop_ResetPalettes:
+    ld      (de), a
+    inc     de
+    djnz    .loop_ResetPalettes
 
 
 
-;     ld      b, 7
-; .loop_Palettes:
-;     push    bc
+    ; copy game palette to first position in FadeInTemp_8_Palettes
+    ld      hl, GamePalette
+    ld      de, FadeInTemp_8_Palettes
+    ld      bc, 32
+    ldir
 
 
-;         ld      b, 32
-;     .loop_Colors:
-
-;         ; high nibble
-;         ld      c, 0
-;         ld      a, (hl)
-;         and     0111 0000b
-;         or      a
-;         jp      z, .skipHighNibble
-
-;         ; decrement and save it to C
-;         ld      c, 0x10
-;         sub     a, c
-;         ld      c, a
-
-;     .skipHighNibble:
-
-;         ; low nibble
-;         ld      a, (hl)
-;         and     0000 0111b
-;         or      a
-;         jp      z, .skipLowNibble
-
-;         ; decrement and keep it in A
-;         dec     a
-
-;     .skipLowNibble:
-
-;         ; join high and low nibbles and save it to destiny
-;         or      c
-;         ld      (de), a
-
-;         ; next byte
-;         inc     hl
-;         inc     de
-
-;         djnz    .loop_Colors
-
-;     pop     bc
-;     djnz    .loop_Palettes
-
-;     ret
+    ld      hl, FadeInTemp_8_Palettes
+    ld      de, FadeInTemp_8_Palettes + 32
 
 
-; FadeIn:
-;     ld      hl, FadeInTemp_8_Palettes + (7 * 32)
 
-;     ld      b, 8
-; .loop:
-;     push    bc
-;         push    hl
-;             call    LoadPalette
+    ld      b, 7
+.loop_Palettes:
+    push    bc
+
+
+        ld      b, 32
+    .loop_Colors:
+
+        ; high nibble
+        ld      c, 0
+        ld      a, (hl)
+        and     0111 0000b
+        or      a
+        jp      z, .skipHighNibble
+
+        ; decrement and save it to C
+        ld      c, 0x10
+        sub     a, c
+        ld      c, a
+
+    .skipHighNibble:
+
+        ; low nibble
+        ld      a, (hl)
+        and     0000 0111b
+        or      a
+        jp      z, .skipLowNibble
+
+        ; decrement and keep it in A
+        dec     a
+
+    .skipLowNibble:
+
+        ; join high and low nibbles and save it to destiny
+        or      c
+        ld      (de), a
+
+        ; next byte
+        inc     hl
+        inc     de
+
+        djnz    .loop_Colors
+
+    pop     bc
+    djnz    .loop_Palettes
+
+    ret
+
+
+FadeIn:
+    ld      hl, FadeInTemp_8_Palettes + (7 * 32)
+
+    ld      b, 8
+.loop:
+    push    bc
+        push    hl
+            call    LoadPalette
         
-;             call    BIOS_ENASCR
-;         pop    hl
+            call    BIOS_ENASCR
+        pop    hl
 
-;         ld      de, 32
-;         or      a       ;clear carry flag
-;         sbc     hl, de
+        ld      de, 32
+        or      a       ;clear carry flag
+        sbc     hl, de
         
-;         ld      b, 5
-;         call    Wait_B_Vblanks
-;     pop     bc
-;     djnz    .loop
+        ld      b, 5
+        call    Wait_B_Vblanks
+    pop     bc
+    djnz    .loop
 
-;     ret
+    ret
 
 
 
-; FadeOut:
-;     ld      hl, FadeInTemp_8_Palettes
+FadeOut:
+    ld      hl, FadeInTemp_8_Palettes
 
-;     ld      b, 8
-; .loop:
-;     push    bc
-;         push    hl
-;             call    LoadPalette
+    ld      b, 8
+.loop:
+    push    bc
+        push    hl
+            call    LoadPalette
         
-;             call    BIOS_ENASCR
-;         pop    hl
+            call    BIOS_ENASCR
+        pop    hl
 
-;         ld      de, 32
-;         add     hl, de
+        ld      de, 32
+        add     hl, de
         
-;         ld      b, 5
-;         call    Wait_B_Vblanks
-;     pop     bc
-;     djnz    .loop
+        ld      b, 5
+        call    Wait_B_Vblanks
+    pop     bc
+    djnz    .loop
 
-;     ret
+    ret
 
 
 

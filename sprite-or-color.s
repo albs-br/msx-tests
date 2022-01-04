@@ -74,26 +74,26 @@ SPRATR:     equ 0xfa00
 
 ; --------- Load sprites
 
-    ; Spr 0 pattern
+    ; Spr 0 and 1 patterns
     ld      a, 0000 0001 b
     ld      hl, SPRPAT
     call    SetVdp_Write
-    ld      b, SpritePattern_1.size
+    ld      b, SpritePattern_0_and_1.size
     ld      c, PORT_0        ; you can also write ld bc,#nn9B, which is faster
-    ld      hl, SpritePattern_1
+    ld      hl, SpritePattern_0_and_1
     otir
 
-    ; ; Spr 1 pattern
-    ; ld      a, 0000 0001 b
-    ; ld      hl, SPRPAT + 32
-    ; call    SetVdp_Write
-    ; ld      b, SpritePattern_2.size
-    ; ld      c, PORT_0        ; you can also write ld bc,#nn9B, which is faster
-    ; ld      hl, SpritePattern_2
-    ; otir
+    ; Spr 2 and 3 patterns
+    ld      a, 0000 0001 b
+    ld      hl, SPRPAT + 64
+    call    SetVdp_Write
+    ld      b, SpritePattern_2_and_3.size
+    ld      c, PORT_0        ; you can also write ld bc,#nn9B, which is faster
+    ld      hl, SpritePattern_2_and_3
+    otir
 
 
-    ; Spr 0 color
+    ; Spr 0 and 1 colors
     ld      a, 0000 0001 b
     ld      hl, SPRCOL
     call    SetVdp_Write
@@ -102,14 +102,14 @@ SPRATR:     equ 0xfa00
     ld      hl, SpriteColors_1
     otir
 
-    ; ; Spr 1 color
-    ; ld      a, 0000 0001 b
-    ; ld      hl, SPRCOL + 16
-    ; call    SetVdp_Write
-    ; ld      b, SpriteColors_2.size
-    ; ld      c, PORT_0        ; you can also write ld bc,#nn9B, which is faster
-    ; ld      hl, SpriteColors_2
-    ; otir
+    ; Spr 2 and 3 colors
+    ld      a, 0000 0001 b
+    ld      hl, SPRCOL + 32
+    call    SetVdp_Write
+    ld      b, SpriteColors_2.size
+    ld      c, PORT_0        ; you can also write ld bc,#nn9B, which is faster
+    ld      hl, SpriteColors_2
+    otir
 
     ; Atributes of all sprites
     ld      a, 0000 0001 b
@@ -139,148 +139,50 @@ SPRATR:     equ 0xfa00
 End:
 
 
-SpritePattern_1:
+SpritePattern_0_and_1:
     INCBIN "Images/player_plane_0.pat"
-.size:  equ $ - SpritePattern_1
+.size:  equ $ - SpritePattern_0_and_1
 
-; SpritePattern_1:
-;     DB 00000111b
-;     DB 00011111b
-;     DB 00111111b
-;     DB 01111111b
-;     DB 01110011b
-;     DB 11110011b
-;     DB 11111111b
-;     DB 11111111b
+SpritePattern_2_and_3:
+    INCBIN "Images/player_plane_1.pat"
+.size:  equ $ - SpritePattern_2_and_3
 
-;     DB 11111111b
-;     DB 11111111b
-;     DB 11110111b
-;     DB 01111011b
-;     DB 01111100b
-;     DB 00111111b
-;     DB 00011111b
-;     DB 00000111b
 
-;     DB 11100000b
-;     DB 11111000b
-;     DB 11111100b
-;     DB 11111110b
-;     DB 11001110b
-;     DB 11001111b
-;     DB 11111111b
-;     DB 11111111b
-    
-;     DB 11111111b
-;     DB 11111111b
-;     DB 11101111b
-;     DB 11011110b
-;     DB 00111110b
-;     DB 11111100b
-;     DB 11111000b
-;     DB 11100000b
-; .size:  equ $ - SpritePattern_1
-
-; SpritePattern_2:
-;     DB 00000111b
-;     DB 00011000b
-;     DB 00100000b
-;     DB 01000000b
-;     DB 01001100b
-;     DB 10001100b
-;     DB 10000000b
-;     DB 10000000b
-
-;     DB 11111111b
-;     DB 11111111b
-;     DB 11110111b
-;     DB 01111011b
-;     DB 01111100b
-;     DB 00111111b
-;     DB 00011111b
-;     DB 00000111b
-
-;     DB 11100000b
-;     DB 11111000b
-;     DB 11111100b
-;     DB 11111110b
-;     DB 11001110b
-;     DB 11001111b
-;     DB 11111111b
-;     DB 11111111b
-    
-;     DB 11111111b
-;     DB 11111111b
-;     DB 11101111b
-;     DB 11011110b
-;     DB 00111110b
-;     DB 11111100b
-;     DB 11111000b
-;     DB 11100000b
-; .size:  equ $ - SpritePattern_2
 
 SpriteColors_1:
     INCBIN "Images/player_plane_0.col"
 .size:  equ $ - SpriteColors_1
 
+SpriteColors_2:
+    INCBIN "Images/player_plane_1.col"
+.size:  equ $ - SpriteColors_2
 
-; SpriteColors_1:
-;     ;db 0x02, 0x0a, 0x03, 0x03, 0x08, 0x08, 0x03, 0x0a, 0x04, 0x07, 0x0a, 0x0a, 0x0a, 0x0a, 0x0f, 0x0f
-;     db  4
-;     db  4
-;     db  4
-;     db  4
-;     db  4
-;     db  4
-;     db  4
-;     db  4
-;     db  4
-;     db  4
-;     db  4
-;     db  4
-;     db  4
-;     db  4
-;     db  4
-;     db  4
-; .size:  equ $ - SpriteColors_1
 
-; SpriteColors_2:
-;     ; Only the sprite on the lower layer should have the bit 6 set to enable the OR-color
-;     db  0100 0000 b + 2
-;     db  0100 0000 b + 2
-;     db  0100 0000 b + 2
-;     db  0100 0000 b + 2
-;     db  0100 0000 b + 2
-;     db  0100 0000 b + 2
-;     db  0100 0000 b + 2
-;     db  0100 0000 b + 2
-;     db  0100 0000 b + 2
-;     db  0100 0000 b + 2
-;     db  0100 0000 b + 2
-;     db  0100 0000 b + 2
-;     db  0100 0000 b + 2
-;     db  0100 0000 b + 2
-;     db  0100 0000 b + 2
-;     db  0100 0000 b + 2
-; .size:  equ $ - SpriteColors_2
 
 SpriteAttributes:
     ;   Y, X, Pattern, Reserved
-    db  150, 100, 0, 0
-    db  150, 100, 4, 0
+
+    ; sprites 0 and 1
+    db  90, 100, 0 * 4, 0
+    db  90, 100, 1 * 4, 0
+
+    ; sprites 2 and 3
+    db  90 + 16, 100, 2 * 4, 0
+    db  90 + 16, 100, 3 * 4, 0
+
 .size:  equ $ - SpriteAttributes
 
 
-ImageTest:
-    db  0xff, 0xff, 0xff, 0xff
-    db  0xff, 0xff, 0xff, 0xff
-    db  0xff, 0xff, 0xff, 0xff
-    db  0xff, 0xff, 0xff, 0xff
-    db  0xff, 0xff, 0xff, 0xff
-    db  0xff, 0xff, 0xff, 0xff
-    db  0xff, 0xff, 0xff, 0xff
-    db  0xff, 0xff, 0xff, 0xff
-.size:  equ $ - ImageTest
+; ImageTest:
+;     db  0xff, 0xff, 0xff, 0xff
+;     db  0xff, 0xff, 0xff, 0xff
+;     db  0xff, 0xff, 0xff, 0xff
+;     db  0xff, 0xff, 0xff, 0xff
+;     db  0xff, 0xff, 0xff, 0xff
+;     db  0xff, 0xff, 0xff, 0xff
+;     db  0xff, 0xff, 0xff, 0xff
+;     db  0xff, 0xff, 0xff, 0xff
+; .size:  equ $ - ImageTest
 
 
 
