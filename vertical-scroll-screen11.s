@@ -19,24 +19,15 @@ Execute:
 	ld	    (Seg_P8000_SW), a
 
     ; change to screen 11
-    ; it's needed to set screen 8 and change the YJK and YAE bits of R#25 manually
-    ld      a, 8
-    call    BIOS_CHGMOD
-    ld      b, 0001 1000 b      ; data
-    ld      c, 25               ; register #
-    call    BIOS_WRTVDP
+    call    Screen11
 
     call    BIOS_DISSCR
 
-    ; set 192 lines
-    ld      b, 0000 0000 b  ; data
-    ld      c, 9            ; register #
-    call    BIOS_WRTVDP
+    call    ClearVram_MSX2
 
-    ; set color 0 to transparent
-    ld      b, 0000 1000 b  ; data
-    ld      c, 8            ; register #
-    call    BIOS_WRTVDP
+    call    Set192Lines
+
+    call    SetColor0ToTransparent
 
     ; set NAMTBL to 0x00000
     ; ld      b, 0011 1111 b  ; data
