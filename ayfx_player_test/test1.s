@@ -78,14 +78,15 @@ HOOK:
 PlayFX:
     ;Call FX:
 
-    ; LD HL,"name.afb"
-    LD HL, test1_afx
+    LD HL, noname_afb
     LD A,200
     LD (ayFX_VOLUME),A
     CALL ayFX_SETUP
-    XOR A
-    LD C,1
-    CALL ayFX_INIT
+    
+    ld      a, 1    ; number of sfx in the bank
+    ld      c, 1    ; sound priority
+    call    ayFX_INIT
+    
     XOR A
     LD (ayFX_VOLUME),A 
     RET
@@ -105,6 +106,8 @@ InitVariables:
 
 test1_afx:
     INCBIN "ayfx_player_test/test1.afx"
+noname_afb:
+    INCBIN "ayfx_player_test/noname.afb"
 
 End:
 

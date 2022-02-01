@@ -26,6 +26,7 @@ BIOS_PINLIN: equ 0AEh ; last def. pass 3
 BIOS_TAPOOF: equ 0F0h ; last def. pass 3
 BIOS_ROMSLT: equ 0FCC0h ; last def. pass 3
 BIOS_VOICEN: equ 0FB38h ; last def. pass 3
+noname_afb: equ 04199h ; last def. pass 3
 BIOS_ERRTXT: equ 0F6B7h ; last def. pass 3
 PlayFX: equ 04143h ; last def. pass 3
 BIOS_CPNCNT8: equ 0F93Bh ; last def. pass 3
@@ -124,7 +125,7 @@ BIOS_H_DSKF: equ 0FE12h ; last def. pass 3
 BIOS_CONLO: equ 0F66Ah ; last def. pass 3
 BIOS_SLTTBL: equ 0FCC5h ; last def. pass 3
 BIOS_DSCTMP: equ 0F698h ; last def. pass 3
-End: equ 04198h ; last def. pass 3
+End: equ 04216h ; last def. pass 3
 BIOS_H_LOC: equ 0FE99h ; last def. pass 3
 BIOS_H_CVS: equ 0FE44h ; last def. pass 3
 BIOS_MIVCNT: equ 0F951h ; last def. pass 3
@@ -212,7 +213,7 @@ BIOS_OLDSTT: equ 0FB0Ch ; last def. pass 3
 BIOS_TAPOON: equ 0EAh ; last def. pass 3
 BIOS_MINUPD: equ 0F3EFh ; last def. pass 3
 BIOS_ATRBAS: equ 0F928h ; last def. pass 3
-InitVariables: equ 04159h ; last def. pass 3
+InitVariables: equ 0415Ah ; last def. pass 3
 BIOS_LOWLIM: equ 0FCA4h ; last def. pass 3
 BIOS_PRMLEN: equ 0F6E6h ; last def. pass 3
 BIOS_LOGOPR: equ 0FB02h ; last def. pass 3
@@ -281,7 +282,7 @@ BIOS_H_FINI: equ 0FF16h ; last def. pass 3
 BIOS_HOLD2: equ 0F836h ; last def. pass 3
 BIOS_CLRSPR: equ 069h ; last def. pass 3
 BIOS_LFPROG: equ 0F954h ; last def. pass 3
-InitVariables.loop: equ 04160h ; last def. pass 3
+InitVariables.loop: equ 04161h ; last def. pass 3
 BIOS_H_LOPD: equ 0FED5h ; last def. pass 3
 BIOS_DPPAGE: equ 0FAF5h ; last def. pass 3
 ayFX_TONE: equ 0C014h ; last def. pass 3
@@ -436,7 +437,7 @@ BIOS_CSRSW: equ 0FCA9h ; last def. pass 3
 BIOS_H_PRGE: equ 0FEF8h ; last def. pass 3
 BIOS_PTRFLG: equ 0F6A9h ; last def. pass 3
 BIOS_CSCLXY: equ 0F941h ; last def. pass 3
-test1_afx: equ 04165h ; last def. pass 3
+test1_afx: equ 04166h ; last def. pass 3
 BIOS_TXTCGP: equ 0F3B7h ; last def. pass 3
 BIOS_FLGINP: equ 0F6A6h ; last def. pass 3
 BIOS_T32COL: equ 0F3BFh ; last def. pass 3
