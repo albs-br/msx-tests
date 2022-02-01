@@ -12,6 +12,25 @@ PageSize:	    equ	0x4000	        ; 16kB
 
 
 Execute:
+; init interrupt mode and stack pointer (in case the ROM isn't the first thing to be loaded)
+	di                          ; disable interrupts
+	im      1                   ; interrupt mode 1
+    ld      sp, (BIOS_HIMEM)    ; init SP
+
+; Install the interrupt routine
+	di
+	ld	    a, 0xc3 ; opcode for "JP nn"
+	ld	    (HTIMI), a
+	ld	    hl, HOOK
+	ld	    (HTIMI + 1), hl
+	ei
+
+
+    call    BIOS_INIGRP
+
+
+    call    InitVariables
+
 
 .loop:
     ld      a, (BIOS_JIFFY)
@@ -21,17 +40,39 @@ Execute:
     cp      b
     jp      z, .waitVBlank
 
-    ; ...... do stuff here
-
-    ;In ISR:
-
-    call PT3_ROUT ; copia AYREGS a los registros del PSG
-    call ayFX_PLAY ; hace sonar los efectos de sonido
+    ;call    BIOS_BEEP
 
     call    PlayFX
 
 
+
     jp      .loop
+
+; H.TIMI hook
+HOOK:
+
+	push	af ; Preserves VDP status register S#0 (a)
+		; push	bc
+		; 	push	de
+		; 		push	hl
+
+                    ;In ISR:
+
+                    call PT3_ROUT ; copia AYREGS a los registros del PSG
+                    call ayFX_PLAY ; hace sonar los efectos de sonido
+
+					; ; Tricks BIOS' KEYINT to skip keyboard scan, TRGFLG, OLDKEY/NEWKEY, ON STRIG...
+					; xor		a
+					; ld		(BIOS_SCNCNT), a
+					; ld		(BIOS_INTCNT), a
+
+		; 		pop		hl
+		; 	pop		de
+		; pop		bc
+	pop		af ; Restores VDP status register S#0 (a)
+
+
+	ret
 
 
 PlayFX:
@@ -50,6 +91,18 @@ PlayFX:
     RET
 
 
+InitVariables:
+    ; Init all vars with 255 to avoid noise
+    ld      a, 255
+    ld      hl, Variables
+    ld      b, Variables.size
+.loop:
+    ld      (hl), a
+    inc     hl
+    djnz    .loop    
+    ret
+
+
 test1_afx:
     INCBIN "ayfx_player_test/test1.afx"
 
@@ -66,7 +119,7 @@ End:
 
 
 	;MAP 0xC000
-;Variables
+Variables:
 AYREGS:		    rb 14
 ayFX_MODE:      rb 1 ;				; ayFX mode
 ayFX_BANK:      rb 2 ;				; Current ayFX Bank
@@ -78,5 +131,5 @@ ayFX_VOLUME: 	rb 1 ;				; Current volume of the ayFX stream
 ayFX_CHANNEL: 	rb 1 ;				; PSG channel to play the ayFX stream
 ayFX_VT: 	    rb 2 ;				; ayFX relative volume table pointer
 VARayFXEND:     rb 1 ; 
-
+Variables.size:     equ $ - Variables
 
