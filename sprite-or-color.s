@@ -83,14 +83,14 @@ SPRATR:     equ 0xfa00
     ld      hl, SpritePattern_0_and_1
     otir
 
-    ; Spr 2 and 3 patterns
-    ld      a, 0000 0001 b
-    ld      hl, SPRPAT + 64
-    call    SetVdp_Write
-    ld      b, SpritePattern_2_and_3.size
-    ld      c, PORT_0        ; you can also write ld bc,#nn9B, which is faster
-    ld      hl, SpritePattern_2_and_3
-    otir
+    ; ; Spr 2 and 3 patterns
+    ; ld      a, 0000 0001 b
+    ; ld      hl, SPRPAT + 64
+    ; call    SetVdp_Write
+    ; ld      b, SpritePattern_2_and_3.size
+    ; ld      c, PORT_0        ; you can also write ld bc,#nn9B, which is faster
+    ; ld      hl, SpritePattern_2_and_3
+    ; otir
 
 
     ; Spr 0 and 1 colors
@@ -102,14 +102,14 @@ SPRATR:     equ 0xfa00
     ld      hl, SpriteColors_1
     otir
 
-    ; Spr 2 and 3 colors
-    ld      a, 0000 0001 b
-    ld      hl, SPRCOL + 32
-    call    SetVdp_Write
-    ld      b, SpriteColors_2.size
-    ld      c, PORT_0        ; you can also write ld bc,#nn9B, which is faster
-    ld      hl, SpriteColors_2
-    otir
+    ; ; Spr 2 and 3 colors
+    ; ld      a, 0000 0001 b
+    ; ld      hl, SPRCOL + 32
+    ; call    SetVdp_Write
+    ; ld      b, SpriteColors_2.size
+    ; ld      c, PORT_0        ; you can also write ld bc,#nn9B, which is faster
+    ; ld      hl, SpriteColors_2
+    ; otir
 
     ; Atributes of all sprites
     ld      a, 0000 0001 b
@@ -140,22 +140,24 @@ End:
 
 
 SpritePattern_0_and_1:
-    INCBIN "Images/player_plane_0.pat"
+    ;INCBIN "Images/player_plane_0.pat"
+    INCBIN "Images/enemy_plane_1.pat"
 .size:  equ $ - SpritePattern_0_and_1
 
-SpritePattern_2_and_3:
-    INCBIN "Images/player_plane_1.pat"
-.size:  equ $ - SpritePattern_2_and_3
+; SpritePattern_2_and_3:
+;     INCBIN "Images/player_plane_1.pat"
+; .size:  equ $ - SpritePattern_2_and_3
 
 
 
 SpriteColors_1:
-    INCBIN "Images/player_plane_0.col"
+    ;INCBIN "Images/player_plane_0.col"
+    INCBIN "Images/enemy_plane_1.col"
 .size:  equ $ - SpriteColors_1
 
-SpriteColors_2:
-    INCBIN "Images/player_plane_1.col"
-.size:  equ $ - SpriteColors_2
+; SpriteColors_2:
+;     INCBIN "Images/player_plane_1.col"
+; .size:  equ $ - SpriteColors_2
 
 
 
@@ -164,11 +166,11 @@ SpriteAttributes:
 
     ; sprites 0 and 1
     db  90, 100, 0 * 4, 0
-    db  90, 100, 1 * 4, 0
+    db  90 + 16, 100, 1 * 4, 0
 
-    ; sprites 2 and 3
-    db  90 + 16, 100, 2 * 4, 0
-    db  90 + 16, 100, 3 * 4, 0
+    ; ; sprites 2 and 3
+    ; db  90 + 16, 100, 2 * 4, 0
+    ; db  90 + 16, 100, 3 * 4, 0
 
 .size:  equ $ - SpriteAttributes
 
@@ -188,7 +190,8 @@ SpriteAttributes:
 
 ; TODO: put correct palette here
 PaletteData:
-    INCBIN "Images/player_plane_0.pal"
+    ;INCBIN "Images/player_plane_0.pal"
+    INCBIN "Images/msx-wings.pal"
 
     ; ;  data 1 (red 0-7; blue 0-7); data 2 (0000; green 0-7)
     ; db 0x00, 0x00 ; Color index 0
