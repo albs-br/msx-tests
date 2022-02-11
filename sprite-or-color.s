@@ -141,7 +141,8 @@ End:
 
 SpritePattern_0_and_1:
     ;INCBIN "Images/player_plane_0.pat"
-    INCBIN "Images/enemy_plane_1.pat"
+    ;INCBIN "Images/enemy_plane_1.pat"
+    INCBIN "Images/enemy_plane_2.pat"
 .size:  equ $ - SpritePattern_0_and_1
 
 ; SpritePattern_2_and_3:
@@ -152,7 +153,8 @@ SpritePattern_0_and_1:
 
 SpriteColors_1:
     ;INCBIN "Images/player_plane_0.col"
-    INCBIN "Images/enemy_plane_1.col"
+    ;INCBIN "Images/enemy_plane_1.col"
+    INCBIN "Images/enemy_plane_2.col"
 .size:  equ $ - SpriteColors_1
 
 ; SpriteColors_2:
@@ -166,7 +168,7 @@ SpriteAttributes:
 
     ; sprites 0 and 1
     db  90,         100,        0 * 4,      0
-    db  90 + 4,     100 + 1,    1 * 4,      0
+    db  90,         100,    1 * 4,      0
 
     ; ; sprites 2 and 3
     ; db  90 + 16, 100, 2 * 4, 0
