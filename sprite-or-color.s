@@ -165,8 +165,8 @@ SpriteAttributes:
     ;   Y, X, Pattern, Reserved
 
     ; sprites 0 and 1
-    db  90, 100, 0 * 4, 0
-    db  90 + 4, 100, 1 * 4, 0
+    db  90,         100,        0 * 4,      0
+    db  90 + 4,     100 + 1,    1 * 4,      0
 
     ; ; sprites 2 and 3
     ; db  90 + 16, 100, 2 * 4, 0
