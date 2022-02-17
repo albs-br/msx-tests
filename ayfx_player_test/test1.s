@@ -32,6 +32,8 @@ Execute:
     call    InitVariables
 
 
+    ld      e, 1        ; control variable
+
 .loop:
     ld      a, (BIOS_JIFFY)
     ld      b, a
@@ -42,7 +44,13 @@ Execute:
 
     ;call    BIOS_BEEP
 
+    ld      a, e
+    or      a
+    jp      z, .loop    ; play only one time
+
     call    PlayFX
+    
+    ld      e, 0        ; play only one time
 
 
 
@@ -78,12 +86,12 @@ HOOK:
 PlayFX:
     ;Call FX:
 
-    LD HL, noname_afb
+    LD HL, noname1
     LD A,200
     LD (ayFX_VOLUME),A
     CALL ayFX_SETUP
     
-    ld      a, 1    ; number of sfx in the bank
+    ld      a, 0    ; number of sfx in the bank
     ld      c, 1    ; sound priority
     call    ayFX_INIT
     
@@ -104,10 +112,14 @@ InitVariables:
     ret
 
 
-test1_afx:
-    INCBIN "ayfx_player_test/test1.afx"
-noname_afb:
-    INCBIN "ayfx_player_test/noname.afb"
+; test1_afx:
+;     INCBIN "ayfx_player_test/test1.afx"
+; all_sfx:
+;     INCBIN "ayfx_player_test/all_sfx.afb"
+; noname:
+;     INCBIN "ayfx_player_test/noname.afb"
+noname1:
+    INCBIN "ayfx_player_test/noname1.afb"
 
 End:
 
