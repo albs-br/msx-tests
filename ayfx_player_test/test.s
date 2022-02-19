@@ -1,180 +1,147 @@
-;-Sound effects player test------------------------------------;
-;                                                              ;
-; Тестовая программа, использующая Minimal ayFX player.        ;
-; Проигрывает эффекты на штатном AY; при наличии второго AY по ;
-; схеме NedoPC можно включить музыку для проигрывания на нём.  ;
-; Клавиши 1-0,Q-P,A-L,Z-M,SS,CS проигрывают эффекты 0..38      ;
-; (можно загрузить банк с меньшим количеством эффектов),       ;
-; клавиша 'пробел' включает/выключает музыку на втором AY.     ;
-;                                                              ;
-;--------------------------------------------------------------;
+FNAME "test.rom"      ; output file
 
-sfxBankAd:	EQU 0xa000	;адрес банка эффектов
-musInitAd:	EQU 0xc000	;адрес скомпилированной музыки (PT3)
-musPlayAd:	EQU musInitAd+5
-musShutAd:	EQU musInitAd+8
+PageSize:	    equ	0x4000	        ; 16kB
+
+; Compilation address
+    org 0x4000, 0xbeff	                    ; 0x8000 can be also used here if Rom size is 16kB or less.
+
+    INCLUDE "Include/RomHeader.s"
+    INCLUDE "Include/MsxBios.s"
+
+    INCLUDE "ayfx_player_test/ayfxreplayer.s"
 
 
-	ORG 0x6200
+Execute:
+; init interrupt mode and stack pointer (in case the ROM isn't the first thing to be loaded)
+	di                          ; disable interrupts
+	im      1                   ; interrupt mode 1
+    ld      sp, (BIOS_HIMEM)    ; init SP
 
-	;ENT $
-	
+; Install the interrupt routine
 	di
-	ld sp,0x61ff
-	
-	ld hl,sfxBankAd	;инициализация плеера эффектов
-	call AFXINIT
-	
-	call musInitAd	;инициализация музыки
-	
-	xor a			;музыка по умолчанию выключена
-	ld (tsMusEnable+1),a
-
-	ld hl,intProc	;перемещаем обработчик прерывания в 0xbdbd
-	ld de,0xbdbd
-	ld bc,intProcEnd-intProc
-	ldir
-	
-	ld hl,0xbe00		;таблица прерывания для адреса 0xbdbd
-	ld de,0xbe01
-	ld bc,0x0100
-	ld a,h
-	ld i,a
-	ld (hl),0xbd
-	ldir
-	im 2
+	ld	    a, 0xc3 ; opcode for "JP nn"
+	ld	    (HTIMI), a
+	ld	    hl, HOOK
+	ld	    (HTIMI + 1), hl
 	ei
-	
-mainLoop:			;основной цикл
 
-	halt
-	
-	ld b,4			;цикл опроса клавиш
-	ld hl,tblRowNum
-keyLoop:
-	push bc
-	
-	ld b,(hl)		;проверка текущего левого полуряда
-	ld c,0xfe
-	inc hl
-	in a,(c)
-	ld b,5
-	ld c,(hl)
-	inc hl
-keyRowL:
-	rra
-	call nc,playSfx
-	inc c
-	djnz keyRowL
-	
-	ld b,(hl)		;проверка текущего правого полуряда
-	ld c,0xfe
-	inc hl
-	in a,(c)
-	ld b,5
-	ld c,(hl)
-	inc hl
-keyRowR:
-	rra
-	call nc,playSfx
-	dec c
-	djnz keyRowR
 
-	pop bc
-	djnz keyLoop
-	
-	jr mainLoop
-	
-	
-	
-playSfx:				;запуск эффекта
-	push af
-	push bc
-	push hl
+    call    BIOS_INIGRP
 
-	ld a,39			;эффект номер 39 = клавиша 'пробел'
-	cp c
-	jr nz,playSfx0	;переход, если пробел не нажат
-	
-	ld hl,tsMusEnable+1
-	ld a,(hl)		;инвертируем флаг включения музыки
-	inc a
-	ld (hl),a
-	and 1
-	jr nz,playSfx1	;переход, если музыка была включена
-	
-	halt			;музыка выключена, выключаем каналы AY
-	di
-	ld a,1
-	call aySelChip
-	call musShutAd
-	ei
-	jr playSfx1
-	
-playSfx0:
-	ld a,(sfxBankAd);проверка на наличие эффекта в банке
-	dec a
-	cp c
-	jr c,playSfx2	;переход, если в банке нет столько эффектов
-	ld a,c			;собственно запуск эффекта
-	call AFXPLAY
 
-playSfx1:
-	halt			;задержка после нажатия клавиши
-	halt
-	halt
-	halt
-	
-playSfx2:
-	pop hl
-	pop bc
-	pop af
+    call    InitAyFxVariables
+
+
+    ld      e, 1        ; control variable
+
+.loop:
+    ld      a, (BIOS_JIFFY)
+    ld      b, a
+.waitVBlank:
+    ld      a, (BIOS_JIFFY)
+    cp      b
+    jp      z, .waitVBlank
+
+    ;call    BIOS_BEEP
+
+    ld      a, e
+    or      a
+    jp      z, .loop    ; play only one time
+
+    call    PlayFX
+    
+    ld      e, 0        ; play only one time
+
+
+
+    jp      .loop
+
+; H.TIMI hook
+HOOK:
+
+	push	af ; Preserves VDP status register S#0 (a)
+		; push	bc
+		; 	push	de
+		; 		push	hl
+
+                    ;In ISR:
+
+                    call PT3_ROUT ; copia AYREGS a los registros del PSG
+                    call ayFX_PLAY ; hace sonar los efectos de sonido
+
+					; ; Tricks BIOS' KEYINT to skip keyboard scan, TRGFLG, OLDKEY/NEWKEY, ON STRIG...
+					; xor		a
+					; ld		(BIOS_SCNCNT), a
+					; ld		(BIOS_INTCNT), a
+
+		; 		pop		hl
+		; 	pop		de
+		; pop		bc
+	pop		af ; Restores VDP status register S#0 (a)
+
+
 	ret
-	
-	
-aySelChip:			;процедура выбора нужного AY
-	ld bc,0xfffd
-	xor b
-	out (c),a
-	ret
-	
-INCLUDE "ayfx_player_test/ayfxplay.S"	;включаем исходник плеера эффектов
-
-;табличка для опроса полурядов клавиатуры
-;первый байт - старший байт адреса порта
-;второй байт - стартовый номер эффекта для полуряда
-
-tblRowNum:
-	DB 0xf7,0x00,0xef,0x09,0xfb,0x0a,0xdf,0x13
-	DB 0xfd,0x14,0xbf,0x1d,0xfe,0x1e,0x7f,0x27
 
 
+PlayFX:
+    ;Call FX:
 
-	
-intProc:				;обработчик прерывания
-	push af
-	push bc
-	push de
-	push hl
+    LD HL, noname1
+    LD A,200
+    LD (ayFX_VOLUME),A
+    CALL ayFX_SETUP
+    
+    ld      a, 0    ; number of sfx in the bank
+    ld      c, 1    ; sound priority
+    call    ayFX_INIT
+    
+    XOR A
+    LD (ayFX_VOLUME),A 
+    RET
 
-tsMusEnable:	EQU $-intProc+0xbdbd	;адрес метки после перемещения
-	ld a,0			;музыка включена?
-	and 1
-	jr z,noMusic
-	
-	ld a,1			;выбираем второй AY
-	call aySelChip
-	call musPlayAd	;проигрываем музыку
-	
-noMusic:
-	xor a			;выбираем первый AY
-	call aySelChip
-	call AFXFRAME	;проигрываем эффекты
 
-	pop hl
-	pop de
-	pop bc
-	pop af
-	ei
-	ret
-intProcEnd:
+InitAyFxVariables:
+    ; Init all vars with 255 to avoid noise
+    ld      a, 255
+    ld      hl, ayFX_Variables
+    ld      b, ayFX_Variables.size
+.loop:
+    ld      (hl), a
+    inc     hl
+    djnz    .loop    
+    ret
+
+
+; test1_afx:
+;     INCBIN "ayfx_player_test/test1.afx"
+; noname:
+;     INCBIN "ayfx_player_test/noname.afb"
+noname1:
+    INCBIN "ayfx_player_test/noname1.afb"
+
+End:
+
+    db      "End ROM started at 0x4000"
+
+	ds PageSize - ($ - 0x4000), 255	; Fill the unused area with 0xFF
+
+
+
+; RAM
+	org     0xc000, 0xe5ff
+
+
+ayFX_Variables:
+AYREGS:		    rb 14
+ayFX_MODE:      rb 1 ;				; ayFX mode
+ayFX_BANK:      rb 2 ;				; Current ayFX Bank
+ayFX_PRIORITY:  rb 1 ;				; Current ayFX stream priotity
+ayFX_POINTER:   rb 2 ;				; Pointer to the current ayFX stream
+ayFX_TONE:      rb 2 ;				; Current tone of the ayFX stream
+ayFX_NOISE:	    rb 1 ;				; Current noise of the ayFX stream
+ayFX_VOLUME: 	rb 1 ;				; Current volume of the ayFX stream
+ayFX_CHANNEL: 	rb 1 ;				; PSG channel to play the ayFX stream
+ayFX_VT: 	    rb 2 ;				; ayFX relative volume table pointer
+VARayFXEND:     rb 1 ; 
+ayFX_Variables.size:     equ $ - ayFX_Variables
+

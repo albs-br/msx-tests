@@ -70,7 +70,6 @@ BIOS_TAPIN: equ 0E4h ; last def. pass 3
 BIOS_H_CHPH: equ 0FDA4h ; last def. pass 3
 BIOS_NSETRD: equ 016Eh ; last def. pass 3
 BIOS_JIFFY: equ 0FC9Eh ; last def. pass 3
-Variables.size: equ 01Ch ; last def. pass 3
 BIOS_H_GONE: equ 0FF43h ; last def. pass 3
 Execute.loop: equ 0412Bh ; last def. pass 3
 BIOS_PRSCNT: equ 0FB35h ; last def. pass 3
@@ -193,7 +192,6 @@ BIOS_OLDINT: equ 0FB12h ; last def. pass 3
 BIOS_TEMP3: equ 0F69Dh ; last def. pass 3
 BIOS_H_ISRE: equ 0FF2Ah ; last def. pass 3
 BIOS_TEMPST: equ 0F67Ah ; last def. pass 3
-Variables: equ 0C000h ; last def. pass 3
 BIOS_PRMFLG: equ 0F7B4h ; last def. pass 3
 BIOS_WRPRIM: equ 0F385h ; last def. pass 3
 BIOS_FNKFLG: equ 0FBCEh ; last def. pass 3
@@ -203,6 +201,7 @@ BIOS_BRDATR: equ 0FCB2h ; last def. pass 3
 BIOS_H_SCNE: equ 0FF98h ; last def. pass 3
 BIOS_H_COMP: equ 0FF57h ; last def. pass 3
 ayFX_PLAY.CHK2: equ 040BCh ; last def. pass 3
+InitAyFxVariables: equ 04163h ; last def. pass 3
 BIOS_KBUF: equ 0F41Fh ; last def. pass 3
 BIOS_REDCLK: equ 01F5h ; last def. pass 3
 BIOS_MUSICF: equ 0FC3Fh ; last def. pass 3
@@ -212,7 +211,6 @@ BIOS_OLDSTT: equ 0FB0Ch ; last def. pass 3
 BIOS_TAPOON: equ 0EAh ; last def. pass 3
 BIOS_MINUPD: equ 0F3EFh ; last def. pass 3
 BIOS_ATRBAS: equ 0F928h ; last def. pass 3
-InitVariables: equ 04163h ; last def. pass 3
 BIOS_LOWLIM: equ 0FCA4h ; last def. pass 3
 BIOS_PRMLEN: equ 0F6E6h ; last def. pass 3
 BIOS_LOGOPR: equ 0FB02h ; last def. pass 3
@@ -277,11 +275,11 @@ ayFX_PLAY.PLAY_A: equ 040D1h ; last def. pass 3
 BIOS_TEMP: equ 0F6A7h ; last def. pass 3
 BIOS_EOL: equ 0168h ; last def. pass 3
 BIOS_PHYDIO: equ 0144h ; last def. pass 3
+InitAyFxVariables.loop: equ 0416Ah ; last def. pass 3
 BIOS_H_FINI: equ 0FF16h ; last def. pass 3
 BIOS_HOLD2: equ 0F836h ; last def. pass 3
 BIOS_CLRSPR: equ 069h ; last def. pass 3
 BIOS_LFPROG: equ 0F954h ; last def. pass 3
-InitVariables.loop: equ 0416Ah ; last def. pass 3
 BIOS_H_LOPD: equ 0FED5h ; last def. pass 3
 BIOS_DPPAGE: equ 0FAF5h ; last def. pass 3
 ayFX_TONE: equ 0C014h ; last def. pass 3
@@ -422,6 +420,7 @@ BIOS_CNSDFG: equ 0F3DEh ; last def. pass 3
 BIOS_H_NMI: equ 0FDD6h ; last def. pass 3
 BIOS_VCBA: equ 0FB41h ; last def. pass 3
 BIOS_ARYTA2: equ 0F7B5h ; last def. pass 3
+ayFX_Variables: equ 0C000h ; last def. pass 3
 BIOS_PRMPRV: equ 0F74Ch ; last def. pass 3
 BIOS_H_FILE: equ 0FD7Bh ; last def. pass 3
 BIOS_PATWRK: equ 0FC40h ; last def. pass 3
@@ -515,6 +514,7 @@ BIOS_MLTCGP: equ 0F3D5h ; last def. pass 3
 BIOS_MEXBIH: equ 0FB07h ; last def. pass 3
 ayFX_PLAY.CHK1: equ 040ADh ; last def. pass 3
 BIOS_TAPIOF: equ 0E7h ; last def. pass 3
+ayFX_Variables.size: equ 01Ch ; last def. pass 3
 BIOS_INITIO: equ 03Bh ; last def. pass 3
 BIOS_VOICBQ: equ 0F9F5h ; last def. pass 3
 BIOS_H_KEYC: equ 0FDCCh ; last def. pass 3
