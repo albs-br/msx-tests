@@ -150,7 +150,8 @@ SpritePattern_0_and_1:
     ;INCBIN "Images/player_plane_left_0_top.pat"
     ; INCBIN "Images/player_plane_left_1_top.pat"
     ;INCBIN "Images/player_plane_left_1_bottom.pat"
-    INCLUDE "Images/item_p_patterns.s"
+    ; INCLUDE "Images/item_p_patterns.s"
+    INCLUDE "Images/font_char_0_patterns.s"
 .size:  equ $ - SpritePattern_0_and_1
 
 ; SpritePattern_2_and_3:
@@ -170,7 +171,8 @@ SpriteColors_1:
     ;INCBIN "Images/player_plane_left_0_top.col"
     ;INCBIN "Images/player_plane_left_1_top.col"
     ; INCBIN "Images/player_plane_left_1_bottom.col"
-    INCLUDE "Images/item_p_colors.s"
+    ; INCLUDE "Images/item_p_colors.s"
+    INCLUDE "Images/font_char_0_colors.s"
 .size:  equ $ - SpriteColors_1
 
 ; SpriteColors_2:
