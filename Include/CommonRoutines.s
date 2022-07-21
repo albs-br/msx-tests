@@ -709,7 +709,7 @@ CheckCollision_16x24_16x16:
 ;   Output: HL = updated
 ;   Destroys: A, B, C
 DoCopy:
-    ld      a, 32
+    ld      a, 32           ; number of first register
     di
     out     (PORT_1), a
     ld      a, 17 + 128
