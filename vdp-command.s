@@ -46,6 +46,10 @@ Execute:
     call    Execute_VDP_HMMV
 
 
+    ; test HMMV
+    ld      hl, YMMM_Parameters 	; execute the command
+    call    Execute_VDP_YMMM
+
 .endProgram:
 	jr      .endProgram
 
@@ -81,6 +85,14 @@ HMMV_Parameters:    ; R#36 to R#46
    db    0xac       ; color of the fill
    db    0, VDP_COMMAND_HMMV
 
+YMMM_Parameters:
+   dw    256                ; R#34 and R#35: Source Y (10 bits)
+   dw    10, 2 	            ; R#36 and R#37: Destiny X (9 bits), R#38 and R#39: Destiny Y (10 bits)
+   db    0, 0               ; R#40 and R#41: not used
+   dw    2		            ; R#42 and R#43: number of lines (10 bits)
+   db    0                  ; R#44: not used
+   db    0000 0000b         ; R#45: destination memory and direction from base coordinate
+   db    VDP_COMMAND_YMMM   ; R#46: command number
 
 VDP_COMMAND_HMMC:       equ 1111 0000b	; High speed move CPU to VRAM
 VDP_COMMAND_YMMM:       equ 1110 0000b	; High speed move VRAM to VRAM, Y coordinate only
