@@ -38,9 +38,12 @@ Execute:
 ; ----------------- Execute VDP command copying a region of the second page to the first page (visible) 
 
     ld      hl, HMMM_Parameters 	; execute the copy
-    call    DoCopy
+    call    Execute_VDP_HMMM
 
 
+    ; test HMMV
+    ld      hl, HMMV_Parameters 	; execute the command
+    call    Execute_VDP_HMMV
 
 
 .endProgram:
@@ -65,6 +68,19 @@ HMMM_Parameters:
    dw    128, 96 	; Destiny X (9 bits), Destiny Y (10 bits)
    dw    20, 20		; number of cols (9 bits), number of lines (10 bits)
    db    0, 0, VDP_COMMAND_HMMM
+
+; Not working:
+HMMC_Parameters:    ; R#36 to R#46
+   dw    128, 96 	; Destiny X (9 bits), Destiny Y (10 bits)
+   dw    20, 20		; number of cols (9 bits), number of lines (10 bits)
+   db    0, 0, VDP_COMMAND_HMMC
+
+HMMV_Parameters:    ; R#36 to R#46
+   dw    10, 10 	; Destiny X (9 bits), Destiny Y (10 bits)
+   dw    20, 20		; number of cols (9 bits), number of lines (10 bits)
+   db    0xac       ; color of the fill
+   db    0, VDP_COMMAND_HMMV
+
 
 VDP_COMMAND_HMMC:       equ 1111 0000b	; High speed move CPU to VRAM
 VDP_COMMAND_YMMM:       equ 1110 0000b	; High speed move VRAM to VRAM, Y coordinate only
