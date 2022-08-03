@@ -30,38 +30,36 @@ Execute:
 
     call    SetInterlacedMode
     
-    ; ; -------------- set 212 lines and interlaced mode
-    ; ; set LN (bit 7) of R#9 to 1
-    ; ; set IL (bit 3) and EO (bit 2) flags of R#9
-    ; ld      b, 1000 1100 b  ; data
-    ; ld      c, 9            ; register #
-    ; call    BIOS_WRTVDP
 
-    ; call    SetColor0ToTransparent
+    call    SetColor0ToNonTransparent
 
     
-	; enable page 2
-    ld	    a, 2
-	ld	    (Seg_P8000_SW), a
-    ; load 32-byte palette data
-    ld      hl, ImageData_2.palette ; PaletteData
-                    ; ; debug
-                    ; ld      a, (hl)
-                    ; ld      (debug_0), a
-                    ; inc     hl
-                    ; ld      a, (hl)
-                    ; ld      (debug_1), a
-                    ; ld      hl, ImageData_2.palette ; PaletteData
+	; ; enable page 2
+    ; ld	    a, 2
+	; ld	    (Seg_P8000_SW), a
+    ; ; load 32-byte palette data
+    ; ld      hl, ImageData_2.palette ; PaletteData
+    ;                 ; ; debug
+    ;                 ; ld      a, (hl)
+    ;                 ; ld      (debug_0), a
+    ;                 ; inc     hl
+    ;                 ; ld      a, (hl)
+    ;                 ; ld      (debug_1), a
+    ;                 ; ld      hl, ImageData_2.palette ; PaletteData
+    ; call    LoadPalette
+    
+    ; ld      hl, PaletteData
+    ld      hl, PaletteData_without_Header
     call    LoadPalette
 
     ; ---------------- draw even lines on page 0
 
     ld	    a, 1
 	ld	    (Seg_P8000_SW), a
-    ld		hl, ImageData        			        ; RAM address (source)
+    ld		hl, ImageData_without_Header	        ; RAM address (source)
     ld      a, 0                                    ; VRAM address (destiny, bit 16)
     ld		de, 0x0000                              ; VRAM address (destiny, bits 15-0)
-    ld		c, 0 + (ImageData.size / 256)           ; Block length * 256
+    ld		c, 64; 0 + (ImageData.size / 256)           ; Block length * 256
     call    LDIRVM_MSX2
 
 	; ; enable page 1
@@ -77,10 +75,10 @@ Execute:
 
     ld	    a, 2
 	ld	    (Seg_P8000_SW), a
-    ld		hl, ImageData_2        			        ; RAM address (source)
+    ld		hl, ImageData_2_without_Header	        ; RAM address (source)
     ld      a, 1                                    ; VRAM address (destiny, bit 16)
     ld		de, 0x0000                              ; VRAM address (destiny, bits 15-0)
-    ld		c, 0 + (ImageData_2.size / 256)         ; Block length * 256
+    ld		c, 64 ; 0 + (ImageData_2.size / 256)         ; Block length * 256
     call    LDIRVM_MSX2
 
 	; ; enable page 2
@@ -102,6 +100,12 @@ Execute:
 
 End:
 
+PaletteData:
+    ; INCBIN "Images/simcity2000.pal"
+    INCBIN "Images/test.pi7"
+PaletteData_without_Header: equ PaletteData + 7
+
+
     db      "End ROM started at 0x4000"
 
 	ds PageSize - ($ - 0x4000), 255	; Fill the unused area with 0xFF
@@ -111,17 +115,21 @@ End:
 ; ------- Page 1
 	org	0x8000, 0xBFFF
 ImageData:
-    INCBIN "Images/test_512x424_image.s70"
+    ; INCBIN "Images/simcity2000.S70"
+    INCBIN "Images/test.si7"
 .size:      equ $ - ImageData
 	ds PageSize - ($ - 0x8000), 255
+ImageData_without_Header: equ ImageData + 7
 
 ; ------- Page 2
 	org	0x8000, 0xBFFF
 ImageData_2:
-    INCBIN "Images/test_512x424_image.s71"
+    ;INCBIN "Images/simcity2000.S71"
+    INCBIN "Images/test.sj7"
 .size:      equ $ - ImageData_2
 .palette:   equ $ - 32
 	ds PageSize - ($ - 0x8000), 255
+ImageData_2_without_Header: equ ImageData_2 + 7
 
 
 
