@@ -279,7 +279,12 @@ Screen11:
     ; it's needed to set screen 8 and change the YJK and YAE bits of R#25 manually
     ld      a, 8
     call    BIOS_CHGMOD
-    ld      b, 0001 1000 b  ; data
+
+    ld      a, (REG25SAV)   ; this is not going to compile
+    or      0001 1000 b
+    ld      (REG25SAV), a   ; MSX 2+ VDP registers aren't guaranted to be saved by BIOS_WRTVDP routine
+    ld      b, a
+    ;ld      b, 0001 1000 b  ; data
     ld      c, 25            ; register #
     call    BIOS_WRTVDP
 	ret
@@ -299,6 +304,33 @@ Set192Lines:
     ; call    BIOS_WRTVDP
     ld      a, (REG9SAV)
     and     0111 1111 b
+    ld      b, a
+    ld      c, 9            ; register #
+    call    BIOS_WRTVDP
+	ret
+
+Set212Lines:
+    ; set LN (bit 7) of R#9 to 1
+    ld      a, (REG9SAV)
+    or      1000 0000 b
+    ld      b, a
+    ld      c, 9            ; register #
+    call    BIOS_WRTVDP
+	ret
+
+SetNonInterlacedMode:
+    ; reset IL (bit 3) and EO (bit 2) flags of R#9
+    ld      a, (REG9SAV)
+    and     1111 0011 b
+    ld      b, a
+    ld      c, 9            ; register #
+    call    BIOS_WRTVDP
+	ret
+
+SetInterlacedMode:
+    ; set IL (bit 3) and EO (bit 2) flags of R#9
+    ld      a, (REG9SAV)
+    or      0000 1100 b
     ld      b, a
     ld      c, 9            ; register #
     call    BIOS_WRTVDP
