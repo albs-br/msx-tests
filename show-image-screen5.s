@@ -22,19 +22,14 @@ Execute:
     ld      a, 5
     call    BIOS_CHGMOD
 
-    ; Das 16 cores da paleta, a cor 0 é transparente, ou seja, não pode
-    ; ser definida uma cor para ela e qualquer objeto desenhado com ela não
-    ; será visto. Entretanto, setando o bit 5 de R#8, a função de transparente
-    ; será desativada e a cor 0 poderá ser definida por P#0.    
-    ; set color 0 to non transparent
-    ld      b, 0010 1000 b  ; data
-    ld      c, 0x08         ; register #
-    call    BIOS_WRTVDP
-    
-    ; set 192 lines
-    ld      b, 0000 0000 b  ; data
-    ld      c, 0x09         ; register #
-    call    BIOS_WRTVDP
+    call    BIOS_DISSCR
+
+    call    ClearVram_MSX2
+
+    call    Set192Lines
+
+    call    SetColor0ToNonTransparent
+
 
     
 	; enable page 2
@@ -69,13 +64,12 @@ Execute:
     ld		bc, ImageData_2.size					; Block length
     call 	BIOS_LDIRVM        						; Block transfer to VRAM from memory
 
+    call    BIOS_ENASCR
+
+; --------- 
+
 .endlessLoop:
     jp      .endlessLoop
-
-;PaletteData:
-    ;INCBIN "Images/aerofighters-palette.bin"
-    ;INCBIN "Images/metalslug-palette.bin"
-
 
 End:
 

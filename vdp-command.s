@@ -35,19 +35,20 @@ Execute:
 
 
 
-; ----------------- Execute VDP command copying a region of the second page to the first page (visible) 
+; ----------------- Execute test VDP commands on the first page (visible)
 
-    ld      hl, HMMM_Parameters 	; execute the copy
+    ; test HMMM
+    ld      hl, HMMM_Parameters
     call    Execute_VDP_HMMM
 
 
     ; test HMMV
-    ld      hl, HMMV_Parameters 	; execute the command
+    ld      hl, HMMV_Parameters
     call    Execute_VDP_HMMV
 
 
-    ; test HMMV
-    ld      hl, YMMM_Parameters 	; execute the command
+    ; test YMMM
+    ld      hl, YMMM_Parameters
     call    Execute_VDP_YMMM
 
 .endProgram:

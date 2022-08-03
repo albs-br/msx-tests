@@ -336,11 +336,21 @@ SetInterlacedMode:
     call    BIOS_WRTVDP
 	ret
 
+SetColor0ToNonTransparent:
+    ; Das 16 cores da paleta, a cor 0 é transparente, ou seja, não pode
+    ; ser definida uma cor para ela e qualquer objeto desenhado com ela não
+    ; será visto. Entretanto, setando o bit 5 de R#8, a função de transparente
+    ; será desativada e a cor 0 poderá ser definida por P#0.    
+    ; set color 0 to non transparent
+    ld      a, (REG8SAV)
+    or      0010 0000 b
+    ld      b, 0010 1000 b  ; data
+    ld      c, 0x08         ; register #
+    call    BIOS_WRTVDP
+    ret
+
 SetColor0ToTransparent:
     ; set color 0 to transparent
-    ; ld      b, 0000 1000 b  ; data
-    ; ld      c, 8            ; register #
-    ; call    BIOS_WRTVDP
     ld      a, (REG8SAV)
     and     1101 1111 b
     ld      b, a
