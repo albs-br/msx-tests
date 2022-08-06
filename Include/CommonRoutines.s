@@ -136,23 +136,37 @@ Wait:
 ; Enables the interrupts
 ;
 SetVdp_Write:
-    rlc h
+
+	; transform address from 
+	;
+	; |           Register A            |           Register H            |           Register L            |
+	; | --- --- --- --- --- --- --- A16 | A15 A14 A13 A12 A11 A10  A9  A8 |  A7  A6  A5  A4  A3  A2  A1  A0 |
+	;
+	; to
+	;
+	; |           Register A            |           Register H            |           Register L            |
+	; | --- --- --- --- --- A16 A15 A14 | --- --- A13 A12 A11 A10  A9  A8 |  A7  A6  A5  A4  A3  A2  A1  A0 |
+    rlc     h
     rla
-    rlc h
+    rlc     h
     rla
-    srl h
-    srl h
+    srl     h
+    srl     h
+
     di
-    out (PORT_1),a
-    ld a,14 + 128
-    out (PORT_1),a
-    ld a,l
-    nop
-    out (PORT_1),a
-    ld a,h
-    or 64
+	    ; write bits a14-16 of address to R#14
+	    out     (PORT_1), a
+	    ld      a, 14 + 128
+	    out     (PORT_1), a
+
+	    ; write the other address bits to VDP PORT_1
+	    ld      a, l
+	    nop
+	    out     (PORT_1), a
+	    ld      a, h
+	    or      64
     ei
-    out (PORT_1),a
+    out     (PORT_1),a
     ret
 
 ;
