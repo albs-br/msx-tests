@@ -372,6 +372,22 @@ SetColor0ToTransparent:
     call    BIOS_WRTVDP
 	ret
 
+DisableSprites:
+    ld      a, (REG8SAV)
+    or      0000 0010 b
+    ld      b, a
+    ld      c, 8            ; register #
+    call    BIOS_WRTVDP
+	ret
+
+EnableSprites:
+    ld      a, (REG8SAV)
+    and     1111 1101 b
+    ld      b, a
+    ld      c, 8            ; register #
+    call    BIOS_WRTVDP
+	ret
+
 ; Inputs:
 ; 	HL: source addr in RAM
 ; 	ADE: 17 bits destiny addr in VRAM

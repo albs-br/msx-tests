@@ -57,7 +57,7 @@ Execute:
     ;                 ; ld      hl, ImageData_2.palette ; PaletteData
     ; call    LoadPalette
     
-    ;ld      hl, PaletteData
+    ; ld      hl, PaletteData
     ld      hl, PaletteData_without_Header
     call    LoadPalette
 
@@ -110,9 +110,9 @@ Execute:
 End:
 
 PaletteData:
-    ;INCBIN "Images/simcity2000.pal"
+    ;INCBIN "Images/simcity2000_bmp2msx.pal"
     ;INCBIN "Images/test.pi7"
-    INCBIN "Images/simcity2000.pi7"
+    INCBIN "Images/simcity2000_MIFui.pi7"
 PaletteData_without_Header: equ PaletteData + 7
 
 
@@ -125,9 +125,9 @@ PaletteData_without_Header: equ PaletteData + 7
 ; ------- Page 1
 	org	0x8000, 0xBFFF
 ImageData:
-    ;INCBIN "Images/simcity2000.S70"
+    ;INCBIN "Images/simcity2000_bmp2msx.S70"
     ;INCBIN "Images/test.si7"
-    INCBIN "Images/simcity2000.si7"
+    INCBIN "Images/simcity2000_MIFui.si7"
 .size:      equ $ - ImageData
 	ds PageSize - ($ - 0x8000), 255
 ImageData_without_Header: equ ImageData + 7
@@ -135,9 +135,9 @@ ImageData_without_Header: equ ImageData + 7
 ; ------- Page 2
 	org	0x8000, 0xBFFF
 ImageData_2:
-    ;INCBIN "Images/simcity2000.S71"
+    ;INCBIN "Images/simcity2000_bmp2msx.S71"
     ;INCBIN "Images/test.sj7"
-    INCBIN "Images/simcity2000.sj7"
+    INCBIN "Images/simcity2000_MIFui.sj7"
 .size:      equ $ - ImageData_2
 .palette:   equ $ - 32
 	ds PageSize - ($ - 0x8000), 255
