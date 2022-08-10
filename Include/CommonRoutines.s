@@ -2,6 +2,10 @@
 ; v.0.1.0 (when changed remember to update file on other projects)
 
 ; Fill all RAM with 0x00
+; TODO: this can be MUCH improved by using LDIR to fill a 
+; range of bytes (e.g. 16 or 256), meaning there is a trade-off between speed and size
+; PS. 16x 16 bytes LDIR can be a good solution
+
 ; ClearRam:
 ;     ld      hl, RamStart        ; RAM start address
 ;     ld      de, RamEnd + 1      ; RAM end address
@@ -24,16 +28,40 @@
 SetPaletteColor:
     push    bc
         ; set palette register number in register R#16 (Color palette address pointer)
-        ld      b, a        ; data
-        ld      c, 16       ; register #
+        ld      b, a             ; data
+        ld      c, 16            ; register #
         call    BIOS_WRTVDP
-        ld      c, 0x9a          ; v9938 port #2
+        ld      c, PORT_2        ; v9938 port #2
     pop     de
 
     ld      a, d                 ; data 1 (red 0-7; blue 0-7)
     di
     out     (c), a
     ld      a, e                 ; data 2 (0000; green 0-7)
+    ei
+    out     (c), a
+
+    ret
+
+
+
+; Input:
+;   A: Color number
+;   HL: address of color palette:
+;       first byte:  high nibble: red 0-7; low nibble: blue 0-7
+;       second byte: high nibble: 0000; low nibble:  green 0-7
+SetPaletteColor_FromAddress:
+    ; set palette register number in register R#16 (Color palette address pointer)
+    ld      b, a                 ; data
+    ld      c, 16                ; register #
+    call    BIOS_WRTVDP
+    ld      c, PORT_2            ; v9938 port #2
+
+    ld      a, (hl)              ; data 1 (red 0-7; blue 0-7)
+    di
+    out     (c), a
+    inc     hl
+    ld      a, (hl)              ; data 2 (0000; green 0-7)
     ei
     out     (c), a
 
@@ -174,22 +202,22 @@ SetVdp_Write:
 ; Enables the interrupts
 ;
 SetVdp_Read:
-    rlc h
+    rlc     h
     rla
-    rlc h
+    rlc     h
     rla
-    srl h
-    srl h
+    srl     h
+    srl     h
     di
-    out (PORT_1),a
-    ld a,14 + 128
-    out (PORT_1),a
-    ld a,l
+    out     (PORT_1), a
+    ld      a, 14 + 128
+    out     (PORT_1), a
+    ld      a, l
     nop
-    out (PORT_1),a
-    ld a,h
+    out     (PORT_1), a
+    ld      a, h
     ei
-    out (PORT_1),a
+    out     (PORT_1), a
     ret
 
 
@@ -256,9 +284,9 @@ SetVdp_Read:
 
 
 ClearVram_MSX2:
-    xor a           ; set vram write base address
-    ld hl, 0     	; to 1st byte of page 0
-    call SetVDP_Write
+    xor     a           ; set vram write base address
+    ld      hl, 0     	; to 1st byte of page 0
+    call    SetVDP_Write
 
 ;     xor a
 ; FillL1:
@@ -272,6 +300,11 @@ ClearVram_MSX2:
 
 	xor		a
 
+    ; TODO: 
+    ;   use VDP command (currently is taking almost 1 second)
+    ;   disable screen/sprites (should I ??)
+
+    ; clear all 128kb of VRAM
 	ld		d, 2		; 2 repetitions
 .loop_2:
 	ld		c, 0		; 256 repetitions
@@ -294,7 +327,7 @@ Screen11:
     ld      a, 8
     call    BIOS_CHGMOD
 
-    ld      a, (REG25SAV)   ; this is not going to compile
+    ld      a, (REG25SAV)
     or      0001 1000 b
     ld      (REG25SAV), a   ; MSX 2+ VDP registers aren't guaranted to be saved by BIOS_WRTVDP routine
     ld      b, a
@@ -780,6 +813,7 @@ CheckCollision_16x24_16x16:
 ;   Input:  HL = pointer to 15-byte VDP command data
 ;   Output: HL = updated
 ;   Destroys: A, B, C
+Execute_VDP_LMMM:
 Execute_VDP_HMMM:
     ld      a, 32           ; number of first register
     di

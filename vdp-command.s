@@ -15,19 +15,22 @@ Execute:
     ld      a, 5
     call    BIOS_CHGMOD
 
+    ;call    ClearVram_MSX2
+
+
 ; ----------------- Write on first 16 lines of the second page (not visible)
 
     xor     a           	; set vram write base address
     ld      hl, 0x8000     	;  to 1st byte of page 1...
     call    SetVDP_Write
 
-    ld      a, 0x77        	; use color 8 (red)
+    ld      a, 0x88        	; set color for 2 pixels
 
-	ld      c, 16          	; fill 1st N lines of page 1
+	ld      c, 32          	; fill 1st N lines of page 1
 .fillL1:
     ld      b, 128        	; one line in SC5 = 128 bytes
 .fillL2:
-    out     (PORT_0), a     	; could also have been done with
+    out     (PORT_0), a     ; could also have been done with
     djnz    .fillL2     	; a vdp command (probably faster)
     dec     c           	; (and could also use a fast loop)
     jp      nz, .fillL1
@@ -35,26 +38,95 @@ Execute:
 
 
 
+; ----------- Load test bg image on second page (not visible)
+
+    ld      ix, 0x8000 + (128 * 64)         ; vram base address
+    ld      iy, Image_Test_16x8             ; ram base address
+
+    ld      d, 8        ; number of lines
+.loop_1:    
+    xor     a
+    
+    ; HL = IX
+    push    ix
+    pop     hl
+
+    push    hl
+        call    SetVDP_Write
+    pop     hl
+
+    ld      bc, 128     ; next line
+    add     hl, bc
+
+    ; IX = HL
+    push    hl
+    pop     ix
+
+    ld      c, PORT_0
+
+    ; HL = IY
+    push    iy
+    pop     hl
+
+    ; 8x OUTI
+    outi outi outi outi outi outi outi outi 
+
+    ; IY = HL
+    push    hl
+    pop     iy
+
+    dec     d
+    jp      nz, .loop_1
+
+
 ; ----------------- Execute test VDP commands on the first page (visible)
 
     ; test HMMM
     ld      hl, HMMM_Parameters
-    call    Execute_VDP_HMMM
+    call    Execute_VDP_HMMM	    ; High speed move VRAM to VRAM
+
+
+    ; call    Wait
 
 
     ; test HMMV
     ld      hl, HMMV_Parameters
-    call    Execute_VDP_HMMV
+    call    Execute_VDP_HMMV        ; High speed move VDP to VRAM (fills an area with one single color)
+
+
+    ; call    Wait
 
 
     ; test YMMM
     ld      hl, YMMM_Parameters
-    call    Execute_VDP_YMMM
+    call    Execute_VDP_YMMM        ; High speed move VRAM to VRAM, Y coordinate only
+
+
+    ; call    Wait
+
+
+    ; test LMMM (will put an image on screen like a sprite)
+    ld      hl, LMMM_Parameters
+    call    Execute_VDP_LMMM        ; Logical move CPU to VRAM (copies data from your ram to the vram)
+
+
 
 .endProgram:
 	jr      .endProgram
 
     ret
+
+
+
+Image_Test_16x8:
+    db  0x00, 0x00, 0x00, 0x88, 0x88, 0x00, 0x00, 0x00
+    db  0x00, 0x00, 0x88, 0x88, 0x88, 0x88, 0x00, 0x00
+    db  0x00, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x00
+    db  0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88
+    db  0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88
+    db  0x00, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x00
+    db  0x00, 0x00, 0x88, 0x88, 0x88, 0x88, 0x00, 0x00
+    db  0x00, 0x00, 0x00, 0x88, 0x88, 0x00, 0x00, 0x00
 
 
 
@@ -69,10 +141,33 @@ HMMM_Parameters:
 ;    dw    0x0008, 0x0008	; number of cols/lines
 ;    db    0, 0, 0xD0
 
-   dw    0, 256 	; Source X (9 bits), Source Y (10 bits)
-   dw    128, 96 	; Destiny X (9 bits), Destiny Y (10 bits)
-   dw    20, 20		; number of cols (9 bits), number of lines (10 bits)
-   db    0, 0, VDP_COMMAND_HMMM
+;    dw    0, 256 	; Source X (9 bits), Source Y (10 bits)
+;    dw    128, 96 	; Destiny X (9 bits), Destiny Y (10 bits)
+;    dw    20, 20		; number of cols (9 bits), number of lines (10 bits)
+;    db    0, 0, VDP_COMMAND_HMMM
+.Source_X:   dw    0 	    ; Source X (9 bits)
+.Source_Y:   dw    256 	    ; Source Y (10 bits)
+.Destiny_X:  dw    128 	    ; Destiny X (9 bits)
+.Destiny_Y:  dw    96 	    ; Destiny Y (10 bits)
+.Cols:       dw    20       ; number of cols (9 bits)
+.Lines:      dw    20       ; number of lines (10 bits)
+.NotUsed:    db    0
+.Options:    db    0        ; select destination memory and direction from base coordinate
+.Command:    db    VDP_COMMAND_HMMM
+HMMM_Parameters_size: equ $ - HMMM_Parameters
+
+LMMM_Parameters:
+.Source_X:   dw    0 	    ; Source X (9 bits)
+.Source_Y:   dw    256 + 64 ; Source Y (10 bits)
+.Destiny_X:  dw    10       ; Destiny X (9 bits)
+.Destiny_Y:  dw    10       ; Destiny Y (10 bits)
+.Cols:       dw    16       ; number of cols (9 bits)
+.Lines:      dw    8        ; number of lines (10 bits)
+.NotUsed:    db    0
+.Options:    db    0        ; select destination memory and direction from base coordinate
+.Command:    db    VDP_COMMAND_LMMM OR VDP_LOGIC_OPERATION_TIMP
+LMMM_Parameters_size: equ $ - LMMM_Parameters
+
 
 ; Not working:
 HMMC_Parameters:    ; R#36 to R#46
@@ -81,7 +176,7 @@ HMMC_Parameters:    ; R#36 to R#46
    db    0, 0, VDP_COMMAND_HMMC
 
 HMMV_Parameters:    ; R#36 to R#46
-   dw    10, 10 	; Destiny X (9 bits), Destiny Y (10 bits)
+   dw    0, 0 	    ; Destiny X (9 bits), Destiny Y (10 bits)
    dw    20, 20		; number of cols (9 bits), number of lines (10 bits)
    db    0xac       ; color of the fill
    db    0, VDP_COMMAND_HMMV
@@ -95,18 +190,29 @@ YMMM_Parameters:
    db    0000 0000b         ; R#45: destination memory and direction from base coordinate
    db    VDP_COMMAND_YMMM   ; R#46: command number
 
-VDP_COMMAND_HMMC:       equ 1111 0000b	; High speed move CPU to VRAM
-VDP_COMMAND_YMMM:       equ 1110 0000b	; High speed move VRAM to VRAM, Y coordinate only
-VDP_COMMAND_HMMM:       equ 1101 0000b	; High speed move VRAM to VRAM
-VDP_COMMAND_HMMV:       equ 1100 0000b	; High speed move VDP to VRAM
+VDP_COMMAND_HMMC:       equ 1111 0000 b	; High speed move CPU to VRAM (copies data from your ram to the vram)
+VDP_COMMAND_YMMM:       equ 1110 0000 b	; High speed move VRAM to VRAM, Y coordinate only
+VDP_COMMAND_HMMM:       equ 1101 0000 b	; High speed move VRAM to VRAM
+VDP_COMMAND_HMMV:       equ 1100 0000 b	; High speed move VDP to VRAM (fills an area with one single color)
 
 ; Logical commands (four lower bits specifies logic operation)
-VDP_COMMAND_LMMC:       equ 1011 0000b	; Logical move CPU to VRAM
-VDP_COMMAND_LMCM:       equ 1010 0000b	; Logical move VRAM to CPU
-VDP_COMMAND_LMMM:       equ 1001 0000b	; Logical move VRAM to VRAM
-VDP_COMMAND_LMMV:       equ 1000 0000b	; Logical move VDP to VRAM
+VDP_COMMAND_LMMC:       equ 1011 0000 b	; Logical move CPU to VRAM (copies data from your ram to the vram)
+VDP_COMMAND_LMCM:       equ 1010 0000 b	; Logical move VRAM to CPU
+VDP_COMMAND_LMMM:       equ 1001 0000 b	; Logical move VRAM to VRAM
+VDP_COMMAND_LMMV:       equ 1000 0000 b	; Logical move VDP to VRAM (fills an area with one single color)
 
+; Logical operations:
+VDP_LOGIC_OPERATION_IMP:    equ 0000 b
+VDP_LOGIC_OPERATION_AND:    equ 0001 b
+VDP_LOGIC_OPERATION_OR:     equ 0010 b
+VDP_LOGIC_OPERATION_XOR:    equ 0011 b
+VDP_LOGIC_OPERATION_NOT:    equ 0100 b
 
+VDP_LOGIC_OPERATION_TIMP:   equ 1000 b
+VDP_LOGIC_OPERATION_TAND:   equ 1001 b
+VDP_LOGIC_OPERATION_TOR:    equ 1010 b
+VDP_LOGIC_OPERATION_TXOR:   equ 1011 b
+VDP_LOGIC_OPERATION_TNOT:   equ 1100 b
 
 ; https://msx.org/forum/msx-talk/development/doubts-about-9938-commands
 
