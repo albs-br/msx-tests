@@ -9,39 +9,8 @@ PageSize:	    equ	0x4000	        ; 16kB
     org 0x4000, 0xbeff	                    ; 0x8000 can be also used here if Rom size is 16kB or less.
 
     INCLUDE "Include/RomHeader.s"
-
-CHPUT:      equ 0x00a2	; bios call to print a character on screen
-CHGMOD:		equ 0x005f
-WRTVDP:		equ 0x0047
-WRTVRM:		equ 0x004d	; MSX 1
-NRDVRM:		equ 0x0174	; MSX 2
-NWRVRM:		equ 0x0177	; MSX 2
-NSTWRT:		equ 0x0171	; MSX 2
-BEEP:		equ 0x00c0
-SNSMAT:		equ 0x0141
-
-PORT_0: equ 0x98
-PORT_1: equ 0x99
-PORT_2: equ 0x9a
-PORT_3: equ 0x9b
-
-REG0SAV: equ 0xF3DF
-
-; PPI (Programmable Peripheral Interface)
-PPI.A: equ $a8 ; PPI port A: primary slot selection register
-    ; 33221100: number of slot to select on page n
-PPI.B: equ $a9 ; PPI port B: read the keyboard matrix row specified via the PPI port C ($AA)
-PPI.C: equ $aa ; PPI port C: control keyboard CAP LED, data recorder signals, and keyboard matrix row
-    ; bits 0-3: Row number of specified keyboard matrix to read via port B
-    ; bit 4: Data recorder motor (reset to turn on)
-    ; bit 5: Set to write on tape
-    ; bit 6: Keyboard LED CAPS (reset to turn on)
-    ; bit 7: 1, then 0 shortly thereafter to make a clicking sound (used for the keyboard)
-PPI.R: equ $ab ; PPI ports control register (write only)
-    ; bit 0 = Bit status to change
-    ; bit 1-3 = Number of the bit to change at port C of the PPI
-    ; bit 4-6 = Unused
-    ; bit 7 = Must be always reset on MSX
+    INCLUDE "Include/MsxBios.s"
+    INCLUDE "Include/MsxConstants.s"
 
 
 Execute:
@@ -60,19 +29,19 @@ Execute:
 			; VDP(9)=10 ' In this example we don't need sprites, so we disable them.
 			ld  	b, 10		; data to write
             ld  	c, 8		; register number (9 to 24	Control registers 8 to 23	Read / Write	MSX2 and higher)
-            call  	WRTVDP		; Write B value to C register
+            call  	BIOS_WRTVDP		; Write B value to C register
             
             
 			; screen 8
             ld 		a, 8
-			call	CHGMOD
+			call	BIOS_CHGMOD
 
 
 			; ------------------------ Draw screen -----------------------------
 
 			; FOR Y=0 TO 255 : FOR X=0 TO 255 : VPOKE X + Y * 256, X X OR Y : NEXT X, Y
             ld   	hl, 0
-            call  	NSTWRT
+            call  	BIOS_NSTWRT
             ld  	c, PORT_0
 
 			ld 		iyl, 0
@@ -114,10 +83,18 @@ Execute:
             ;210 ' ... and then just copy...
 			; FOR I=0 TO 4:POKE -614+I,PEEK(AD+I):NEXT I
 
+
+            ; ; Preserves the existing hook
+            ; ld	    hl, HKEYI
+            ; ld	    de, old_htimi_hook
+            ; ld	    bc, HOOK_SIZE
+            ; ldir
+
+
 			ld 		a, 0xc3    ; 0xc3 is the opcode for "jp", so this sets "jp .line_80" as the interrupt code
-            ld 		(0xfd9a), a
+            ld 		(HKEYI), a
             ld 		hl, .line_80
-            ld 		(0xfd9a + 1), hl
+            ld 		(HKEYI + 1), hl
 
             
 
@@ -165,18 +142,24 @@ Execute:
             and  	239
 			ld  	b, a		; data to write
             ld  	c, 0		; register number (9 to 24	Control registers 8 to 23	Read / Write	MSX2 and higher)
-            call  	WRTVDP		; Write B value to C register
+            call  	BIOS_WRTVDP		; Write B value to C register
 
             ; ' ... and release the interrupt hook (put RETurn to it)
             ; POKE -614,201
             ld  	a, 201
-            ld  	(-614), a
+            ld  	(HKEYI), a
+
+            ; ; Restore the existing hook
+            ; ld	    hl, old_htimi_hook
+            ; ld	    de, HKEYI
+            ; ld	    bc, HOOK_SIZE
+            ; ldir
 
             ; ' Now it is safe to exit
             ; BEEP:END
-            call  	BEEP
+            call  	BIOS_BEEP
 
-            ret  	; exit program
+            ret  	; exit program (don't make sense on cartridge ROM)
 
 .line_80:
 
@@ -199,7 +182,7 @@ Execute:
             xor  	a
             ld  	(Flag_IN), a
             ld  	(Counter_T), a
-            ret
+            ret     ;jp      .return
 .else:
             ; T=T+1
             ld  	hl, Counter_T
@@ -209,11 +192,12 @@ Execute:
             ld  	a, (hl)
             cp  	100
             ret  	nz
+            ; jp      nz, .return
 
 			xor  	a
             ld  	(Counter_T), a
             ld  	(Flag_IN), a
-			ret
+            ret     ;jp      .return
 
 
 
@@ -238,7 +222,7 @@ Execute:
             call  	WRTVDP_without_DI_EI		; Write B value to C register
             di
             
-			ret
+            ret     ;jp      .return
 
 .sub_470_line_530:
             ; ' Here we handle line interrupt
@@ -263,16 +247,21 @@ Execute:
 			cp  	64
             jp  	z, .setDirection_Minus_1
             
-			ret
+            ret     ;jp      .return
             
 .setDirection_Plus_1:
 			ld  	a, 1
             ld  	(Direction), a
-            ret
+            ret     ;jp      .return
 .setDirection_Minus_1:
 			ld  	a, -1
             ld  	(Direction), a
-            ret
+            ret     ;jp      .return
+
+; .return:
+;             ; Invokes the previously existing hook
+;             jp	    old_htimi_hook
+
 
 ; ---------------- includes
 
@@ -349,6 +338,10 @@ Counter_T:	rb 1
 Var_P:		rb 1
 ; Var_AD:		rw 1
 Direction:  rb 1
+
+
+; old_htimi_hook:     rb	HOOK_SIZE
+
 
             ; use the label "start" as the entry point
             ; end start
