@@ -53,8 +53,8 @@ Execute:
             ld  	(Var_P), a
             ld  	a, 1
             ld  	(Direction), a
-            ld  	hl, 0
-            ld  	(Var_AD), hl
+            ; ld  	hl, 0
+            ; ld  	(Var_AD), hl
 
 
 			; VDP(9)=10 ' In this example we don't need sprites, so we disable them.
@@ -180,8 +180,8 @@ Execute:
 
 .line_80:
 
-			;call  	BEEP
-            ;ret
+			; call  	BEEP
+            ; ret
 
 
             ; ' This is interrupt routine
@@ -322,8 +322,6 @@ WRTVDP_without_DI_EI:
     out 	(PORT_1), a
     ret
 
-	ds PageSize - ($ - 0x4000), 255	; Fill the unused area with 0xFF
-
 
 
 ; Alternative implementation of BIOS' SNSMAT without DI and EI
@@ -341,13 +339,15 @@ SNSMAT_NO_DI_EI:
 	in	a, (PPI.B)
 	ret
 
+	ds PageSize - ($ - 0x4000), 255	; Fill the unused area with 0xFF
+
 ; ----------------- Variables
     org 0xc000
 
 Flag_IN:	rb 1
 Counter_T:	rb 1
 Var_P:		rb 1
-Var_AD:		rw 1
+; Var_AD:		rw 1
 Direction:  rb 1
 
             ; use the label "start" as the entry point
