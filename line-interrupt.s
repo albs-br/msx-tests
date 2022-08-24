@@ -1,3 +1,12 @@
+FNAME "line-interrupt.rom"      ; output file
+
+PageSize:	    equ	0x4000	        ; 16kB
+
+; Compilation address
+    org 0x4000, 0xbeff	                    ; 0x8000 can be also used here if Rom size is 16kB or less.
+
+    INCLUDE "Include/RomHeader.s"
+
 CHPUT:      equ 0x00a2	; bios call to print a character on screen
 CHGMOD:		equ 0x005f
 WRTVDP:		equ 0x0047
@@ -15,10 +24,8 @@ PORT_3: equ 0x9b
 
 REG0SAV: equ 0xF3DF
 
-            ; the address of our program
-            org 0xD000
 
-start:
+Execute:
 
 			; Init variables
             xor  	a
@@ -269,14 +276,21 @@ RDSTATUSREG:
 ; <-
 	ret
 
+End:
+
+    db      "End ROM started at 0x4000"
+
+	ds PageSize - ($ - 0x4000), 255	; Fill the unused area with 0xFF
 
 
 ; ----------------- Variables
-Flag_IN:	db 0
-Counter_T:	db 0
-Var_P:		db 0
-Var_AD:		dw 0
+    org 0xc000
+
+Flag_IN:	rb 0
+Counter_T:	rb 0
+Var_P:		rb 0
+Var_AD:		rw 0
 
             ; use the label "start" as the entry point
-            end start
+            ; end start
             
