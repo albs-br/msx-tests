@@ -1,5 +1,8 @@
 FNAME "line-interrupt.rom"      ; output file
 
+; working version on MSP pen:
+; https://msxpen.com/codes/-NAAaPeqw-Y8T3PlyQLC
+
 PageSize:	    equ	0x4000	        ; 16kB
 
 ; Compilation address
@@ -24,6 +27,22 @@ PORT_3: equ 0x9b
 
 REG0SAV: equ 0xF3DF
 
+; PPI (Programmable Peripheral Interface)
+PPI.A: equ $a8 ; PPI port A: primary slot selection register
+    ; 33221100: number of slot to select on page n
+PPI.B: equ $a9 ; PPI port B: read the keyboard matrix row specified via the PPI port C ($AA)
+PPI.C: equ $aa ; PPI port C: control keyboard CAP LED, data recorder signals, and keyboard matrix row
+    ; bits 0-3: Row number of specified keyboard matrix to read via port B
+    ; bit 4: Data recorder motor (reset to turn on)
+    ; bit 5: Set to write on tape
+    ; bit 6: Keyboard LED CAPS (reset to turn on)
+    ; bit 7: 1, then 0 shortly thereafter to make a clicking sound (used for the keyboard)
+PPI.R: equ $ab ; PPI ports control register (write only)
+    ; bit 0 = Bit status to change
+    ; bit 1-3 = Number of the bit to change at port C of the PPI
+    ; bit 4-6 = Unused
+    ; bit 7 = Must be always reset on MSX
+
 
 Execute:
 
@@ -32,6 +51,8 @@ Execute:
             ld  	(Flag_IN), a
             ld  	(Counter_T), a
             ld  	(Var_P), a
+            ld  	a, 1
+            ld  	(Direction), a
             ld  	hl, 0
             ld  	(Var_AD), hl
 
@@ -58,12 +79,12 @@ Execute:
 .loop_Y:            
 				ld  	ixl, 0
 	.loop_X:
-              	ld  	a, iyl
-                xor  	ixl
-                
-                out  	(c), a
-            
-            	inc   	hl
+                    ld  	a, iyl
+                    xor  	ixl
+
+                    out  	(c), a
+
+                    ;inc   	hl
 
                 inc		ixl
                 jp  	nz, .loop_X
@@ -106,14 +127,14 @@ Execute:
             or  	16
 			ld  	b, a		; data to write
             ld  	c, 0		; register number (9 to 24	Control registers 8 to 23	Read / Write	MSX2 and higher)
-            call  	WRTVDP		; Write B value to C register
-            di
+            call  	WRTVDP_without_DI_EI		; Write B value to C register
+            ;di
 
             ; ' Let's set the interrupt to happen on line 100
             ; VDP(20)=100
 			ld  	b, 100		; data to write
             ld  	c, 19		; register number (9 to 24	Control registers 8 to 23	Read / Write	MSX2 and higher)
-            call  	WRTVDP		; Write B value to C register
+            call  	WRTVDP_without_DI_EI		; Write B value to C register
             ;di
 
             ; ' Now we are ready and we can enable interrupts (EI)
@@ -130,7 +151,8 @@ Execute:
 .readKeyBoard:
             ; read keyboard
             ld      a, 8                    ; 8th line
-            call    SNSMAT             ; Read Data Of Specified Line From Keyboard Matrix
+            ;call    SNSMAT             ; Read Data Of Specified Line From Keyboard Matrix
+            call  	SNSMAT_NO_DI_EI
             bit     0, a                ; 0th bit (space bar)
             jp    	z, .exit            
 
@@ -213,7 +235,7 @@ Execute:
             ; VDP(24)=0 ' Upper part of screen shows still picture
 			ld  	b, 0		; data to write
             ld  	c, 23		; register number (9 to 24	Control registers 8 to 23	Read / Write	MSX2 and higher)
-            call  	WRTVDP		; Write B value to C register
+            call  	WRTVDP_without_DI_EI		; Write B value to C register
             di
             
 			ret
@@ -226,28 +248,39 @@ Execute:
             ld  	a, (Var_P)
 			ld  	b, a		; data to write
             ld  	c, 23		; register number (9 to 24	Control registers 8 to 23	Read / Write	MSX2 and higher)
-            call  	WRTVDP		; Write B value to C register
-            di
+            call  	WRTVDP_without_DI_EI		; Write B value to C register
+            ;di
             
-            ; P++ (provisory)
-            ld  	hl, Var_P
-            inc  	(hl)
-            
-            ret
+            ld  	a, (Direction)
+            ld  	b, a
+            ld  	a, (Var_P)
+            add  	a, b
+            ld  	(Var_P), a
 
-;.eternalLoop:
-;			jp  	.eternalLoop
+            ; invert direction flag
+			cp  	0
+            jp  	z, .setDirection_Plus_1
+			cp  	64
+            jp  	z, .setDirection_Minus_1
+            
+			ret
+            
+.setDirection_Plus_1:
+			ld  	a, 1
+            ld  	(Direction), a
+            ret
+.setDirection_Minus_1:
+			ld  	a, -1
+            ld  	(Direction), a
+            ret
 
 ; ---------------- includes
 
 
-;----------------------------------
 ; Routine to read a status register
-;
-; Input: B = Status register number to read (MSX2~)
-; Output: B = Read value from the status register
-; Modify: AF, BC
-;----------------------------------
+  ; Input: B = Status register number to read (MSX2~)
+  ; Output: B = Read value from the status register
+  ; Modify: AF, BC
 RDSTATUSREG:
 ; -> Write the registre number in the r#15 (these 7 lines are specific MSX2 or newer)
 	ld	a,(0007h)	; Main-ROM must be selected on page 0000h-3FFFh
@@ -276,20 +309,46 @@ RDSTATUSREG:
 ; <-
 	ret
 
-End:
 
-    db      "End ROM started at 0x4000"
+; Write B value to C register
+WRTVDP_without_DI_EI:
+    ld 		a, b
+    ;di
+    out 	(PORT_1),a
+    ld  	a, c
+    or  	128
+    ;ld 	a, regnr + 128
+    ;ei
+    out 	(PORT_1), a
+    ret
 
 	ds PageSize - ($ - 0x4000), 255	; Fill the unused area with 0xFF
 
 
+
+; Alternative implementation of BIOS' SNSMAT without DI and EI
+; param a/c: the keyboard matrix row to be read
+; ret a: the keyboard matrix row read
+SNSMAT_NO_DI_EI:
+	ld	c, a
+.C_OK:
+; Initializes PPI.C value
+	in	a, (PPI.C)
+	and	0xf0 ; (keep bits 4-7)
+	or	c
+; Reads the keyboard matrix row
+	out	(PPI.C), a
+	in	a, (PPI.B)
+	ret
+
 ; ----------------- Variables
     org 0xc000
 
-Flag_IN:	rb 0
-Counter_T:	rb 0
-Var_P:		rb 0
-Var_AD:		rw 0
+Flag_IN:	rb 1
+Counter_T:	rb 1
+Var_P:		rb 1
+Var_AD:		rw 1
+Direction:  rb 1
 
             ; use the label "start" as the entry point
             ; end start
