@@ -22,6 +22,9 @@ SPRPAT:     equ 0xf000
 SPRCOL:     equ 0xf800
 SPRATR:     equ 0xfa00
 
+SPRCOL_2:     equ 0xfc00
+SPRATR_2:     equ 0xfe00
+
 Execute:
 
     ; define screen colors
@@ -50,18 +53,13 @@ Execute:
     call    SetColor0ToTransparent
 
 
-; ---- set SPRATR to 0x1fa00 (SPRCOL is automatically set 512 bytes before SPRATR, so 0x1f800)
-    ; bits:    16 14        7
-    ;           |  |        |
-    ; 0x1fa00 = 1 1111 1010 0000 0000
-    ; low bits (aaaaa111: bits 14 to 10)
-    ld      b, 1111 0111 b  ; data          ; In sprite mode 2 the least significant three bits in register 5 should be 1 otherwise mirroring will occur. ; https://www.msx.org/forum/msx-talk/development/strange-behaviour-bug-on-spratr-base-addr-register-on-v993858
-    ld      c, 5            ; register #
-    call    BIOS_WRTVDP
-    ; high bits (000000aa: bits 16 to 15)
-    ld      b, 0000 0011 b  ; data
-    ld      c, 11           ; register #
-    call    BIOS_WRTVDP
+
+
+    call    Load_SPRATR_1
+    call    Load_SPRATR_2
+
+    call    Set_SPRATR_1
+
 
 ; ---- set SPRPAT to 0x1f000
     ; bits:    16     11
@@ -84,23 +82,43 @@ Execute:
     otir
 
 
-    ; Load sprite colors
+    ; -------------------------------------------------------
+    ; Load sprite colors table 1
+
     ld      a, 0000 0001 b
-    ;ld      a, 0000 0000 b
     ld      hl, SPRCOL
     call    SetVdp_Write
     ld      b, 0; 256 bytes SpriteColors_1.size
     ld      c, PORT_0        ; you can also write ld bc,#nn9B, which is faster
-    ld      hl, SpriteColors_1
+    ld      hl, SpriteColors_a
     otir
 
     ld      a, 0000 0001 b
-    ;ld      a, 0000 0000 b
     ld      hl, SPRCOL + 256
     call    SetVdp_Write
     ld      b, 0; 256 bytes SpriteColors_1.size
     ld      c, PORT_0        ; you can also write ld bc,#nn9B, which is faster
-    ld      hl, SpriteColors_2
+    ld      hl, SpriteColors_b
+    otir
+
+
+    ; -------------------------------------------------------
+    ; Load sprite colors table 2
+
+    ld      a, 0000 0001 b
+    ld      hl, SPRCOL_2
+    call    SetVdp_Write
+    ld      b, 0; 256 bytes SpriteColors_1.size
+    ld      c, PORT_0        ; you can also write ld bc,#nn9B, which is faster
+    ld      hl, SpriteColors_a
+    otir
+
+    ld      a, 0000 0001 b
+    ld      hl, SPRCOL_2 + 256
+    call    SetVdp_Write
+    ld      b, 0; 256 bytes SpriteColors_1.size
+    ld      c, PORT_0        ; you can also write ld bc,#nn9B, which is faster
+    ld      hl, SpriteColors_b
     otir
 
 
@@ -137,7 +155,7 @@ Execute:
 
 
     ; set the interrupt to happen on line n
-    ld  	b, 64		; data to write
+    ld  	b, 63		; data to write
     ld  	c, 19		; register number
     call  	WRTVDP_without_DI_EI		; Write B value to C register
 
@@ -203,31 +221,66 @@ Execute:
     cp  	1
     
     ; Code to run on line interrupt:
-    jp   	z, Set_SPRATR_bottom
+    jp   	z, Set_SPRATR_2
 
 
     ; Code to run on Vblank:
-    jp      Set_SPRATR_top
+    jp      Set_SPRATR_1
 
 ; ------------
-Set_SPRATR_bottom:
-    ld      a, 0000 0001 b
-    ld      hl, SPRATR
-    call    SetVdp_Write
-    ld      b, SpriteAttributes_bottom.size
-    ld      c, PORT_0        ; you can also write ld bc,#nn9B, which is faster
-    ld      hl, SpriteAttributes_bottom
-    otir
 
+Set_SPRATR_1:
+; ---- set SPRATR to 0x1fa00 (SPRCOL is automatically set 512 bytes before SPRATR, so 0x1f800)
+    ; bits:    16 14        7
+    ;           |  |        |
+    ; 0x1fa00 = 1 1111 1010 0000 0000
+    ; low bits (aaaaa111: bits 14 to 10)
+    ld      b, 1111 0111 b  ; data          ; In sprite mode 2 the least significant three bits in register 5 should be 1 otherwise mirroring will occur. ; https://www.msx.org/forum/msx-talk/development/strange-behaviour-bug-on-spratr-base-addr-register-on-v993858
+    ld      c, 5            ; register #
+    call    BIOS_WRTVDP
+    ; high bits (000000aa: bits 16 to 15)
+    ld      b, 0000 0011 b  ; data
+    ld      c, 11           ; register #
+    call    BIOS_WRTVDP
     ret
 
-Set_SPRATR_top:
+Set_SPRATR_2:
+; ---- set SPRATR to 0x1fe00 (SPRCOL is automatically set 512 bytes before SPRATR, so 0x1fc00)
+    ; bits:    16 14        7
+    ;           |  |        |
+    ; 0x1fa00 = 1 1111 1110 0000 0000
+    ; low bits (aaaaa111: bits 14 to 10)
+    ld      b, 1111 1111 b  ; data          ; In sprite mode 2 the least significant three bits in register 5 should be 1 otherwise mirroring will occur. ; https://www.msx.org/forum/msx-talk/development/strange-behaviour-bug-on-spratr-base-addr-register-on-v993858
+    ld      c, 5            ; register #
+    call    BIOS_WRTVDP
+    ; high bits (000000aa: bits 16 to 15)
+    ld      b, 0000 0011 b  ; data
+    ld      c, 11           ; register #
+    call    BIOS_WRTVDP
+    ret
+
+Load_SPRATR_1:
     ld      a, 0000 0001 b
     ld      hl, SPRATR
     call    SetVdp_Write
     ld      b, SpriteAttributes_top.size
     ld      c, PORT_0        ; you can also write ld bc,#nn9B, which is faster
     ld      hl, SpriteAttributes_top
+    otir
+
+    ret
+
+Load_SPRATR_2:
+; wasting 7 scanlines to fill up 128 bytes of SPRATR
+
+; switching between 2 SPRATR tables: 3 lines
+
+    ld      a, 0000 0001 b
+    ld      hl, SPRATR_2
+    call    SetVdp_Write
+    ld      b, SpriteAttributes_bottom.size
+    ld      c, PORT_0        ; you can also write ld bc,#nn9B, which is faster
+    ld      hl, SpriteAttributes_bottom
     otir
 
     ret
@@ -273,7 +326,7 @@ SpritePattern_1:
     DB 11100000b
 .size:  equ $ - SpritePattern_1
 
-SpriteColors_1:
+SpriteColors_a:
     ;db 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04
     db 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08
 
@@ -294,9 +347,9 @@ SpriteColors_1:
     
     ;db 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04
     db 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08
-.size:  equ $ - SpriteColors_1
+.size:  equ $ - SpriteColors_a
 
-SpriteColors_2:
+SpriteColors_b:
     db 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04
     db 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04
     db 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04
@@ -313,77 +366,77 @@ SpriteColors_2:
     db 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04
     db 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04
     db 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04
-.size:  equ $ - SpriteColors_2
+.size:  equ $ - SpriteColors_b
 
 
 SpriteAttributes_top:
-    db  0, 0, 0, 0
-    db  0, 16, 0, 0
-    db  0, 32, 0, 0
-    db  0, 48, 0, 0
-    db  0, 64, 0, 0
-    db  0, 80, 0, 0
-    db  0, 96, 0, 0
-    db  0, 112, 0, 0
-    db  16, 0, 0, 0
-    db  16, 16, 0, 0
-    db  16, 32, 0, 0
-    db  16, 48, 0, 0
-    db  16, 64, 0, 0
-    db  16, 80, 0, 0
-    db  16, 96, 0, 0
-    db  16, 112, 0, 0
-    db  32, 0, 0, 0
-    db  32, 16, 0, 0
-    db  32, 32, 0, 0
-    db  32, 48, 0, 0
-    db  32, 64, 0, 0
-    db  32, 80, 0, 0
-    db  32, 96, 0, 0
-    db  32, 112, 0, 0
-    db  48, 0, 0, 0
-    db  48, 16, 0, 0
-    db  48, 32, 0, 0
-    db  48, 48, 0, 0
-    db  48, 64, 0, 0
-    db  48, 80, 0, 0
-    db  48, 96, 0, 0
-    db  48, 112, 0, 0
+    db  -1 + 0, 0, 0, 0
+    db  -1 + 0, 16, 0, 0
+    db  -1 + 0, 32, 0, 0
+    db  -1 + 0, 48, 0, 0
+    db  -1 + 0, 64, 0, 0
+    db  -1 + 0, 80, 0, 0
+    db  -1 + 0, 96, 0, 0
+    db  -1 + 0, 112, 0, 0
+    db  -1 + 16, 0, 0, 0
+    db  -1 + 16, 16, 0, 0
+    db  -1 + 16, 32, 0, 0
+    db  -1 + 16, 48, 0, 0
+    db  -1 + 16, 64, 0, 0
+    db  -1 + 16, 80, 0, 0
+    db  -1 + 16, 96, 0, 0
+    db  -1 + 16, 112, 0, 0
+    db  -1 + 32, 0, 0, 0
+    db  -1 + 32, 16, 0, 0
+    db  -1 + 32, 32, 0, 0
+    db  -1 + 32, 48, 0, 0
+    db  -1 + 32, 64, 0, 0
+    db  -1 + 32, 80, 0, 0
+    db  -1 + 32, 96, 0, 0
+    db  -1 + 32, 112, 0, 0
+    db  -1 + 48, 0, 0, 0
+    db  -1 + 48, 16, 0, 0
+    db  -1 + 48, 32, 0, 0
+    db  -1 + 48, 48, 0, 0
+    db  -1 + 48, 64, 0, 0
+    db  -1 + 48, 80, 0, 0
+    db  -1 + 48, 96, 0, 0
+    db  -1 + 48, 112, 0, 0
 .size:  equ $ - SpriteAttributes_top
 
 SpriteAttributes_bottom:
-    db  7 + 64, 0, 0, 0
-    db  7 + 64, 16, 0, 0
-    db  7 + 64, 32, 0, 0
-    db  7 + 64, 48, 0, 0
-    db  7 + 64, 64, 0, 0
-    db  7 + 64, 80, 0, 0
-    db  7 + 64, 96, 0, 0
-    db  7 + 64, 112, 0, 0
-    db  7 + 80, 0, 0, 0
-    db  7 + 80, 16, 0, 0
-    db  7 + 80, 32, 0, 0
-    db  7 + 80, 48, 0, 0
-    db  7 + 80, 64, 0, 0
-    db  7 + 80, 80, 0, 0
-    db  7 + 80, 96, 0, 0
-    db  7 + 80, 112, 0, 0
-    db  7 + 96, 0, 0, 0
-    db  7 + 96, 16, 0, 0
-    db  7 + 96, 32, 0, 0
-    db  7 + 96, 48, 0, 0
-    db  7 + 96, 64, 0, 0
-    db  7 + 96, 80, 0, 0
-    db  7 + 96, 96, 0, 0
-    db  7 + 96, 112, 0, 0
-    db  7 + 112, 0, 0, 0
-    db  7 + 112, 16, 0, 0
-    db  7 + 112, 32, 0, 0
-    db  7 + 112, 48, 0, 0
-    db  7 + 112, 64, 0, 0
-    db  7 + 112, 80, 0, 0
-    db  7 + 112, 96, 0, 0
-    db  7 + 112, 112, 0, 0
+    db  -1 + 3 + 64, 0, 0, 0
+    db  -1 + 3 + 64, 16, 0, 0
+    db  -1 + 3 + 64, 32, 0, 0
+    db  -1 + 3 + 64, 48, 0, 0
+    db  -1 + 3 + 64, 64, 0, 0
+    db  -1 + 3 + 64, 80, 0, 0
+    db  -1 + 3 + 64, 96, 0, 0
+    db  -1 + 3 + 64, 112, 0, 0
+    db  -1 + 3 + 80, 0, 0, 0
+    db  -1 + 3 + 80, 16, 0, 0
+    db  -1 + 3 + 80, 32, 0, 0
+    db  -1 + 3 + 80, 48, 0, 0
+    db  -1 + 3 + 80, 64, 0, 0
+    db  -1 + 3 + 80, 80, 0, 0
+    db  -1 + 3 + 80, 96, 0, 0
+    db  -1 + 3 + 80, 112, 0, 0
+    db  -1 + 3 + 96, 0, 0, 0
+    db  -1 + 3 + 96, 16, 0, 0
+    db  -1 + 3 + 96, 32, 0, 0
+    db  -1 + 3 + 96, 48, 0, 0
+    db  -1 + 3 + 96, 64, 0, 0
+    db  -1 + 3 + 96, 80, 0, 0
+    db  -1 + 3 + 96, 96, 0, 0
+    db  -1 + 3 + 96, 112, 0, 0
+    db  -1 + 3 + 112, 0, 0, 0
+    db  -1 + 3 + 112, 16, 0, 0
+    db  -1 + 3 + 112, 32, 0, 0
+    db  -1 + 3 + 112, 48, 0, 0
+    db  -1 + 3 + 112, 64, 0, 0
+    db  -1 + 3 + 112, 80, 0, 0
+    db  -1 + 3 + 112, 96, 0, 0
+    db  -1 + 3 + 112, 112, 0, 0
 .size:  equ $ - SpriteAttributes_bottom
 
 	ds PageSize - ($ - 0x4000), 255	; Fill the unused area with 0xFF
