@@ -115,9 +115,9 @@ SPRATR:     equ 0xfa00
     ld      a, 0000 0001 b
     ld      hl, SPRATR
     call    SetVdp_Write
-    ld      b, SpriteAttributes.size
+    ld      b, SpriteAttributes_top.size
     ld      c, PORT_0        ; you can also write ld bc,#nn9B, which is faster
-    ld      hl, SpriteAttributes
+    ld      hl, SpriteAttributes_top
     otir
 
 ; -----------
@@ -183,7 +183,7 @@ SpriteColors_1:
 
 
 
-SpriteAttributes:
+SpriteAttributes_top:
     ;   Y, X, Pattern, Reserved
 
     ; sprites 0 and 1
@@ -194,7 +194,7 @@ SpriteAttributes:
     ; db  90 + 16, 100, 2 * 4, 0
     ; db  90 + 16, 100, 3 * 4, 0
 
-.size:  equ $ - SpriteAttributes
+.size:  equ $ - SpriteAttributes_top
 
 
 ; ImageTest:

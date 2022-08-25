@@ -59,9 +59,9 @@ SPRATR:     equ 0x7600
     ld      a, 0000 0000 b
     ld      hl, SPRATR
     call    SetVdp_Write
-    ld      b, SpriteAttributes.size
+    ld      b, SpriteAttributes_top.size
     ld      c, PORT_0        ; you can also write ld bc,#nn9B, which is faster
-    ld      hl, SpriteAttributes
+    ld      hl, SpriteAttributes_top
     otir
 
 
@@ -193,12 +193,12 @@ SpriteColors_1:
 ;     db  0100 0000 b + 2
 ; .size:  equ $ - SpriteColors_2
 
-SpriteAttributes:
+SpriteAttributes_top:
     ;   Y, X, Pattern, Reserved
     ;db  220, 0, 0, 0
     db  10, 10, 0, 0
     db  10, 128, 0, 0 ; sprite not showing
-.size:  equ $ - SpriteAttributes
+.size:  equ $ - SpriteAttributes_top
 
 
     db      "End ROM started at 0x4000"

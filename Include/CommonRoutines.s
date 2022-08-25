@@ -928,3 +928,65 @@ Execute_VDP_YMMM:
     outi
     outi
     ret
+
+; Routine to read a status register
+  ; Input: B = Status register number to read (MSX2~)
+  ; Output: B = Read value from the status register
+  ; Modify: AF, BC
+ReadStatusReg:
+; -> Write the registre number in the r#15 (these 7 lines are specific MSX2 or newer)
+	ld	a,(0007h)	; Main-ROM must be selected on page 0000h-3FFFh
+	inc	a
+	ld	c,a		; C = CPU port #99h (VDP writing port#1)
+	;di		; Interrupts must be disabled here
+	out	(c),b
+	ld	a,080h+15
+	out	(c),a
+; <-
+ 
+	ld	a,(0006h)	; Main-ROM must be selected on page 0000h-3FFFh
+	inc	a
+	ld	c,a		; C = CPU port #99h (VDP reading port#1)
+	in	b,(c)	; read the value to the port#1
+ 
+; -> Rewrite the registre number 0 in the r#15 (these 8 lines are specific MSX2 or newer)
+	ld	a,(0007h)	; Main-ROM must be selected on page 0000h-3FFFh
+	inc	a
+	ld	c,a		; C = CPU port #99h (VDP writing port#1)
+	xor	a
+	out	(c),a
+	ld	a,080h+15
+	out	(c),a
+	;ei		; Interrupts can be enabled here
+; <-
+	ret
+
+
+; Write B value to C register
+WRTVDP_without_DI_EI:
+    ld 		a, b
+    ;di
+    out 	(PORT_1),a
+    ld  	a, c
+    or  	128
+    ;ld 	a, regnr + 128
+    ;ei
+    out 	(PORT_1), a
+    ret
+
+
+
+; Alternative implementation of BIOS' SNSMAT without DI and EI
+; param a/c: the keyboard matrix row to be read
+; ret a: the keyboard matrix row read
+SNSMAT_NO_DI_EI:
+	ld	c, a
+.C_OK:
+; Initializes PPI.C value
+	in	a, (PPI.C)
+	and	0xf0 ; (keep bits 4-7)
+	or	c
+; Reads the keyboard matrix row
+	out	(PPI.C), a
+	in	a, (PPI.B)
+	ret

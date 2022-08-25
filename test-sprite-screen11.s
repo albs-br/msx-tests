@@ -108,9 +108,9 @@ Execute:
     ;ld      a, 0000 0000 b
     ld      hl, SPRATR
     call    SetVdp_Write
-    ld      b, SpriteAttributes.size
+    ld      b, SpriteAttributes_top.size
     ld      c, PORT_0        ; you can also write ld bc,#nn9B, which is faster
-    ld      hl, SpriteAttributes
+    ld      hl, SpriteAttributes_top
     otir
 
 
@@ -206,7 +206,7 @@ SpriteColors_2:
 .size:  equ $ - SpriteColors_2
 
 
-SpriteAttributes:
+SpriteAttributes_top:
     db  0, 0, 0, 0
     db  0, 16, 0, 0
     db  0, 32, 0, 0
@@ -239,4 +239,4 @@ SpriteAttributes:
     db  48, 80, 0, 0
     db  48, 96, 0, 0
     db  48, 112, 0, 0
-.size:  equ $ - SpriteAttributes
+.size:  equ $ - SpriteAttributes_top
