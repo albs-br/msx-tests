@@ -27,9 +27,9 @@ Execute:
     ; define screen colors
     ld 		a, 1      	            ; Foregoung color
     ld 		(BIOS_FORCLR), a    
-    ld 		a, 1  		            ; Backgroung color
+    ld 		a, 5  		            ; Backgroung color
     ld 		(BIOS_BAKCLR), a     
-    ld 		a, 1      	            ; Border color
+    ld 		a, 3      	            ; Border color
     ld 		(BIOS_BDRCLR), a    
     call 	BIOS_CHGCLR        		; Change Screen Color
 
@@ -352,38 +352,38 @@ SpriteAttributes_top:
 .size:  equ $ - SpriteAttributes_top
 
 SpriteAttributes_bottom:
-    db  64, 0, 0, 0
-    db  64, 16, 0, 0
-    db  64, 32, 0, 0
-    db  64, 48, 0, 0
-    db  64, 64, 0, 0
-    db  64, 80, 0, 0
-    db  64, 96, 0, 0
-    db  64, 112, 0, 0
-    db  80, 0, 0, 0
-    db  80, 16, 0, 0
-    db  80, 32, 0, 0
-    db  80, 48, 0, 0
-    db  80, 64, 0, 0
-    db  80, 80, 0, 0
-    db  80, 96, 0, 0
-    db  80, 112, 0, 0
-    db  96, 0, 0, 0
-    db  96, 16, 0, 0
-    db  96, 32, 0, 0
-    db  96, 48, 0, 0
-    db  96, 64, 0, 0
-    db  96, 80, 0, 0
-    db  96, 96, 0, 0
-    db  96, 112, 0, 0
-    db  112, 0, 0, 0
-    db  112, 16, 0, 0
-    db  112, 32, 0, 0
-    db  112, 48, 0, 0
-    db  112, 64, 0, 0
-    db  112, 80, 0, 0
-    db  112, 96, 0, 0
-    db  112, 112, 0, 0
+    db  7 + 64, 0, 0, 0
+    db  7 + 64, 16, 0, 0
+    db  7 + 64, 32, 0, 0
+    db  7 + 64, 48, 0, 0
+    db  7 + 64, 64, 0, 0
+    db  7 + 64, 80, 0, 0
+    db  7 + 64, 96, 0, 0
+    db  7 + 64, 112, 0, 0
+    db  7 + 80, 0, 0, 0
+    db  7 + 80, 16, 0, 0
+    db  7 + 80, 32, 0, 0
+    db  7 + 80, 48, 0, 0
+    db  7 + 80, 64, 0, 0
+    db  7 + 80, 80, 0, 0
+    db  7 + 80, 96, 0, 0
+    db  7 + 80, 112, 0, 0
+    db  7 + 96, 0, 0, 0
+    db  7 + 96, 16, 0, 0
+    db  7 + 96, 32, 0, 0
+    db  7 + 96, 48, 0, 0
+    db  7 + 96, 64, 0, 0
+    db  7 + 96, 80, 0, 0
+    db  7 + 96, 96, 0, 0
+    db  7 + 96, 112, 0, 0
+    db  7 + 112, 0, 0, 0
+    db  7 + 112, 16, 0, 0
+    db  7 + 112, 32, 0, 0
+    db  7 + 112, 48, 0, 0
+    db  7 + 112, 64, 0, 0
+    db  7 + 112, 80, 0, 0
+    db  7 + 112, 96, 0, 0
+    db  7 + 112, 112, 0, 0
 .size:  equ $ - SpriteAttributes_bottom
 
 	ds PageSize - ($ - 0x4000), 255	; Fill the unused area with 0xFF
