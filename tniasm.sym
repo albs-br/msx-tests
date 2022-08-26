@@ -165,6 +165,7 @@ MSXID4: equ 02Eh ; last def. pass 3
 BIOS_H_POSD: equ 0FEBCh ; last def. pass 3
 BIOS_H_FINP: equ 0FF5Ch ; last def. pass 3
 BIOS_LINLEN: equ 0F3B0h ; last def. pass 3
+LINE_INTERRUPT_NUMBER: equ 040h ; last def. pass 3
 SNSMAT_NO_DI_EI.C_OK: equ 04270h ; last def. pass 3
 BIOS_XSAVE: equ 0FAFEh ; last def. pass 3
 BIOS_NEWPAD: equ 01ADh ; last def. pass 3

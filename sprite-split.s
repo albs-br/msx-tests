@@ -25,6 +25,10 @@ SPRATR:     equ 0xfa00
 SPRCOL_2:     equ 0xfc00
 SPRATR_2:     equ 0xfe00
 
+
+LINE_INTERRUPT_NUMBER: equ 64
+
+
 Execute:
 
     ; define screen colors
@@ -154,8 +158,9 @@ Execute:
     call  	WRTVDP_without_DI_EI		; Write B value to C register
 
 
+
     ; set the interrupt to happen on line n
-    ld  	b, 63		; data to write
+    ld  	b, LINE_INTERRUPT_NUMBER - 1 - 3		; data to write
     ld  	c, 19		; register number
     call  	WRTVDP_without_DI_EI		; Write B value to C register
 
@@ -237,11 +242,14 @@ Set_SPRATR_1:
     ; low bits (aaaaa111: bits 14 to 10)
     ld      b, 1111 0111 b  ; data          ; In sprite mode 2 the least significant three bits in register 5 should be 1 otherwise mirroring will occur. ; https://www.msx.org/forum/msx-talk/development/strange-behaviour-bug-on-spratr-base-addr-register-on-v993858
     ld      c, 5            ; register #
-    call    BIOS_WRTVDP
+    ;call    BIOS_WRTVDP
+    call  	WRTVDP_without_DI_EI		; Write B value to C register
+
     ; high bits (000000aa: bits 16 to 15)
     ld      b, 0000 0011 b  ; data
     ld      c, 11           ; register #
-    call    BIOS_WRTVDP
+    ;call    BIOS_WRTVDP
+    call  	WRTVDP_without_DI_EI		; Write B value to C register
     ret
 
 Set_SPRATR_2:
@@ -252,11 +260,13 @@ Set_SPRATR_2:
     ; low bits (aaaaa111: bits 14 to 10)
     ld      b, 1111 1111 b  ; data          ; In sprite mode 2 the least significant three bits in register 5 should be 1 otherwise mirroring will occur. ; https://www.msx.org/forum/msx-talk/development/strange-behaviour-bug-on-spratr-base-addr-register-on-v993858
     ld      c, 5            ; register #
-    call    BIOS_WRTVDP
+    ;call    BIOS_WRTVDP
+    call  	WRTVDP_without_DI_EI		; Write B value to C register
     ; high bits (000000aa: bits 16 to 15)
     ld      b, 0000 0011 b  ; data
     ld      c, 11           ; register #
-    call    BIOS_WRTVDP
+    ;call    BIOS_WRTVDP
+    call  	WRTVDP_without_DI_EI		; Write B value to C register
     ret
 
 Load_SPRATR_1:
@@ -370,7 +380,7 @@ SpriteColors_b:
 
 
 SpriteAttributes_top:
-    db  -1 + 0, 0, 0, 0
+    db  -1 + 0, 0, 0, 0 ; -1 to compensate the Y+1 bug/feature of VDP
     db  -1 + 0, 16, 0, 0
     db  -1 + 0, 32, 0, 0
     db  -1 + 0, 48, 0, 0
@@ -405,38 +415,38 @@ SpriteAttributes_top:
 .size:  equ $ - SpriteAttributes_top
 
 SpriteAttributes_bottom:
-    db  -1 + 3 + 64, 0, 0, 0
-    db  -1 + 3 + 64, 16, 0, 0
-    db  -1 + 3 + 64, 32, 0, 0
-    db  -1 + 3 + 64, 48, 0, 0
-    db  -1 + 3 + 64, 64, 0, 0
-    db  -1 + 3 + 64, 80, 0, 0
-    db  -1 + 3 + 64, 96, 0, 0
-    db  -1 + 3 + 64, 112, 0, 0
-    db  -1 + 3 + 80, 0, 0, 0
-    db  -1 + 3 + 80, 16, 0, 0
-    db  -1 + 3 + 80, 32, 0, 0
-    db  -1 + 3 + 80, 48, 0, 0
-    db  -1 + 3 + 80, 64, 0, 0
-    db  -1 + 3 + 80, 80, 0, 0
-    db  -1 + 3 + 80, 96, 0, 0
-    db  -1 + 3 + 80, 112, 0, 0
-    db  -1 + 3 + 96, 0, 0, 0
-    db  -1 + 3 + 96, 16, 0, 0
-    db  -1 + 3 + 96, 32, 0, 0
-    db  -1 + 3 + 96, 48, 0, 0
-    db  -1 + 3 + 96, 64, 0, 0
-    db  -1 + 3 + 96, 80, 0, 0
-    db  -1 + 3 + 96, 96, 0, 0
-    db  -1 + 3 + 96, 112, 0, 0
-    db  -1 + 3 + 112, 0, 0, 0
-    db  -1 + 3 + 112, 16, 0, 0
-    db  -1 + 3 + 112, 32, 0, 0
-    db  -1 + 3 + 112, 48, 0, 0
-    db  -1 + 3 + 112, 64, 0, 0
-    db  -1 + 3 + 112, 80, 0, 0
-    db  -1 + 3 + 112, 96, 0, 0
-    db  -1 + 3 + 112, 112, 0, 0
+    db  -1 + 64, 0, 0, 0 ; -1 to compensate the Y+1 bug/feature of VDP
+    db  -1 + 64, 16, 0, 0
+    db  -1 + 64, 32, 0, 0
+    db  -1 + 64, 48, 0, 0
+    db  -1 + 64, 64, 0, 0
+    db  -1 + 64, 80, 0, 0
+    db  -1 + 64, 96, 0, 0
+    db  -1 + 64, 112, 0, 0
+    db  -1 + 80, 0, 0, 0
+    db  -1 + 80, 16, 0, 0
+    db  -1 + 80, 32, 0, 0
+    db  -1 + 80, 48, 0, 0
+    db  -1 + 80, 64, 0, 0
+    db  -1 + 80, 80, 0, 0
+    db  -1 + 80, 96, 0, 0
+    db  -1 + 80, 112, 0, 0
+    db  -1 + 96, 0, 0, 0
+    db  -1 + 96, 16, 0, 0
+    db  -1 + 96, 32, 0, 0
+    db  -1 + 96, 48, 0, 0
+    db  -1 + 96, 64, 0, 0
+    db  -1 + 96, 80, 0, 0
+    db  -1 + 96, 96, 0, 0
+    db  -1 + 96, 112, 0, 0
+    db  -1 + 112, 0, 0, 0
+    db  -1 + 112, 16, 0, 0
+    db  -1 + 112, 32, 0, 0
+    db  -1 + 112, 48, 0, 0
+    db  -1 + 112, 64, 0, 0
+    db  -1 + 112, 80, 0, 0
+    db  -1 + 112, 96, 0, 0
+    db  -1 + 112, 112, 0, 0
 .size:  equ $ - SpriteAttributes_bottom
 
 	ds PageSize - ($ - 0x4000), 255	; Fill the unused area with 0xFF
