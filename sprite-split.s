@@ -411,7 +411,8 @@ SpriteAttributes_top:
     db  -1 + 48, 64, 0, 0
     db  -1 + 48, 80, 0, 0
     db  -1 + 48, 96, 0, 0
-    db  -1 + 48, 112, 0, 0
+    ;db  -1 + 48, 112, 0, 0
+    db  -1 + LINE_INTERRUPT_NUMBER - 8, 200, 0, 0
 .size:  equ $ - SpriteAttributes_top
 
 SpriteAttributes_bottom:
@@ -422,7 +423,7 @@ SpriteAttributes_bottom:
     db  -1 + 64, 64, 0, 0
     db  -1 + 64, 80, 0, 0
     db  -1 + 64, 96, 0, 0
-    db  -1 + 64, 112, 0, 0
+    db  -1 + 128, 112, 0, 0 ;avoiding 8 sprites on the same line
     db  -1 + 80, 0, 0, 0
     db  -1 + 80, 16, 0, 0
     db  -1 + 80, 32, 0, 0
@@ -446,7 +447,8 @@ SpriteAttributes_bottom:
     db  -1 + 112, 64, 0, 0
     db  -1 + 112, 80, 0, 0
     db  -1 + 112, 96, 0, 0
-    db  -1 + 112, 112, 0, 0
+;    db  -1 + 112, 112, 0, 0
+    db  -1 + LINE_INTERRUPT_NUMBER - 8, 200, 0, 0
 .size:  equ $ - SpriteAttributes_bottom
 
 	ds PageSize - ($ - 0x4000), 255	; Fill the unused area with 0xFF
