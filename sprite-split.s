@@ -17,13 +17,13 @@ PageSize:	    equ	0x4000	        ; 16kB
 ; SPRATR:     equ 0xfa00
 
 ; Default VRAM tables for Screen 11
-NAMTBL:     equ 0x0000
-SPRPAT:     equ 0xf000
-SPRCOL:     equ 0xf800
-SPRATR:     equ 0xfa00
+NAMTBL:     equ 0x0000  ;
+SPRPAT:     equ 0xf000  ; to 0xf7ff (2048 bytes)
+SPRCOL:     equ 0xf800  ; to 0xf9ff (512 bytes)
+SPRATR:     equ 0xfa00  ; to 0xfa80 (128 bytes)
 
-SPRCOL_2:     equ 0xfc00
-SPRATR_2:     equ 0xfe00
+SPRCOL_2:   equ 0xfc00  ; to 0xfdff (512 bytes)
+SPRATR_2:   equ 0xfe00  ; to 0xfe80 (128 bytes)
 
 
 LINE_INTERRUPT_NUMBER: equ 64
@@ -135,6 +135,11 @@ Execute:
     ld  	(Flag_IN), a
     ld  	(Counter_T), a
 
+    ld      a, LINE_INTERRUPT_NUMBER - 8
+    ld      (Sprite_Y), a
+
+    ld      a, 1
+    ld      (Sprite_Direction), a
 
 ; ----------------- set sprite split
 
@@ -173,8 +178,51 @@ Execute:
     call    BIOS_BEEP
 
 
-.endlessLoop:
-    jp      $
+.loop:
+    call    Wait_Vblank
+
+    ld      a, (Sprite_Direction)
+    ld      b, a
+    ld      a, (Sprite_Y)
+    add     b
+    ld      (Sprite_Y), a
+
+
+    ld      c, PORT_0
+
+    ld      a, 0000 0001 b
+    ld      hl, SPRATR + (31 * 4)  ; Y coord of sprite # 31
+    call    SetVdp_Write
+    ld      a, (Sprite_Y)
+    out     (c), a
+
+    ld      a, 0000 0001 b
+    ld      hl, SPRATR_2 + (31 * 4)  ; Y coord of sprite # 31
+    call    SetVdp_Write
+    ld      a, (Sprite_Y)
+    out     (c), a
+
+
+    cp      LINE_INTERRUPT_NUMBER
+    call    z, .setDirectionUp
+
+    cp      LINE_INTERRUPT_NUMBER - 16
+    call    z, .setDirectionDown
+
+
+
+
+    jp      .loop
+
+.setDirectionUp:
+    ld      a, -1
+    ld      (Sprite_Direction), a
+    ret
+
+.setDirectionDown:
+    ld      a, 1
+    ld      (Sprite_Direction), a
+    ret
 
 
 ;-------------------
@@ -461,3 +509,6 @@ SpriteAttributes_bottom:
 
 Flag_IN:	rb 1
 Counter_T:	rb 1
+
+Sprite_Y:   rb 1
+Sprite_Direction:   rb 1
