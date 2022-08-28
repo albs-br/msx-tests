@@ -44,8 +44,6 @@ Execute:
 
     call    Screen11
 
-
-
     call    BIOS_DISSCR
 
     call    ClearVram_MSX2
@@ -127,6 +125,32 @@ Execute:
 
 
     ;call    .lineInterruptCode ; Set_SPRATR_top
+
+
+    ; ------------------------ Draw screen -----------------------------
+
+    ; FOR Y=0 TO 255 : FOR X=0 TO 255 : VPOKE X + Y * 256, X X OR Y : NEXT X, Y
+    ld   	hl, 0
+    call  	BIOS_NSTWRT
+    ld  	c, PORT_0
+
+    ld 		iyl, 0
+.loop_Y:            
+        ld  	ixl, 0
+.loop_X:
+            ld  	a, iyl
+            xor  	ixl
+
+            out  	(c), a
+
+            ;inc   	hl
+
+        inc		ixl
+        jp  	nz, .loop_X
+    
+    inc   	iyl
+    jp  	nz, .loop_Y
+
 
 
 
