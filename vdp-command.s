@@ -1,5 +1,6 @@
 FNAME "vdp-command.rom"      ; output file
 
+PageSize:	    equ	0x4000	        ; 16kB
 
 ; Compilation address
     org 0x4000, 0xbeff	                    ; 0x8000 can be also used here if Rom size is 16kB or less.
@@ -86,15 +87,9 @@ Execute:
     call    Execute_VDP_HMMM	    ; High speed move VRAM to VRAM
 
 
-    ; call    Wait
-
-
     ; test HMMV
     ld      hl, HMMV_Parameters
     call    Execute_VDP_HMMV        ; High speed move VDP to VRAM (fills an area with one single color)
-
-
-    ; call    Wait
 
 
     ; test YMMM
@@ -102,13 +97,14 @@ Execute:
     call    Execute_VDP_YMMM        ; High speed move VRAM to VRAM, Y coordinate only
 
 
-    ; call    Wait
-
-
     ; test LMMM (will put an image on screen like a sprite)
     ld      hl, LMMM_Parameters
     call    Execute_VDP_LMMM        ; Logical move CPU to VRAM (copies data from your ram to the vram)
 
+
+    ; test LINE
+    ld      hl, LINE_Parameters
+    call    Execute_VDP_LINE
 
 
 .endProgram:
@@ -168,6 +164,16 @@ LMMM_Parameters:
 .Command:    db    VDP_COMMAND_LMMM OR VDP_LOGIC_OPERATION_TIMP
 LMMM_Parameters_size: equ $ - LMMM_Parameters
 
+LINE_Parameters:
+.Start_X:    dw    0      ; Starting point X (9 bits)
+.Start_Y:    dw    0      ; Starting point Y (10 bits)
+.Cols:       dw  128      ; number of cols (9 bits)
+.Lines:      dw  128      ; number of lines (10 bits)
+.Color:      db   15      ; 4 bits (G4, G5), 2 bits (G6), 8 bits (G7)
+.Options:    db    0      ; select destination memory and direction from base coordinate
+.Command:    db    VDP_COMMAND_LINE
+LINE_Parameters_size: equ $ - LINE_Parameters
+
 
 ; Not working:
 HMMC_Parameters:    ; R#36 to R#46
@@ -201,6 +207,14 @@ VDP_COMMAND_LMCM:       equ 1010 0000 b	; Logical move VRAM to CPU
 VDP_COMMAND_LMMM:       equ 1001 0000 b	; Logical move VRAM to VRAM
 VDP_COMMAND_LMMV:       equ 1000 0000 b	; Logical move VDP to VRAM (fills an area with one single color)
 
+VDP_COMMAND_LINE:       equ 0111 0000 b
+VDP_COMMAND_SRCH:       equ 0110 0000 b
+VDP_COMMAND_PSET:       equ 0101 0000 b
+VDP_COMMAND_POINT:      equ 0100 0000 b
+
+VDP_COMMAND_STOP:       equ 0000 0000 b
+
+
 ; Logical operations:
 VDP_LOGIC_OPERATION_IMP:    equ 0000 b
 VDP_LOGIC_OPERATION_AND:    equ 0001 b
@@ -223,3 +237,11 @@ VDP_LOGIC_OPERATION_TNOT:   equ 1100 b
 ; The other command HMMV simply fills an area with one single color. So you basicly tell the VDP to fill 
 ; up that area for you. Very handy when you for example quickly want to fill a part of the VRAM area with 
 ; background color or want to clear the VRAM.
+
+
+
+End:
+
+    db      "End ROM started at 0x4000"
+
+	ds PageSize - ($ - 0x4000), 255	; Fill the unused area with 0xFF

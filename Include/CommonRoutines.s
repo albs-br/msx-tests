@@ -881,9 +881,10 @@ Execute_VDP_HMMM:
     outi
     ret
 
-;   Input:  HL = pointer to 15-byte VDP command data
+;   Input:  HL = pointer to 11-byte VDP command data
 ;   Output: HL = updated
 ;   Destroys: A, B, C
+Execute_VDP_LINE:
 Execute_VDP_HMMV:
     ld      a, 36           ; number of first register
     di
@@ -919,7 +920,7 @@ Execute_VDP_HMMV:
     ret
 
 
-;   Input:  HL = pointer to 15-byte VDP command data
+;   Input:  HL = pointer to 13-byte VDP command data
 ;   Output: HL = updated
 ;   Destroys: A, B, C
 Execute_VDP_YMMM:
