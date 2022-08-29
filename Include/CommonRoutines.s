@@ -884,6 +884,8 @@ Execute_VDP_HMMM:
 ;   Input:  HL = pointer to 11-byte VDP command data
 ;   Output: HL = updated
 ;   Destroys: A, B, C
+
+Execute_VDP_PSET:
 Execute_VDP_LINE:
 Execute_VDP_HMMV:
     ld      a, 36           ; number of first register

@@ -107,6 +107,11 @@ Execute:
     call    Execute_VDP_LINE
 
 
+    ; test PSET
+    ld      hl, PSET_Parameters
+    call    Execute_VDP_PSET
+
+
 .endProgram:
 	jr      .endProgram
 
@@ -174,6 +179,15 @@ LINE_Parameters:
 .Command:    db    VDP_COMMAND_LINE
 LINE_Parameters_size: equ $ - LINE_Parameters
 
+
+PSET_Parameters:
+.X:          dw   10      ; X (9 bits)
+.Y:          dw   80      ; Y (10 bits)
+.NotUsed:    dw    0, 0   ;
+.Color:      db   15      ; 4 bits (G4, G5), 2 bits (G6), 8 bits (G7)
+.Options:    db    0      ; select destination memory
+.Command:    db    VDP_COMMAND_PSET
+PSET_Parameters_size: equ $ - PSET_Parameters
 
 ; Not working:
 HMMC_Parameters:    ; R#36 to R#46
