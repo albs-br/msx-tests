@@ -102,14 +102,41 @@ Execute:
     call    Execute_VDP_LMMM        ; Logical move CPU to VRAM (copies data from your ram to the vram)
 
 
-    ; test LINE
-    ld      hl, LINE_Parameters
-    call    Execute_VDP_LINE
-
-
     ; test PSET
     ld      hl, PSET_Parameters
     call    Execute_VDP_PSET
+
+
+
+
+    ; wait until the start of a frame
+    call    Wait_Vblank
+
+    ; save current JIFFY
+    ld      a, (BIOS_JIFFY)
+    ld      ixl, a
+
+    ; MAX: 15 lines in one frame
+    ld      b, 15      ; number of repetitions
+.loop:
+    ; test LINE
+    ld      hl, LINE_Parameters
+    push    bc
+        call    Execute_VDP_LINE
+    pop     bc
+    djnz    .loop
+
+    ; check if it took more than one frame
+    ld      a, (BIOS_JIFFY)
+    cp      ixl
+    jp      z, .doBeeps
+
+    jp      $
+
+; beeps means it took less than one frame
+.doBeeps:
+    call    BIOS_BEEP
+    jp      .doBeeps
 
 
 .endProgram:
