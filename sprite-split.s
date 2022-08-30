@@ -156,8 +156,8 @@ Execute:
 
     ; Init variables
     xor  	a
-    ld  	(Flag_IN), a
-    ld  	(Counter_T), a
+    ld  	(Flag_LineInterrupt), a
+    ld  	(Counter_LineInterrupt), a
 
     ld      a, LINE_INTERRUPT_NUMBER - 8
     ld      (Sprite_Y), a
@@ -173,9 +173,9 @@ Execute:
 
     
     ; override HKEYI hook
-    ld 		a, 0xc3    ; 0xc3 is the opcode for "jp", so this sets "jp .lineInterruptHook" as the interrupt code
+    ld 		a, 0xc3    ; 0xc3 is the opcode for "jp", so this sets "jp LineInterruptHook" as the interrupt code
     ld 		(HKEYI), a
-    ld 		hl, .lineInterruptHook
+    ld 		hl, LineInterruptHook
     ld 		(HKEYI + 1), hl
 
     
@@ -250,59 +250,62 @@ Execute:
 
 
 ;-------------------
-.lineInterruptHook:
+LineInterruptHook:
 
-            ; ' This is interrupt routine
-            ; ' Here we make sure, that the example interrupt handler does not end up
-            ; ' to infinite loop in case of nested interrupts
+            ; Interrupt routine
+            ; Make sure that the example interrupt handler does not end up
+            ; to infinite loop in case of nested interrupts
             ; IF IN=0 THEN IN=1:GOSUB 470:IN=0:T=0 ELSE T=T+1:IF T=100 THEN T=0:IN=0
             ; RETURN
-            ld  	a, (Flag_IN)
+            ld  	a, (Flag_LineInterrupt)
             or  	a
             jp  	nz, .else
 ; .then:
-			ld 		a, 1
-            ld  	(Flag_IN), a
-            call  	.sub_470
-            xor  	a
-            ld  	(Flag_IN), a
-            ld  	(Counter_T), a
+            inc     a ;ld 		a, 1 ; as A is always 0 here, inc a is the same as ld a, 1
+            ld  	(Flag_LineInterrupt), a
+            call  	.execute
+
+            ; xor  	a
+            ; ld  	(Flag_LineInterrupt), a
+            ; ld  	(Counter_LineInterrupt), a
+            ld      hl, 0
+            ld      (Flag_LineInterrupt), hl ; as these two vars are on sequential addresses, this clear both
+
             ret     ;jp      .return
 .else:
-            ; T=T+1
-            ld  	hl, Counter_T
+            ; Counter++
+            ld  	hl, Counter_LineInterrupt
             inc		(hl)
             
-			; IF T=100 THEN T=0:IN=0
+			; if (Counter == 100) { Counter = 0; Flag = 0 }
             ld  	a, (hl)
             cp  	100
             ret  	nz
             ; jp      nz, .return
 
-			xor  	a
-            ld  	(Counter_T), a
-            ld  	(Flag_IN), a
+			; xor  	a
+            ; ld  	(Counter_LineInterrupt), a
+            ; ld  	(Flag_LineInterrupt), a
+            ld      hl, 0
+            ld      (Flag_LineInterrupt), hl ; as these two vars are on sequential addresses, this clear both
+
             ret     ;jp      .return
 
-.sub_470:
-    ;call    BIOS_BEEP
-    ;ret
-
-    ; IF (VDP(-1)AND1)=1 THEN 530 ' Is this line interrupt?
+.execute:
+    ; if (VDP(-1) and 1) == 1) ; check if is this a line interrupt
     ld  	b, 1
     call 	ReadStatusReg
     
-    ld  	a, 1
+    ld  	a, 0000 0001 b
     and  	b
     
-    cp  	1
-    
-    ; Code to run on line interrupt:
-    jp   	z, Set_SPRATR_2
-
+    ;or      a ; this isn't necessary
 
     ; Code to run on Vblank:
-    jp      Set_SPRATR_1
+    jp      z, Set_SPRATR_1
+
+    ; Code to run on line interrupt:
+    jp   	Set_SPRATR_2
 
 ; ------------
 
@@ -349,7 +352,6 @@ Load_SPRATR_1:
     ld      c, PORT_0        ; you can also write ld bc,#nn9B, which is faster
     ld      hl, SpriteAttributes_top
     otir
-
     ret
 
 Load_SPRATR_2:
@@ -364,7 +366,6 @@ Load_SPRATR_2:
     ld      c, PORT_0        ; you can also write ld bc,#nn9B, which is faster
     ld      hl, SpriteAttributes_bottom
     otir
-
     ret
 
 End:
@@ -531,8 +532,10 @@ SpriteAttributes_bottom:
 ; ----------------- Variables
     org 0xc000
 
-Flag_IN:	rb 1
-Counter_T:	rb 1
+; vars for line interrupt routine:
+Flag_LineInterrupt:	    rb 1        ; these two vars MUST be on sequential addresses 
+Counter_LineInterrupt:	rb 1        ; this var MUST be imediately after Flag_LineInterrupt
 
-Sprite_Y:   rb 1
-Sprite_Direction:   rb 1
+
+Sprite_Y:               rb 1
+Sprite_Direction:       rb 1
