@@ -252,16 +252,27 @@ Execute:
 ;-------------------
 LineInterruptHook:
 
-            ; Interrupt routine
+            ; Interrupt routine (adapted from https://www.msx.org/forum/development/msx-development/how-line-interrupts-basic#comment-431760)
             ; Make sure that the example interrupt handler does not end up
             ; to infinite loop in case of nested interrupts
-            ; IF IN=0 THEN IN=1:GOSUB 470:IN=0:T=0 ELSE T=T+1:IF T=100 THEN T=0:IN=0
-            ; RETURN
+            ; if (Flag_LineInterrupt == 0) { 
+            ;     Flag_LineInterrupt = 1; 
+            ;     execute();
+            ;     Flag_LineInterrupt = 0;
+            ;     Counter_LineInterrupt = 0;
+            ; }
+            ; else {
+            ;     Counter_LineInterrupt++;
+            ;     if (Counter_LineInterrupt == 100) {
+            ;         Flag_LineInterrupt = 0;
+            ;         Counter_LineInterrupt = 0;
+            ;     }
+            ; }
             ld  	a, (Flag_LineInterrupt)
             or  	a
             jp  	nz, .else
 ; .then:
-            inc     a ;ld 		a, 1 ; as A is always 0 here, inc a is the same as ld a, 1
+            inc     a ; ld a, 1 ; as A is always 0 here, inc a is the same as ld a, 1
             ld  	(Flag_LineInterrupt), a
             call  	.execute
 
