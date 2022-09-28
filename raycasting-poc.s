@@ -62,11 +62,18 @@ Execute:
 
 
 
-    ld      b, base_addr_div_by_16_LUT
+    
 
 
+; cast ray from player position, on an angle, until find a wall (block)
+; Inputs:
+;   HL: player X (0-255), L: 0
+;   DE: offset X (8.8 fixed point)
+;   H'L': player Y (0-255), L: 0
+;   D'E': offset Y (8.8 fixed point)
+    ld      b, HIGH_BYTE_BASE_ADDR_DIV_BY_16_LUT
 .loop:
-    ; H: player x, L: 0
+    ; H: player X (0-255), L: 0
     ; DE: offset X (8.8 fixed point)
     add     hl, de      ; add current X to offset X
     
@@ -89,7 +96,35 @@ Execute:
     ld      c, h
     ld      a, (bc)
 
-    
+    ; map cell X is on low nibble of A
+
+    di
+        exx
+            ; H: player Y (0-255), L: 0
+            ; DE: offset Y (8.8 fixed point)
+            add     hl, de      ; add current Y to offset Y
+
+            ; clear 4 low bits of H
+            ld      a, h
+            and     1111 0000 b
+            push    af ; save map cell Y
+
+            ; map cell Y is on high nibble of H
+        exx
+    ei
+
+    pop     hl ; restore map cell Y
+    or      h   ; merge cell X with cell Y
+
+    ; map cell X, Y is now on A
+
+    ld      h, HIGH_BYTE_BASE_ADDR_MAP
+    ld      l, a
+    cp      (hl)
+
+    jp      z, .loop    ; if block not found, next step on ray
+
+    ; block found code here
 
 End:
 
