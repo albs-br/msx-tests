@@ -60,9 +60,58 @@ Execute:
 
 ; ray casting code starts here
 
+; -------- raycasting-msx
+
+; read a seq of 16 bytes for column and copy it to a column on NAMTBL buffer
+;   bc: ROM start addr of column (origin)
+;   hl: ROM start addr for NAMTBL buffer (destiny)
 
 
+; ----------------- 32 columns:
+
+ld	de, 32
+
+.loop: ; use macro to repeat 16 times (height of column)
+	ld	a, (bc)		; 8
+	; or (hl) to low nibble on 64 columns	; 8
+	ld	(hl), a		; 8
+	;inc	bc		; 7
+	inc	c		; 5	; data should be table aligned
+	add	hl, de		; 12
+
+; total 33 cycles / char
+
+; + 18 of outi = 51 cycles/char
+
+; 512 chars (2/3 of screen): 51 x 512 = 26112 cycles (44% of 1 frame)
+
+; ----------------- 64 columns:
+
+; read two seq of 16 bytes for columns and copy it to a column on NAMTBL buffer
+;   bc: ROM start addr of even column (origin)
+;   de: ROM start addr of odd column (origin)
+;   hl: ROM start addr for NAMTBL buffer (destiny)
+
+ld	sp, 32
+
+.loop: ; use macro to repeat 16 times (height of column)
+	ld	a, (bc)		; 8
+	ld	ixl, a		; 10
+	ld	a, (de)		; 8
+	or	ixl		; 10
+	ld	(hl), a		; 8
+	;inc	bc		; 7
+	inc	c		; 5	; data should be table aligned
+	inc	e		; 5	; data should be table aligned
+	add	hl, sp		; 12
+
+; total 66
+; -----------------------------------
     
+
+
+
+
 
 
 ; cast ray from player position, on an angle, until find a wall (block)
