@@ -36,7 +36,7 @@ Execute:
     ld	    a, 2
 	ld	    (Seg_P8000_SW), a
     ; load 32-byte palette data
-    ld      hl, ImageData_2.palette ; PaletteData
+    ;ld      hl, ImageData_2.palette ; PaletteData
                     ; ; debug
                     ; ld      a, (hl)
                     ; ld      (debug_0), a
@@ -44,6 +44,7 @@ Execute:
                     ; ld      a, (hl)
                     ; ld      (debug_1), a
                     ; ld      hl, ImageData_2.palette ; PaletteData
+    ld      hl, msxmas_palette
     call    LoadPalette
 
 	; enable page 1
@@ -73,6 +74,9 @@ Execute:
 
 End:
 
+msxmas_palette:
+    INCBIN "Images/title-screen.pal"
+
     db      "End ROM started at 0x4000"
 
 	ds PageSize - ($ - 0x4000), 255	; Fill the unused area with 0xFF
@@ -82,8 +86,9 @@ End:
 ; ------- Page 1
 	org	0x8000, 0xBFFF
 ImageData:
-    INCBIN "Images/aerofighters-xaa"
+    ;INCBIN "Images/aerofighters-xaa"
     ;INCBIN "Images/metalslug-xaa"
+    INCBIN "Images/msxmas title scr.SC5"
 .size:      equ $ - ImageData
 	ds PageSize - ($ - 0x8000), 255
 
