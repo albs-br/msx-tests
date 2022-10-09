@@ -46,13 +46,13 @@ Execute:
     ; -------------------------------------------------------
 
     ; Load sprite pattern #0
-    ld      a, 0000 0000 b
-    ld      hl, SPRPAT
-    call    SetVdp_Write
-    ld      b, SpritePattern_1.size
-    ld      c, PORT_0        ; you can also write ld bc,#nn9B, which is faster
-    ld      hl, SpritePattern_1
-    otir
+    ; ld      a, 0000 0000 b
+    ; ld      hl, SPRPAT
+    ; call    SetVdp_Write
+    ; ld      b, SpritePattern_1.size
+    ; ld      c, PORT_0        ; you can also write ld bc,#nn9B, which is faster
+    ; ld      hl, SpritePattern_1
+    ; otir
 
 
     ; -------------------------------------------------------
@@ -83,8 +83,46 @@ Execute:
 
     call    BIOS_BEEP
 
+    ; ------ Init vars
+
+    ; Init random number generator
+    ld      hl, (BIOS_JIFFY)                  ; MSX BIOS time variable
+    ld      a, l
+    or      0x80                             ; A value different of zero is granted
+    ld      l, a
+    ld      (Seed), hl
+
     ; Main loop
 MainLoop:
+    call    Wait_Vblank
+
+;     ld      hl, SPRPAT + (12 * 8)
+
+;     ld      b, 16
+; .loop:
+;     push    hl
+;         xor     a
+;         call    SetVdp_Write
+;         ld      c, PORT_0
+
+;         ld      a, 0xff ; data
+
+;         out     (c), a
+;     pop     hl
+
+;     inc     hl
+;     djnz    .loop
+
+
+    xor     a
+    ld      hl, SPRPAT + (13 * 8) + 7
+    call    SetVdp_Write
+    ld      c, PORT_0
+
+    ;ld      a, 0xff ; data
+    call    RandomNumber
+    out     (c), a
+
     jp      MainLoop
 
     ; -------------------------------------------------------
@@ -151,27 +189,27 @@ SpriteColors_a:
 
 
 SpriteAttributes_top:
-    db  -1 + (191 - (32 * 4)), (32 * 0), 0, 0 ; -1 to compensate the Y+1 bug/feature of VDP
-    db  -1 + (191 - (32 * 3)), (32 * 0), 0, 0
-    db  -1 + (191 - (32 * 2)), (32 * 0), 0, 0
-    db  -1 + (191 - (32 * 1)), (32 * 0), 0, 0
+    db  -1 + (191 - (32 * 4)), (32 * 0), 0 * 4, 0 ; -1 to compensate the Y+1 bug/feature of VDP
+    db  -1 + (191 - (32 * 3)), (32 * 0), 1 * 4, 0
+    db  -1 + (191 - (32 * 2)), (32 * 0), 2 * 4, 0
+    db  -1 + (191 - (32 * 1)), (32 * 0), 3 * 4, 0
 
-    db  -1 + (191 - (32 * 4)), (32 * 1), 0, 0
-    db  -1 + (191 - (32 * 3)), (32 * 1), 0, 0
-    db  -1 + (191 - (32 * 2)), (32 * 1), 0, 0
-    db  -1 + (191 - (32 * 1)), (32 * 1), 0, 0
+    db  -1 + (191 - (32 * 4)), (32 * 1), 4 * 4, 0
+    db  -1 + (191 - (32 * 3)), (32 * 1), 5 * 4, 0
+    db  -1 + (191 - (32 * 2)), (32 * 1), 6 * 4, 0
+    db  -1 + (191 - (32 * 1)), (32 * 1), 7 * 4, 0
+
+    db  -1 + (191 - (32 * 4)), (32 * 1), 8 * 4, 0
+    db  -1 + (191 - (32 * 3)), (32 * 1), 9 * 4, 0
+    db  -1 + (191 - (32 * 2)), (32 * 1), 10 * 4, 0
+    db  -1 + (191 - (32 * 1)), (32 * 1), 11 * 4, 0
+
+    db  -1 + (191 - (32 * 4)), (32 * 1), 12 * 4, 0
+    db  -1 + (191 - (32 * 3)), (32 * 1), 13 * 4, 0
+    db  -1 + (191 - (32 * 2)), (32 * 1), 14 * 4, 0
+    db  -1 + (191 - (32 * 1)), (32 * 1), 15 * 4, 0
 
     db  216, 0, 0, 0 ; hide all sprites from this onwards
-    db  0, 0, 0, 0
-    db  0, 0, 0, 0
-    db  0, 0, 0, 0
-
-    db  0, 0, 0, 0
-    db  0, 0, 0, 0
-    db  0, 0, 0, 0
-    db  0, 0, 0, 0
-
-    db  0, 0, 0, 0
     db  0, 0, 0, 0
     db  0, 0, 0, 0
     db  0, 0, 0, 0
@@ -201,3 +239,4 @@ SpriteAttributes_top:
 ; ----------------- Variables
     org 0xc000
 
+Seed:                       rw 1            ; Seed for random number generator
