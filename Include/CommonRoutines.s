@@ -373,6 +373,14 @@ SetSprites16x16:
     call    BIOS_WRTVDP
 	ret
 
+SetSpritesMagnified:
+    ld      a, (REG1SAV)
+    or      0000 0001 b
+    ld      b, a
+    ld      c, 1            ; register #
+    call    BIOS_WRTVDP
+	ret
+
 Set192Lines:
     ; set 192 lines
     ; ld      b, 0000 0000 b  ; data
