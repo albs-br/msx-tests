@@ -92,6 +92,15 @@ Execute:
     ld      l, a
     ld      (Seed), hl
 
+    ; Fill up LUT of pre calc rnd values
+    ld      hl, RndNumbers
+    ld      b, 0
+.loop_rnd:
+    call    RandomNumber
+    ld      (hl), a
+    inc     hl
+    djnz    .loop_rnd
+
     ; Main loop
 MainLoop:
     call    Wait_Vblank
@@ -115,7 +124,7 @@ MainLoop:
 
 
     xor     a
-    ld      hl, SPRPAT + (13 * 8) + 7
+    ld      hl, SPRPAT + (13 * 8) + 7 ; last line
     call    SetVdp_Write
     ld      c, PORT_0
 
@@ -240,3 +249,8 @@ SpriteAttributes_top:
     org 0xc000
 
 Seed:                       rw 1            ; Seed for random number generator
+
+; ---------------------------
+    org 0xdf00
+RND_NUMBERS_HIGH_BYTE_BASE_ADDR:    equ 0xdf
+RndNumbers:                 rb 256
