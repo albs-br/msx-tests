@@ -83,6 +83,19 @@ Execute:
 
     call    BIOS_BEEP
 
+
+    ; Wait space bar to be pressed
+.readKeyBoard:
+    ; read keyboard
+    ld      a, 8                    ; 8th line
+    call    BIOS_SNSMAT             ; Read Data Of Specified Line From Keyboard Matrix
+    ;call  	SNSMAT_NO_DI_EI
+    bit     0, a                ; 0th bit (space bar)
+    jp    	z, .exit
+
+    jp  	.readKeyBoard
+.exit:
+
     ; ------ Init vars
 
     ; Init random number generator

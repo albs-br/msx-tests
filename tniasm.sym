@@ -68,7 +68,7 @@ BIOS_TAPIN: equ 0E4h ; last def. pass 3
 BIOS_H_CHPH: equ 0FDA4h ; last def. pass 3
 BIOS_NSETRD: equ 016Eh ; last def. pass 3
 BIOS_JIFFY: equ 0FC9Eh ; last def. pass 3
-MainLoop: equ 04308h ; last def. pass 3
+MainLoop: equ 04315h ; last def. pass 3
 Wait_15_Vblanks: equ 0407Eh ; last def. pass 3
 REG2SAV: equ 0F3E1h ; last def. pass 3
 BIOS_H_GONE: equ 0FF43h ; last def. pass 3
@@ -181,6 +181,7 @@ BIOS_H_DSPF: equ 0FDB3h ; last def. pass 3
 BIOS_GETPLT: equ 0149h ; last def. pass 3
 BIOS_INIGRP: equ 072h ; last def. pass 3
 BIOS_GETPNT: equ 0F3FAh ; last def. pass 3
+Execute.readKeyBoard: equ 042F2h ; last def. pass 3
 BIOS_H_FRET: equ 0FF9Dh ; last def. pass 3
 BIOS_NMI: equ 066h ; last def. pass 3
 BIOS_H_CLEAR: equ 0FED0h ; last def. pass 3
@@ -236,6 +237,7 @@ BIOS_RUNBNF: equ 0FCBEh ; last def. pass 3
 BIOS_LDIRVM: equ 05Ch ; last def. pass 3
 BIOS_TXTPAT: equ 0F3BBh ; last def. pass 3
 BIOS_CALATR: equ 087h ; last def. pass 3
+Execute.exit: equ 042FFh ; last def. pass 3
 BIOS_BIGFIL: equ 016Bh ; last def. pass 3
 BIOS_CAPST: equ 0FCABh ; last def. pass 3
 BIOS_GRPPRT: equ 08Dh ; last def. pass 3
@@ -270,7 +272,7 @@ BIOS_ARYTAB: equ 0F6C4h ; last def. pass 3
 PageSize: equ 04000h ; last def. pass 3
 BIOS_CHRGTR: equ 010h ; last def. pass 3
 BIOS_ONELIN: equ 0F6B9h ; last def. pass 3
-SpriteColors_a: equ 0433Ch ; last def. pass 3
+SpriteColors_a: equ 04349h ; last def. pass 3
 BIOS_QUEBAK: equ 0F971h ; last def. pass 3
 BIOS_RG1SAV: equ 0F3E0h ; last def. pass 3
 BIOS_H_TOTE: equ 0FDBDh ; last def. pass 3
@@ -556,7 +558,7 @@ BIOS_MEXBIH: equ 0FB07h ; last def. pass 3
 Execute_VDP_HMMV: equ 04208h ; last def. pass 3
 BIOS_TAPIOF: equ 0E7h ; last def. pass 3
 BIOS_INITIO: equ 03Bh ; last def. pass 3
-SpritePattern_1: equ 0431Ch ; last def. pass 3
+SpritePattern_1: equ 04329h ; last def. pass 3
 REG0SAV: equ 0F3DFh ; last def. pass 3
 BIOS_VOICBQ: equ 0F9F5h ; last def. pass 3
 BIOS_H_KEYC: equ 0FDCCh ; last def. pass 3
@@ -591,7 +593,7 @@ BIOS_DRWANG: equ 0FCBDh ; last def. pass 3
 BIOS_CONTYP: equ 0F669h ; last def. pass 3
 BIOS_H_INIP: equ 0FDC7h ; last def. pass 3
 BIOS_H_KILL: equ 0FDFEh ; last def. pass 3
-SpriteAttributes_top: equ 0443Ch ; last def. pass 3
+SpriteAttributes_top: equ 04449h ; last def. pass 3
 BIOS_TAPION: equ 0E1h ; last def. pass 3
 BIOS_CSTYLE: equ 0FCAAh ; last def. pass 3
 BIOS_BUFMIN: equ 0F55Dh ; last def. pass 3
@@ -605,5 +607,5 @@ BIOS_H_COPY: equ 0FE08h ; last def. pass 3
 BIOS_RDPSG: equ 096h ; last def. pass 3
 BIOS_HEADER: equ 0F40Ah ; last def. pass 3
 BIOS_H_READ: equ 0FF07h ; last def. pass 3
-Execute.loop_rnd: equ 04301h ; last def. pass 3
+Execute.loop_rnd: equ 0430Eh ; last def. pass 3
 SetColor0ToNonTransparent: equ 0415Ah ; last def. pass 3
