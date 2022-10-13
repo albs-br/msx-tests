@@ -59,7 +59,7 @@ Execute:
 
 ; read a seq of 16 bytes for column tile numbers and copy it to a column on NAMTBL buffer
 ;   bc: ROM start addr of column (origin)
-;   hl: ROM start addr for NAMTBL buffer (destiny)
+;   hl: ROM start addr of NAMTBL buffer (destiny)
 
     ld  de, 32              ; screen width in tiles
 
@@ -76,12 +76,55 @@ Execute:
 
 ; 512 chars (2/3 of screen): 51 x 512 = 26112 cycles (44% of 1 frame)
 
+; ----------------------------------  32 columns optimized:
+
+; read a seq of 16 bytes for column tile numbers and copy it to a column on NAMTBL buffer
+;   sp: ROM start addr of column (origin)
+;   hl: ROM start addr of NAMTBL buffer (destiny)
+
+    di
+    ld  (OldSP), sp
+    ld  de, 32              ; screen width in tiles
+
+    .loop: ; use macro to repeat 8 times (height of column / 2)
+        pop     bc		    ; 11    BC = (SP); SP += 2
+        ld	    (hl), c		; 8
+        add	    hl, de		; 12
+        ld	    (hl), b		; 8
+        add	    hl, de		; 12
+
+    ld  sp, (OldSP)
+    ei
+
+; total 51 cycles / 2 chars
+
+; ----------------------------------  32 columns (much more optimized in speed, size much worse):
+
+; read a seq of 16 bytes for column tile numbers and copy it to a column on NAMTBL buffer
+;   sp: ROM start addr of column (origin)
+;   nnnn: start addr of NAMTBL buffer (destiny)
+
+    di
+    ld  (OldSP), sp
+
+.loop_cols: ; use macro to repeat 32 times (number of columns)          -->     col++
+    .loop_lines: ; use macro to repeat 8 times (height of column / 2)      -->     line+=2
+        pop     hl		                            ; 11    HL = (SP); SP += 2
+        ld	    (nnnn + (line * 32) + col), hl      ; 16
+
+    ld  sp, (OldSP)
+    ei
+
+; total 27 cycles / 2 chars
+
+; + 36 of 2x outi = 63 cycles / 2 chars
+
 ; ----------------------------------  64 columns:
 
 ; read two seq of 16 bytes for columns tile numbers and copy it to a column on NAMTBL buffer
 ;   bc: ROM start addr of even column (origin)
 ;   de: ROM start addr of odd column (origin)
-;   hl: ROM start addr for NAMTBL buffer (destiny)
+;   hl: ROM start addr of NAMTBL buffer (destiny)
 
     di
     ld  (OldSP), sp
@@ -107,6 +150,31 @@ Execute:
 ; + 18 of outi = 84 cycles/char
 
 ; 512 chars (2/3 of screen): 84 x 512 = 43008 cycles (72% of 1 frame)
+
+; ----------------------------------  64 columns (improved speed/much bigger size):
+
+; read two seq of 16 bytes for columns tile numbers and copy it to a column on NAMTBL buffer
+;   hl: ROM start addr of even column (origin)
+;   de: ROM start addr of odd column (origin)
+;   nnnn: start addr of NAMTBL buffer (destiny)
+
+.loop_cols: ; use macro to repeat 32 times (number of columns)     -->     col++
+    .loop_lines: ; use macro to repeat 16 times (height of column)      -->     line++
+        ld	    a, (de)		                    ; 8
+        or	    (hl)	                        ; 8
+        ld	    (nnnn + (line * 32) + col), a   ; 14
+        inc	    l		                        ; 5	; data should be table aligned
+        inc	    e		                        ; 5	; data should be table aligned
+
+
+
+; total 40 cycles / 7 bytes
+
+; + 18 of outi = 58 cycles/char
+
+; 512 chars (2/3 of screen): 58 x 512 = 29696 cycles (50% of 1 frame)
+
+; 7 bytes x 32 x 16 = 3584 bytes
 
 ; -----------------------------------
     
