@@ -50,14 +50,18 @@ Execute:
 ; -------- raycasting-msx
 
 
+; There are 262 lines on NTSC and 313 lines on PAL. Each line takes exactly 228 CPU cycles if the VDP and CPU are 
+; clocked by the same clock crystal. Consequently, a frame takes 262 × 228 = 59736 CPU cycles on NTSC and 
+; 313 × 228 = 71364 CPU cycles on PAL. The precise display frequency is therefore 59.92 Hz on NTSC and 50.16 Hz on PAL.
 
-; ----------------- 32 columns:
+
+; ----------------------------------  32 columns:
 
 ; read a seq of 16 bytes for column tile numbers and copy it to a column on NAMTBL buffer
 ;   bc: ROM start addr of column (origin)
 ;   hl: ROM start addr for NAMTBL buffer (destiny)
 
-    ld  de, 32
+    ld  de, 32              ; screen width in tiles
 
     .loop: ; use macro to repeat 16 times (height of column)
         ld	    a, (bc)		; 8
@@ -72,7 +76,7 @@ Execute:
 
 ; 512 chars (2/3 of screen): 51 x 512 = 26112 cycles (44% of 1 frame)
 
-; ----------------- 64 columns:
+; ----------------------------------  64 columns:
 
 ; read two seq of 16 bytes for columns tile numbers and copy it to a column on NAMTBL buffer
 ;   bc: ROM start addr of even column (origin)
@@ -81,7 +85,7 @@ Execute:
 
     di
     ld  (OldSP), sp
-    ld	sp, 32
+    ld	sp, 32              ; screen width in tiles
 
     .loop: ; use macro to repeat 16 times (height of column)
         ld	    a, (bc)		; 8
@@ -96,8 +100,14 @@ Execute:
 
 
     ld  sp, (OldSP)
+    ei
 
 ; total 66 cycles
+
+; + 18 of outi = 84 cycles/char
+
+; 512 chars (2/3 of screen): 84 x 512 = 43008 cycles (72% of 1 frame)
+
 ; -----------------------------------
     
 
