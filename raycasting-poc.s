@@ -98,7 +98,11 @@ Execute:
 
 ; total 51 cycles / 2 chars
 
-; ----------------------------------  32 columns (much more optimized in speed, size much worse):
+; + 36 of 2x outi = 87 cycles / 2 chars
+
+; 512 chars (2/3 of screen): 87 x (512/2) = 22272 cycles (37% of 1 frame)
+
+; ----------------------------------  32 columns (optimized? in speed, size much worse):
 
 ; read a seq of 16 bytes for column tile numbers and copy it to a column on NAMTBL buffer
 ;   sp: ROM start addr of column (origin)
@@ -110,14 +114,19 @@ Execute:
 .loop_cols: ; use macro to repeat 32 times (number of columns)          -->     col++
     .loop_lines: ; use macro to repeat 8 times (height of column / 2)      -->     line+=2
         pop     hl		                            ; 11    HL = (SP); SP += 2
-        ld	    (nnnn + (line * 32) + col), hl      ; 16
+        ld      a, l                                ; 5
+        ld	    (nnnn + (line * 32) + col), a       ; 14
+        ld      a, h                                ; 5
+        ld	    (nnnn + ((line+1) * 32) + col), a   ; 14
 
     ld  sp, (OldSP)
     ei
 
-; total 27 cycles / 2 chars
+; total 49 cycles / 2 chars
 
-; + 36 of 2x outi = 63 cycles / 2 chars
+; + 36 of 2x outi = 85 cycles / 2 chars
+
+; 512 chars (2/3 of screen): 85 x (512/2) = 21760 cycles (36% of 1 frame)
 
 ; ----------------------------------  64 columns:
 

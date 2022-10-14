@@ -238,13 +238,13 @@ SetVdp_Read:
     srl     h
     srl     h
     di
-    out     (PORT_1), a
-    ld      a, 14 + 128
-    out     (PORT_1), a
-    ld      a, l
-    nop
-    out     (PORT_1), a
-    ld      a, h
+        out     (PORT_1), a
+        ld      a, 14 + 128
+        out     (PORT_1), a
+        ld      a, l
+        nop
+        out     (PORT_1), a
+        ld      a, h
     ei
     out     (PORT_1), a
     ret
