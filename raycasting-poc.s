@@ -256,6 +256,69 @@ Execute:
 
 
 
+; -------------------------------------------------------
+
+
+; raytrace from player until find a wall
+; HL: addr of deltas for map cells reached by this ray
+; ??: player map cell (256x256)
+
+ld      bc, (PlayerPositionOnMap)
+;ld      d, 0 + (RaytraceMapCells & 0xff00) >> 8     ; get high byte of addr <-- should be done dinamically
+
+.loop: ; use macro to repeat 16x
+    ; get delta value
+    ld      e, (hl) ; DE = (HL)
+    inc     l
+    ld      d, (hl)
+
+	push    hl
+        ld	    h, b ; HL = (PlayerPositionOnMap)
+        ld	    l, c
+        ;ld      hl, (PlayerPositionOnMap)
+        add	    hl, de  ; HL += delta cell map for ray cast
+
+        ; A = 4 upper bits of H and L (transform a coordinate in the format (4.4, 4.4) fixed point in (4, 4) integer)
+        ld      a, h
+        and     1111 0000 b
+        ld      h, a
+
+        ld      d, base_addr_div_by_16_LUT
+        ld      e, l
+        ld      a, (de)
+
+        or      h
+
+        ; get cell on 16x16 map
+        ld      h, 0 + (Map & 0xff00) >> 8     ; get high byte of addr
+        ld      l, a
+        
+        xor     a
+        cp	    (hl)
+    pop     hl
+
+	jp	    nz, .blockFound
+	inc	    l       ; HL++
+	
+	;jp	.loop
+
+; 149 cycles
+; x 16 cells x 32 angles = 76288 cycles (128% of 1 frame)
+
+
+; ray trace example:
+RaytraceMapCells:       ; table aligned
+	dw +1 * 16, +2 * 16, +3 * 16..., +15 * 16  ; ray aligned to right
+	
+    ;dw -1 * 16, -2 * 16, -3 * 16..., -15 * 16  ; ray aligned to left
+    ;dw -16 * 16, -32 * 16, -48 * 16 ...  ; ray aligned to top
+
+
+
+; -------------------------------------------------------
+
+
+
 	ds PageSize - ($ - 0x4000), 255	; Fill the unused area with 0xFF
 
 
@@ -269,3 +332,9 @@ NAMTBL_Buffer:  rb 32 * 16 ; only upper 2/3 of the screen
 Columns_Addr:   rw 32
 
 OldSP:          rw 1
+
+
+; ----------
+    org 0xd000
+Map:
+	rb 16*16        ; table aligned
