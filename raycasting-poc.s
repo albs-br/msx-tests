@@ -1,53 +1,10 @@
-FNAME "raycasting-poc.rom"      ; output file
-
-PageSize:	    equ	0x4000	        ; 16kB
-
-; Compilation address
-    org 0x4000, 0x7fff	                    ; 0x8000 can be also used here if Rom size is 16kB or less.
-
-    ; Common
-    INCLUDE "Include/RomHeader.s"
-    INCLUDE "Include/MsxBios.s"
-    INCLUDE "Include/MsxConstants.s"
-    INCLUDE "Include/CommonRoutines.s"
-
-
-; Default VRAM tables for Screen 4
-NAMTBL:     equ 0x3800  ; to 0x???? (768 bytes)
-SPRPAT:     equ 0x1800  ; to 0x???? (2048 bytes)
-SPRCOL:     equ 0x1c00  ; to 0x???? (512 bytes)
-SPRATR:     equ 0x1e00  ; to 0x???? (128 bytes)
-
-//SPRCOL_2:   equ 0xfc00  ; to 0xfdff (512 bytes)
-//SPRATR_2:   equ 0xfe00  ; to 0xfe80 (128 bytes)
-
-
-
-Execute:
-
-
-    ; change to screen 4
-    ld      a, 4
-    call    BIOS_CHGMOD
-
-    call    BIOS_DISSCR
-
-    call    ClearVram_MSX2
-
-    call    SetSprites16x16
-
-    call    Set192Lines
-
-    call    SetColor0ToNonTransparent
-
-    call    BIOS_ENASCR
-
-    call    BIOS_BEEP
-
-
-; ray casting code starts here
-
 ; -------- raycasting-msx
+
+; just a bunch of code that maybe someday will lead to a MSX raycasting engine
+; do not complie this code directly, it won't work
+
+
+; -----------------------------------------
 
 
 ; There are 262 lines on NTSC and 313 lines on PAL. Each line takes exactly 228 CPU cycles if the VDP and CPU are 
