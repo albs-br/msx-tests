@@ -1,53 +1,10 @@
-FNAME "raycasting-poc.rom"      ; output file
-
-PageSize:	    equ	0x4000	        ; 16kB
-
-; Compilation address
-    org 0x4000, 0x7fff	                    ; 0x8000 can be also used here if Rom size is 16kB or less.
-
-    ; Common
-    INCLUDE "Include/RomHeader.s"
-    INCLUDE "Include/MsxBios.s"
-    INCLUDE "Include/MsxConstants.s"
-    INCLUDE "Include/CommonRoutines.s"
-
-
-; Default VRAM tables for Screen 4
-NAMTBL:     equ 0x3800  ; to 0x???? (768 bytes)
-SPRPAT:     equ 0x1800  ; to 0x???? (2048 bytes)
-SPRCOL:     equ 0x1c00  ; to 0x???? (512 bytes)
-SPRATR:     equ 0x1e00  ; to 0x???? (128 bytes)
-
-//SPRCOL_2:   equ 0xfc00  ; to 0xfdff (512 bytes)
-//SPRATR_2:   equ 0xfe00  ; to 0xfe80 (128 bytes)
-
-
-
-Execute:
-
-
-    ; change to screen 4
-    ld      a, 4
-    call    BIOS_CHGMOD
-
-    call    BIOS_DISSCR
-
-    call    ClearVram_MSX2
-
-    call    SetSprites16x16
-
-    call    Set192Lines
-
-    call    SetColor0ToNonTransparent
-
-    call    BIOS_ENASCR
-
-    call    BIOS_BEEP
-
-
-; ray casting code starts here
-
 ; -------- raycasting-msx
+
+; just a bunch of code that maybe someday will lead to a MSX raycasting engine
+; do not complie this code directly, it won't work
+
+
+; -----------------------------------------
 
 
 ; There are 262 lines on NTSC and 313 lines on PAL. Each line takes exactly 228 CPU cycles if the VDP and CPU are 
@@ -256,6 +213,69 @@ Execute:
 
 
 
+; -------------------------------------------------------
+
+
+; raytrace from player until find a wall
+; HL: addr of deltas for map cells reached by this ray
+; ??: player map cell (256x256)
+
+ld      bc, (PlayerPositionOnMap)
+;ld      d, 0 + (RaytraceMapCells & 0xff00) >> 8     ; get high byte of addr <-- should be done dinamically
+
+.loop: ; use macro to repeat 16x
+    ; get delta value
+    ld      e, (hl) ; DE = (HL)
+    inc     l
+    ld      d, (hl)
+
+	push    hl
+        ld	    h, b ; HL = (PlayerPositionOnMap)
+        ld	    l, c
+        ;ld      hl, (PlayerPositionOnMap)
+        add	    hl, de  ; HL += delta cell map for ray cast
+
+        ; A = 4 upper bits of H and L (transform a coordinate in the format (4.4, 4.4) fixed point in (4, 4) integer)
+        ld      a, h
+        and     1111 0000 b
+        ld      h, a
+
+        ld      d, base_addr_div_by_16_LUT
+        ld      e, l
+        ld      a, (de)
+
+        or      h
+
+        ; get cell on 16x16 map
+        ld      h, 0 + (Map & 0xff00) >> 8     ; get high byte of addr
+        ld      l, a
+        
+        xor     a
+        cp	    (hl)
+    pop     hl
+
+	jp	    nz, .blockFound
+	inc	    l       ; HL++
+	
+	;jp	.loop
+
+; 149 cycles
+; x 16 cells x 32 angles = 76288 cycles (128% of 1 frame)
+
+
+; ray trace example:
+RaytraceMapCells:       ; table aligned
+	dw +1 * 16, +2 * 16, +3 * 16..., +15 * 16  ; ray aligned to right
+	
+    ;dw -1 * 16, -2 * 16, -3 * 16..., -15 * 16  ; ray aligned to left
+    ;dw -16 * 16, -32 * 16, -48 * 16 ...  ; ray aligned to top
+
+
+
+; -------------------------------------------------------
+
+
+
 	ds PageSize - ($ - 0x4000), 255	; Fill the unused area with 0xFF
 
 
@@ -269,3 +289,9 @@ NAMTBL_Buffer:  rb 32 * 16 ; only upper 2/3 of the screen
 Columns_Addr:   rw 32
 
 OldSP:          rw 1
+
+
+; ----------
+    org 0xd000
+Map:
+	rb 16*16        ; table aligned
