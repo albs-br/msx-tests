@@ -14,5 +14,6 @@ ram_watch   add     0xdf04      -type word      -desc RndNumbers      -format he
 ram_watch   add     0xdf06      -type word      -desc RndNumbers      -format hex
 ram_watch   add     0xdf08      -type word      -desc RndNumbers      -format hex
 ram_watch   add     0xdf0a      -type word      -desc RndNumbers      -format hex
+ram_watch   add     0xdffe      -type word      -desc RndNumbers_fe      -format hex
 
 #RndNumbers: equ 0DF00h ; last def. pass 3

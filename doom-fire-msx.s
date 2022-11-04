@@ -267,3 +267,18 @@ Seed:                       rw 1            ; Seed for random number generator
     org 0xdf00
 RND_NUMBERS_HIGH_BYTE_BASE_ADDR:    equ 0xdf
 RndNumbers:                 rb 256
+
+
+;       doom fire fx msx
+;       
+;       0	0 0000	2 	0 0010	16 1 0000
+;       1	0 0001	3 	0 0011	17 1 0001
+;       
+;       4	0 0100	6 	0 0110
+;       5	0 0101	7 	0 0111
+;       
+;       8	0 1000	10	0 1010
+;       9	0 1001	11	0 1011
+;       
+;       12	0 1100	14	  1110
+;       13	0 1101	15	  1111
