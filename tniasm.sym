@@ -10,6 +10,7 @@ V9.PORT_1: equ 061h ; last def. pass 3
 V9.P1_PATTBL_LAYER_B: equ 040000h ; last def. pass 3
 V9.P1_NAMTBL_LAYER_B: equ 07E000h ; last def. pass 3
 V9.PORT_5: equ 065h ; last def. pass 3
+PageSize: equ 04000h ; last def. pass 3
 Tile_0.size: equ 020h ; last def. pass 3
 V9.PORT_4: equ 064h ; last def. pass 3
 V9.SetRegister: equ 04010h ; last def. pass 3

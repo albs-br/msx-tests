@@ -1,5 +1,7 @@
 FNAME "v9990.rom"      ; output file
 
+PageSize:	    equ	0x4000	        ; 16kB
+
 ; Compilation address
     org 0x4000, 0xbeff	                    ; 0x8000 can be also used here if Rom size is 16kB or less.
 
@@ -330,3 +332,8 @@ Palette_test:
     db   0,  0, 15
     db   0,  7,  0
     db   0,  0,  7
+
+
+
+; -------------------------
+	ds PageSize - ($ - 0x4000), 255	; Fill the unused area with 0xFF
