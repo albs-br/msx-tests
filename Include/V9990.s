@@ -85,9 +85,10 @@ V9:
 ; Write VRAM from RAM
 ; Inputs:
 ; 	HL: source addr in RAM
-; 	ADE: 17 bits destiny addr in VRAM
+; 	ADE: 19 bits destiny addr in VRAM
 ; 	BC: number of bytes
 .LDIRVM:
+    ; TODO: use SetVdp_Write
     push    bc
         push    af
             ; set P#4 to 0000 0000 b
@@ -121,18 +122,54 @@ V9:
     ret
 
 
-; Set tile pattern at address pointed by ADE (19 bits)
+; Set tile pattern in V9990 VRAM
+; 	HL: source addr in RAM
+; 	ADE: 19 bits destiny addr in VRAM
 .SetTilePattern:
-    push    bc
+    ld      b, 8
+.SetTilePattern_loop:
+    push    af, bc
         call    V9.SetVdp_Write
 
         ld      c, (V9.PORT_0)
 
-        outi outi outi outi 
+        outi outi outi outi     ; one line = 8 pixels = 4 bytes
 
-        ld      bc, 0x80 - 4    ; tile pattern lines are spaced by 128 bytes (0x80)
-        add     hl, bc
-    pop     bc
-    djnz    .SetTilePattern
+        ex      de, hl
+            ld      bc, 0x80    ; tile pattern lines are spaced by 128 bytes (0x80)
+            add     hl, bc
+        ex      de, hl
+
+    pop     bc, af
+    djnz    .SetTilePattern_loop
+
+    ret
+
+; -------------------------------------------------------------
+
+.ClearVRAM:
+    xor     a
+    ld      de, 0
+    call    V9.SetVdp_Write
+
+    ; TODO: use VDP command (faster)
+    ld      bc, 65535       ; 64kb
+    ld      d, 0
+.ClearVRAM_loop:
+    xor     a
+    ; 64 kb x 8 = 512
+    out     (v9.PORT_0), a
+    out     (v9.PORT_0), a
+    out     (v9.PORT_0), a
+    out     (v9.PORT_0), a
+    out     (v9.PORT_0), a
+    out     (v9.PORT_0), a
+    out     (v9.PORT_0), a
+    out     (v9.PORT_0), a
+
+    dec     bc
+    ld      a, b
+    or      c
+    jp      nz, .ClearVRAM_loop
 
     ret
