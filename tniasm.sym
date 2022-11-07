@@ -1,8 +1,8 @@
 V9.PORT_3: equ 063h ; last def. pass 3
 V9.P1_NAMTBL_LAYER_A: equ 07C000h ; last def. pass 3
-Execute: equ 04031h ; last def. pass 3
+Execute: equ 04033h ; last def. pass 3
 V9.PORT_2: equ 062h ; last def. pass 3
-Tile_0: equ 040C6h ; last def. pass 3
+Tile_0: equ 040C8h ; last def. pass 3
 V9.PORT_6: equ 066h ; last def. pass 3
 NamesTable_test.size: equ 080h ; last def. pass 3
 V9.PORT_0: equ 060h ; last def. pass 3
@@ -16,10 +16,10 @@ V9.PORT_4: equ 064h ; last def. pass 3
 V9.SetRegister: equ 04010h ; last def. pass 3
 V9: equ 04010h ; last def. pass 3
 V9.P1_PATTBL_LAYER_A: equ 00h ; last def. pass 3
-Execute.SetPalette_loop: equ 040BBh ; last def. pass 3
-NamesTable_test: equ 040E6h ; last def. pass 3
+Execute.SetPalette_loop: equ 040BDh ; last def. pass 3
+NamesTable_test: equ 040E8h ; last def. pass 3
 V9.PORT_7: equ 067h ; last def. pass 3
-Palette_test: equ 04166h ; last def. pass 3
+Palette_test: equ 04168h ; last def. pass 3
 V9.LDIRVM: equ 04016h ; last def. pass 3
-V9.LDIRVM_loop: equ 0402Ch ; last def. pass 3
+V9.LDIRVM_loop: equ 0402Ah ; last def. pass 3
 V9.P1_SPRATR: equ 03FE00h ; last def. pass 3
