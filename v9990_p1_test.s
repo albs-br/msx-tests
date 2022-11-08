@@ -71,6 +71,11 @@ Execute:
     ld		de, 0 + (V9.P1_PATTBL_LAYER_A + 4) AND 0xffff   ; VRAM address bits 15-0 (destiny)
     call 	V9.SetTilePattern
 
+    ld		hl, Tile_1        				                ; RAM address (source)
+    ld		a, 0 + (V9.P1_PATTBL_LAYER_A + 8) >> 16         ; VRAM address bits 18-16 (destiny)
+    ld		de, 0 + (V9.P1_PATTBL_LAYER_A + 8) AND 0xffff   ; VRAM address bits 15-0 (destiny)
+    call 	V9.SetTilePattern
+
 
 
     ; ------- set tile patterns layer B
@@ -80,6 +85,15 @@ Execute:
     ld		de, V9.P1_PATTBL_LAYER_B AND 0xffff         ; VRAM address bits 15-0 (destiny)
     call 	V9.SetTilePattern
 
+    ld		hl, Tile_0        				                ; RAM address (source)
+    ld		a, 0 + (V9.P1_PATTBL_LAYER_B + 4) >> 16         ; VRAM address bits 18-16 (destiny)
+    ld		de, 0 + (V9.P1_PATTBL_LAYER_B + 4) AND 0xffff   ; VRAM address bits 15-0 (destiny)
+    call 	V9.SetTilePattern
+
+    ld		hl, Tile_1        				                ; RAM address (source)
+    ld		a, 0 + (V9.P1_PATTBL_LAYER_B + 8) >> 16         ; VRAM address bits 18-16 (destiny)
+    ld		de, 0 + (V9.P1_PATTBL_LAYER_B + 8) AND 0xffff   ; VRAM address bits 15-0 (destiny)
+    call 	V9.SetTilePattern
 
 
     ; ------- set names table layer A
@@ -90,11 +104,13 @@ Execute:
     call 	V9.LDIRVM        					    ; Block transfer to VRAM from memory
 
     ; ------- set names table layer B
-    ld		hl, NamesTable_B_test				        ; RAM address (source)
+    ld		hl, NamesTable_B_test				    ; RAM address (source)
     ld		a, V9.P1_NAMTBL_LAYER_B >> 16	        ; VRAM address bits 18-16 (destiny)
     ld		de, V9.P1_NAMTBL_LAYER_B AND 0xffff     ; VRAM address bits 15-0 (destiny)
     ld		bc, NamesTable_B_test.size		        ; Block length
     call 	V9.LDIRVM        					    ; Block transfer to VRAM from memory
+
+
 
     ; ------- set palette control register (R#13)
     
@@ -107,11 +123,11 @@ Execute:
     ; set PLTAIH to 0 on R#13 (bit 4)
     ; set PLTO2-5 to 0 on R#13 (bits 0-3)
     ld      a, 13           ; register number
-    ld      b, 0000 00 00 b  ; value
+    ld      b, 0000 01 00 b  ; value
     call    V9.SetRegister
 
 
-    ; --------- set palette
+    ; --------- set palette #0
 
     ; set 0000 1110 b to P#4
     ld      a, 0000 1110 b
@@ -124,17 +140,31 @@ Execute:
     ; set RED value (5 bits, 0-31 value) to P#1
     ; set GREEN value (5 bits, 0-31 value) to P#1
     ; set BLUE value (5 bits, 0-31 value) to P#1
-    ld      hl, Palette_test
+    ld      hl, Palette_test_0
     ld      c, V9.PORT_1
-    ; WRONG, should be: ld      b, 16   ; number of colors
     ld      b, 16 * 3   ; number of colors * 3
-.SetPalette_loop:
-    outi    ; red
-    outi    ; green
-    outi    ; blue
-    djnz    .SetPalette_loop
+    otir
 
-    
+
+
+    ; --------- set palette #1
+
+    ; set 0000 1110 b to P#4
+    ld      a, 0000 1110 b
+    out     (V9.PORT_4), a
+
+    ; set palette number (6 higher bits) to P#3; 2 lower bits to 00
+    ld      a, 0100 0000 b
+    out     (V9.PORT_3), a
+
+    ; set RED value (5 bits, 0-31 value) to P#1
+    ; set GREEN value (5 bits, 0-31 value) to P#1
+    ; set BLUE value (5 bits, 0-31 value) to P#1
+    ld      hl, Palette_test_1
+    ld      c, V9.PORT_1
+    ld      b, 16 * 3   ; number of colors * 3
+    otir
+
     
     ; --------
     jp      $   ; eternal loop
@@ -171,17 +201,6 @@ Execute:
 
 ; 8x8 x 4bpp tiles
 
-Tile_0:
-    db  0x1f, 0xff, 0xff, 0xff
-    db  0x20, 0x00, 0x00, 0xff
-    db  0x30, 0x00, 0x0f, 0x0f
-    db  0x40, 0x00, 0xf0, 0x0f
-    db  0x50, 0x0f, 0x00, 0x0f
-    db  0x60, 0xf0, 0x00, 0x0f
-    db  0x7f, 0x00, 0x00, 0x0f
-    db  0x8f, 0xff, 0xff, 0xff
-.size:      equ $ - Tile_0
-
 Tile_Empty:
     db  0x00, 0x00, 0x00, 0x00
     db  0x00, 0x00, 0x00, 0x00
@@ -193,23 +212,48 @@ Tile_Empty:
     db  0x00, 0x00, 0x00, 0x00
 .size:      equ $ - Tile_Empty
 
+Tile_0:
+    db  0x1f, 0xff, 0xff, 0xff
+    db  0x20, 0x00, 0x00, 0xff
+    db  0x30, 0x00, 0x0f, 0x0f
+    db  0x40, 0x00, 0xf0, 0x0f
+    db  0x50, 0x0f, 0x00, 0x0f
+    db  0x60, 0xf0, 0x00, 0x0f
+    db  0x7f, 0x00, 0x00, 0x0f
+    db  0x8f, 0xff, 0xff, 0xff
+.size:      equ $ - Tile_0
+
+Tile_1:
+    db  0x00, 0x11, 0x22, 0x33
+    db  0x00, 0x11, 0x22, 0x33
+    db  0x44, 0x55, 0x66, 0x77
+    db  0x44, 0x55, 0x66, 0x77
+    db  0x88, 0x99, 0xaa, 0xbb
+    db  0x88, 0x99, 0xaa, 0xbb
+    db  0xcc, 0xdd, 0xee, 0xff
+    db  0xcc, 0xdd, 0xee, 0xff
+.size:      equ $ - Tile_Empty
+
+
 NamesTable_test:
-    dw  0x0000, 0x0001, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1
-    dw  0x0001, 0x0000, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1
+    dw  0x0000, 0x0001, 0, 2, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1
+    dw  0x0001, 0x0000, 0, 2, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1
 .size:      equ $ - NamesTable_test
 
 NamesTable_B_test:
-    dw  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    dw  1, 1, 1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    dw  1, 1, 2, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    dw  1, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 .size:      equ $ - NamesTable_B_test
 
-Palette_test:
+Palette_test_0:
     ;   R   G   B   (5 bits, 0-31 value)
+    db  0,   0,  0
     db  15,  0,  0
     db  15, 31, 31
     db  15,  0, 31
-    db  15, 15, 15
 
-    db   0,  0,  0
+    db   0,  0, 15
     db  31,  0,  0
     db   0, 31,  0
     db   0,  0, 31
@@ -221,9 +265,32 @@ Palette_test:
 
     db   0, 15,  0
     db   0,  0, 15
-    db   0,  7,  0
-    db   0,  0,  7
+    ; db   0,  7,  0
+    ; db   0,  0,  7
+    db  6, 5, 4
+    db  31, 31, 31
 
+Palette_test_1:
+    ;   R   G   B   (5 bits, 0-31 value)
+    db  0,  0,  0
+    db  2,  2,  2
+    db  4,  4,  4
+    db  6,  6,  6
+
+    db   8,  8,  8
+    db  10, 10, 10
+    db  12, 12, 12
+    db  14, 14, 14
+
+    db  16, 16, 16
+    db  18, 18, 18
+    db  20, 20, 20
+    db  22, 22, 22
+
+    db  24, 24, 24
+    db  26, 26, 26
+    db  28, 28, 28
+    db  31, 31, 31
 
 
 ; -------------------------
