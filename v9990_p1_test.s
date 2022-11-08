@@ -11,44 +11,7 @@ PageSize:	    equ	0x4000	        ; 16kB
 
 Execute:
 
-    ; ------- set P1 mode
-
-    ; set MCS = 0 on P#7
-    ld      a, 0
-    out     (V9.PORT_7), a
-
-    ; set DSPM = 0 (bits 7-6) of R#6
-    ; set DKCM = 0 (bits 5-4) of R#6
-    ; set XIMM = 1 (bits 3-2) of R#6
-    ; set CLRM = 1 (bits 1-0) of R#6
-    ld      a, 6            ; register number
-    ld      b, 0000 0101 b  ; value
-    call    V9.SetRegister
-
-    ; bit 7 of R#7 is fixed at 0
-    ; set C25M = 0 (bit 6) of R#7
-    ; set SM1 = 0 (bit 5) of R#7
-    ; set SM = 0 (bit 4) of R#7
-    ; set PAL = 0 (bit 3) of R#7
-    ; set EO = 0 (bit 2) of R#7
-    ; set IL = 0 (bit 1) of R#7
-    ; set HSCN = 0 (bit 0) of R#7
-    ld      a, 7            ; register number
-    ld      b, 0000 0000 b  ; value
-    call    V9.SetRegister
-
-
-    ; set control register (R#8)
-    ; set DISP = 1 (bit 7) of R#8
-    ld      a, 8            ; register number
-    ld      b, 1000 0010 b  ; value
-    call    V9.SetRegister
-
-
-    ; set priority control register (R#27)
-    ld      a, 27           ; register number
-    ld      b, 0000 0000 b  ; value
-    call    V9.SetRegister
+    call    V9.Mode_P1
 
 
 
