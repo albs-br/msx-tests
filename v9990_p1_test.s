@@ -61,12 +61,12 @@ Execute:
     ; ld		bc, Tile_0.size					        ; Block length
     ; call 	V9.LDIRVM        					    ; Block transfer to VRAM from memory
 
-    ld		hl, Tile_Empty        				        ; RAM address (source)
-    ld		a, V9.P1_PATTBL_LAYER_A >> 16	            ; VRAM address bits 18-16 (destiny)
-    ld		de, V9.P1_PATTBL_LAYER_A AND 0xffff         ; VRAM address bits 15-0 (destiny)
+    ld		hl, Tile_Empty        				            ; RAM address (source)
+    ld		a, V9.P1_PATTBL_LAYER_A >> 16	                ; VRAM address bits 18-16 (destiny)
+    ld		de, V9.P1_PATTBL_LAYER_A AND 0xffff             ; VRAM address bits 15-0 (destiny)
     call 	V9.SetTilePattern
 
-    ld		hl, Tile_0        				            ; RAM address (source)
+    ld		hl, Tile_0        				                ; RAM address (source)
     ld		a, 0 + (V9.P1_PATTBL_LAYER_A + 4) >> 16         ; VRAM address bits 18-16 (destiny)
     ld		de, 0 + (V9.P1_PATTBL_LAYER_A + 4) AND 0xffff   ; VRAM address bits 15-0 (destiny)
     call 	V9.SetTilePattern
@@ -98,9 +98,9 @@ Execute:
 
     ; ------- set palette control register (R#13)
     
-    ; Background colors are specified by Pattern data plus a palette offset in R#13. P1 layer "A" and 
-    ; P2 pattern pixels 0,1,4,5 use offset specified in R#13 PLTO3-2. P1 layer "B" and P2 pattern 
-    ; pixels 2,3,6,7 use offset specified in R#13 PLTO5-4.
+    ; Background colors are specified by Pattern data plus a palette offset in R#13.
+    ; P1 layer "A" and P2 pattern pixels 0,1,4,5 use offset specified in R#13 PLTO3-2.
+    ; P1 layer "B" and P2 pattern pixels 2,3,6,7 use offset specified in R#13 PLTO5-4.
 
     ; set PLTM to 00 on R#13 (bits 7-6)
     ; set YAE to 0 on R#13 (bit 5)
@@ -126,6 +126,7 @@ Execute:
     ; set BLUE value (5 bits, 0-31 value) to P#1
     ld      hl, Palette_test
     ld      c, V9.PORT_1
+    ; WRONG, should be: ld      b, 16   ; number of colors
     ld      b, 16 * 3   ; number of colors * 3
 .SetPalette_loop:
     outi    ; red
@@ -133,6 +134,9 @@ Execute:
     outi    ; blue
     djnz    .SetPalette_loop
 
+    
+    
+    ; --------
     jp      $   ; eternal loop
 
 

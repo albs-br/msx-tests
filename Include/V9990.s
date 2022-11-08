@@ -153,8 +153,7 @@ V9:
     call    V9.SetVdp_Write
 
     ; TODO: use VDP command (faster)
-    ld      bc, 65535       ; 64kb
-    ld      d, 0
+    ld      bc, 0 ; = 65536 (64 kb)
 .ClearVRAM_loop:
     xor     a
     ; 64 kb x 8 = 512 kb
@@ -180,7 +179,7 @@ V9:
     ; ------- set P1 mode
 
     ; set MCS = 0 on P#7
-    ld      a, 0
+    xor     a
     out     (V9.PORT_7), a
 
     ; set DSPM = 0 (bits 7-6) of R#6
@@ -217,3 +216,14 @@ V9:
     call    V9.SetRegister
 
     ret
+
+
+; ; convert tile number to tile pattern base addr:
+;     ld      hl, tile_number
+
+;     push    hl
+;         ld      a, l
+;         and     1110 0000 b
+    
+;     pop     hl
+;     and     0001 1111 b
