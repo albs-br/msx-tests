@@ -15,38 +15,15 @@ Execute:
 
 
 
-    ; ------- set scroll control registers (R#17 to R#24)
-    ld      a, 17           ; register number
-    ld      b, 0000 0000 b  ; value
-    call    V9.SetRegister
+    ; WARNING: NOT FINISHED
+    ld      hl, 0   ; X scroll value (11 bits)
+    ld      de, 0   ; Y scroll value (13 bits)
+    call    V9.SetScroll_Layer_A
 
-    ld      a, 18           ; register number
-    ld      b, 0000 0000 b  ; value
-    call    V9.SetRegister
-
-    ld      a, 19           ; register number
-    ld      b, 0000 0000 b  ; value
-    call    V9.SetRegister
-
-    ld      a, 20           ; register number
-    ld      b, 0000 0000 b  ; value
-    call    V9.SetRegister
-
-    ld      a, 21           ; register number
-    ld      b, 0000 0000 b  ; value
-    call    V9.SetRegister
-
-    ld      a, 22           ; register number
-    ld      b, 0000 0000 b  ; value
-    call    V9.SetRegister
-
-    ld      a, 23           ; register number
-    ld      b, 0000 0000 b  ; value
-    call    V9.SetRegister
-
-    ld      a, 24           ; register number
-    ld      b, 0000 0000 b  ; value
-    call    V9.SetRegister
+    ; WARNING: NOT FINISHED
+    ld      hl, 0   ; X scroll value (9 bits)
+    ld      de, 0   ; Y scroll value (9 bits)
+    call    V9.SetScroll_Layer_B
 
 
 
@@ -55,44 +32,45 @@ Execute:
 
 
     ; ------- set tile patterns layer A
-    ; ld		hl, Tile_0        				        ; RAM address (source)
-    ; ld		a, V9.P1_PATTBL_LAYER_A >> 16	        ; VRAM address bits 18-16 (destiny)
-    ; ld		de, V9.P1_PATTBL_LAYER_A AND 0xffff     ; VRAM address bits 15-0 (destiny)
-    ; ld		bc, Tile_0.size					        ; Block length
-    ; call 	V9.LDIRVM        					    ; Block transfer to VRAM from memory
 
+    ; set tile pattern #0
     ld		hl, Tile_Empty        				            ; RAM address (source)
     ld		a, V9.P1_PATTBL_LAYER_A >> 16	                ; VRAM address bits 18-16 (destiny)
     ld		de, V9.P1_PATTBL_LAYER_A AND 0xffff             ; VRAM address bits 15-0 (destiny)
     call 	V9.SetTilePattern
 
+    ; set tile pattern #1
     ld		hl, Tile_0        				                ; RAM address (source)
     ld		a, 0 + (V9.P1_PATTBL_LAYER_A + 4) >> 16         ; VRAM address bits 18-16 (destiny)
     ld		de, 0 + (V9.P1_PATTBL_LAYER_A + 4) AND 0xffff   ; VRAM address bits 15-0 (destiny)
     call 	V9.SetTilePattern
 
-    ld		hl, Tile_1        				                ; RAM address (source)
-    ld		a, 0 + (V9.P1_PATTBL_LAYER_A + 8) >> 16         ; VRAM address bits 18-16 (destiny)
-    ld		de, 0 + (V9.P1_PATTBL_LAYER_A + 8) AND 0xffff   ; VRAM address bits 15-0 (destiny)
+    ; set tile pattern #32
+    ld		hl, Tile_1        				                      ; RAM address (source)
+    ld		a, 0 + (V9.P1_PATTBL_LAYER_A + 0x00400) >> 16         ; VRAM address bits 18-16 (destiny)
+    ld		de, 0 + (V9.P1_PATTBL_LAYER_A + 0x00400) AND 0xffff   ; VRAM address bits 15-0 (destiny)
     call 	V9.SetTilePattern
 
 
 
     ; ------- set tile patterns layer B
 
+    ; set tile pattern #0
     ld		hl, Tile_Empty        				        ; RAM address (source)
     ld		a, V9.P1_PATTBL_LAYER_B >> 16	            ; VRAM address bits 18-16 (destiny)
     ld		de, V9.P1_PATTBL_LAYER_B AND 0xffff         ; VRAM address bits 15-0 (destiny)
     call 	V9.SetTilePattern
 
+    ; set tile pattern #1
     ld		hl, Tile_0        				                ; RAM address (source)
     ld		a, 0 + (V9.P1_PATTBL_LAYER_B + 4) >> 16         ; VRAM address bits 18-16 (destiny)
     ld		de, 0 + (V9.P1_PATTBL_LAYER_B + 4) AND 0xffff   ; VRAM address bits 15-0 (destiny)
     call 	V9.SetTilePattern
 
-    ld		hl, Tile_1        				                ; RAM address (source)
-    ld		a, 0 + (V9.P1_PATTBL_LAYER_B + 8) >> 16         ; VRAM address bits 18-16 (destiny)
-    ld		de, 0 + (V9.P1_PATTBL_LAYER_B + 8) AND 0xffff   ; VRAM address bits 15-0 (destiny)
+    ; set tile pattern #32
+    ld		hl, Tile_1        				                      ; RAM address (source)
+    ld		a, 0 + (V9.P1_PATTBL_LAYER_B + 0x00400) >> 16         ; VRAM address bits 18-16 (destiny)
+    ld		de, 0 + (V9.P1_PATTBL_LAYER_B + 0x00400) AND 0xffff   ; VRAM address bits 15-0 (destiny)
     call 	V9.SetTilePattern
 
 
@@ -112,58 +90,42 @@ Execute:
 
 
 
-    ; ------- set palette control register (R#13)
-    
-    ; Background colors are specified by Pattern data plus a palette offset in R#13.
-    ; P1 layer "A" and P2 pattern pixels 0,1,4,5 use offset specified in R#13 PLTO3-2.
-    ; P1 layer "B" and P2 pattern pixels 2,3,6,7 use offset specified in R#13 PLTO5-4.
-
-    ; set PLTM to 00 on R#13 (bits 7-6)
-    ; set YAE to 0 on R#13 (bit 5)
-    ; set PLTAIH to 0 on R#13 (bit 4)
-    ; set PLTO2-5 to 0 on R#13 (bits 0-3)
-    ld      a, 13           ; register number
-    ld      b, 0000 01 00 b  ; value
-    call    V9.SetRegister
+    ld      a, 0    ; palette number for layer A (0-3)
+    ld      b, 1    ; palette number for layer B (0-3)
+    call    V9.SetPaletteControlRegister
 
 
-    ; --------- set palette #0
 
-    ; set 0000 1110 b to P#4
-    ld      a, 0000 1110 b
-    out     (V9.PORT_4), a
-
-    ; set palette number (6 higher bits) to P#3; 2 lower bits to 00
-    ld      a, 0000 0000 b
-    out     (V9.PORT_3), a
-
-    ; set RED value (5 bits, 0-31 value) to P#1
-    ; set GREEN value (5 bits, 0-31 value) to P#1
-    ; set BLUE value (5 bits, 0-31 value) to P#1
+    ld      a, 0
     ld      hl, Palette_test_0
-    ld      c, V9.PORT_1
-    ld      b, 16 * 3   ; number of colors * 3
-    otir
+    call    V9.LoadPalette
 
-
-
-    ; --------- set palette #1
-
-    ; set 0000 1110 b to P#4
-    ld      a, 0000 1110 b
-    out     (V9.PORT_4), a
-
-    ; set palette number (6 higher bits) to P#3; 2 lower bits to 00
-    ld      a, 0100 0000 b
-    out     (V9.PORT_3), a
-
-    ; set RED value (5 bits, 0-31 value) to P#1
-    ; set GREEN value (5 bits, 0-31 value) to P#1
-    ; set BLUE value (5 bits, 0-31 value) to P#1
+    ld      a, 1
     ld      hl, Palette_test_1
-    ld      c, V9.PORT_1
-    ld      b, 16 * 3   ; number of colors * 3
-    otir
+    call    V9.LoadPalette
+
+    ld      a, 2
+    ld      hl, Palette_test_2
+    call    V9.LoadPalette
+
+    ld      a, 3
+    ld      hl, Palette_test_3
+    call    V9.LoadPalette
+
+
+
+    ; ; set R#25 SPRITE GENERATOR BASE ADDRESS (READ/WRITE)
+    ; ; Sprite pattern: Selected from among 256 patterns
+    ; ; The pattern data is shared with the pattern layer (the base address should be set in register R#25.)
+    ; ; SGBA17-15: bits 3-1
+    ; ld      a, 25           ; register number
+    ; ;ld     b, 0000 sss0 b  ; value
+    ; ld      b, 0000 0000 b  ; value
+    ; call    V9.SetRegister
+
+    ; load sprite patterns
+
+    ; load SPRATR table
 
     
     ; --------
@@ -196,8 +158,9 @@ Execute:
 
 
 ; -----------------------------------------------------------------
-
 ; VRAM data
+
+; ----------------
 
 ; 8x8 x 4bpp tiles
 
@@ -234,21 +197,27 @@ Tile_1:
     db  0xcc, 0xdd, 0xee, 0xff
 .size:      equ $ - Tile_Empty
 
+; ----------------
 
 NamesTable_test:
-    dw  0x0000, 0x0001, 0, 2, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1
-    dw  0x0001, 0x0000, 0, 2, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1
+    dw  0, 1, 0,32, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1
+    dw  1, 0, 0,32, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1
 .size:      equ $ - NamesTable_test
 
 NamesTable_B_test:
-    dw  1, 1, 1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-    dw  1, 1, 2, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-    dw  1, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    ; dw  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    ; dw  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    ; dw  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    dw  1, 1, 1, 0,32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    dw  1, 1,32, 0,32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    dw  1,32,32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 .size:      equ $ - NamesTable_B_test
 
+; ----------------
+
 Palette_test_0:
-    ;   R   G   B   (5 bits, 0-31 value)
-    db  0,   0,  0
+    ;    R   G   B   (5 bits, 0-31 value)
+    db   0,  0,  0
     db  15,  0,  0
     db  15, 31, 31
     db  15,  0, 31
@@ -271,11 +240,11 @@ Palette_test_0:
     db  31, 31, 31
 
 Palette_test_1:
-    ;   R   G   B   (5 bits, 0-31 value)
-    db  0,  0,  0
-    db  2,  2,  2
-    db  4,  4,  4
-    db  6,  6,  6
+    ;    R   G   B   (5 bits, 0-31 value)
+    db   0,  0,  0
+    db   2,  2,  2
+    db   4,  4,  4
+    db   6,  6,  6
 
     db   8,  8,  8
     db  10, 10, 10
@@ -292,6 +261,89 @@ Palette_test_1:
     db  28, 28, 28
     db  31, 31, 31
 
+Palette_test_2:
+    ;    R   G   B   (5 bits, 0-31 value)
+    db   0,  0,  0
+    db   2,  2,  0
+    db   4,  4,  0
+    db   6,  6,  0
+
+    db   8,  8,  0
+    db  10, 10,  0
+    db  12, 12,  0
+    db  14, 14,  0
+
+    db  16, 16,  0
+    db  18, 18,  0
+    db  20, 20,  0
+    db  22, 22,  0
+
+    db  24, 24,  0
+    db  26, 26,  0
+    db  28, 28,  0
+    db  31, 31,  0
+
+Palette_test_3:
+    ;    R   G   B   (5 bits, 0-31 value)
+    db   0,  0,  0
+    db   2,  0,  0
+    db   4,  0,  0
+    db   6,  0,  0
+
+    db   8,  0,  0
+    db  10,  0,  0
+    db  12,  0,  0
+    db  14,  0,  0
+
+    db  16,  0,  0
+    db  18,  0,  0
+    db  20,  0,  0
+    db  22,  0,  0
+
+    db  24,  0,  0
+    db  26,  0,  0
+    db  28,  0,  0
+    db  31,  0,  0
+
+; ----------------
+
+SPRATR_Table_Test:
+    ;     +--- Sprite Y-coordinate (Actual display position is one line below specified)
+    ;     |    +--- Sprite Pattern Number (Pattern Offset is specified in R#25 SGBA)
+    ;     |    |    +--- X (bit 7-0)
+    ;     |    |    |  +-------------- Palette offset for sprite colors.
+    ;     |    |    |  |  +----------- Sprite is in front of the front layer when P=0, sprite is behind the front layer when P=1.
+    ;     |    |    |  |  | +--------- Sprite is disabled when D=1
+    ;     |    |    |  |  | |     +--- X (bit 9-8)
+    ;     |    |    |  |  | |     |
+    ;     Y, PAT,   X, nn p d - - X
+    db  106,   0, 128, 00 0 0 0 0 00 b
+.size:  equ $ - SPRATR_Table_Test
+
+; ----------------
+
+; sprite patterns (16x16 x 4bpp)
+SpritePattern_Test_1:
+    db  0x11, 0x11, 0x88, 0x77, 0x66, 0x55, 0x44, 0x33
+    db  0x22, 0x22, 0x88, 0x77, 0x66, 0x55, 0x44, 0x33
+    db  0x11, 0x11, 0x88, 0x77, 0x66, 0x55, 0x44, 0x33
+    db  0x22, 0x22, 0x88, 0x77, 0x66, 0x55, 0x44, 0x33
+
+    db  0x11, 0x11, 0xee, 0xdd, 0xcc, 0xbb, 0xaa, 0x99
+    db  0x22, 0x22, 0xee, 0xdd, 0xcc, 0xbb, 0xaa, 0x99
+    db  0x11, 0x11, 0xee, 0xdd, 0xcc, 0xbb, 0xaa, 0x99
+    db  0x22, 0x22, 0xee, 0xdd, 0xcc, 0xbb, 0xaa, 0x99
+
+    db  0xf0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0f
+    db  0xf0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0f
+    db  0xf0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0f
+    db  0xf0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0f
+
+    db  0xf0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0f
+    db  0xf0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0f
+    db  0xf0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0f
+    db  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
+.size:  equ $ - SpritePattern_Test_1
 
 ; -------------------------
 	ds PageSize - ($ - 0x4000), 255	; Fill the unused area with 0xFF

@@ -49,12 +49,28 @@ V9:
 
 ; Set register number A with value in B
 .SetRegister:
-    out     (V9.PORT_4), a  ; register number
-    ld      a, b
+    di
+        out     (V9.PORT_4), a  ; register number
+        ld      a, b
+    ei
     out     (V9.PORT_3), a  ; value
     ret
 
 
+; -------------------------------------------------------------
+
+; To obtain the value from the register, have the register No. output at P#4 and then read P#3.
+
+; Read register A, value is returned in A
+.ReadRegister:
+    di
+        out     (V9.PORT_4), a  ; register number
+    ei
+    in      a, (V9.PORT_3)  ; value
+    ret
+
+
+; -------------------------------------------------------------
 
 ; Set V9990 to write at address pointed by ADE (19 bits)
 .SetVdp_Write:
@@ -80,6 +96,7 @@ V9:
 
     ret
 
+; -------------------------------------------------------------
 
 
 ; Write VRAM from RAM
@@ -89,24 +106,28 @@ V9:
 ; 	BC: number of bytes
 .LDIRVM:
     ; TODO: use SetVdp_Write
+    ; push    bc
+    ;     push    af
+    ;         ; set P#4 to 0000 0000 b
+    ;         ld      a, 0000 0000 B
+    ;         out     (V9.PORT_4), a
+
+    ;         ld      c, V9.PORT_3
+
+    ;         ; set P#3 to VRAM lower addr (bits 0-7)
+    ;         out     (c), e
+
+    ;         ; set P#3 to VRAM center addr (bits 8-15)
+    ;         out     (c), d
+    ;     pop     af
+
+    ;     ; set P#3 to VRAM upper addr (bits 16-18) --> warning: higher bit here is AII (explained above)
+    ;     and     0111 1111 b     ; force AII bit to 0
+    ;     out     (c), a
+    ; pop     de
+
     push    bc
-        push    af
-            ; set P#4 to 0000 0000 b
-            ld      a, 0000 0000 B
-            out     (V9.PORT_4), a
-
-            ld      c, V9.PORT_3
-
-            ; set P#3 to VRAM lower addr (bits 0-7)
-            out     (c), e
-
-            ; set P#3 to VRAM center addr (bits 8-15)
-            out     (c), d
-        pop     af
-
-        ; set P#3 to VRAM upper addr (bits 16-18) --> warning: higher bit here is AII (explained above)
-        and     0111 1111 b     ; force AII bit to 0
-        out     (c), a
+        call    .SetVdp_Write
     pop     de
 
     ld      c, V9.PORT_0
@@ -227,3 +248,154 @@ V9:
     
 ;     pop     hl
 ;     and     0001 1111 b
+
+; -----------------------------------------------------------
+
+
+    ; WARNING: NOT FINISHED
+; Set scroll control registers for layer B (R#17 to R#20)
+; Inputs:
+;   HL: X scroll value (11 bits)
+;   DE: Y scroll value (13 bits)
+.SetScroll_Layer_A:
+
+    ; R#17: scroll Y layer A (bits 7-0)
+    ld      a, 17           ; register number
+    ld      b, e            ; value
+    call    V9.SetRegister
+
+    ; TODO: read R#18 and save bits 7-6 before (R512/R256)
+
+    ; R#18: scroll Y layer A (bits 12-8)
+    ld      a, 18           ; register number
+    ld      b, d            ; value
+    call    V9.SetRegister
+
+
+    ; TODO: adjust H and L before set registers
+
+    ; R#19: scroll X layer A (bits 2-0)
+    ld      a, 19           ; register number
+    ld      b, 0 ;l            ; value
+    call    V9.SetRegister
+
+    ; R#20: scroll X layer A (bits 10-3)
+    ld      a, 20           ; register number
+    ld      b, 0 ;h            ; value
+    call    V9.SetRegister
+
+    ret
+
+    ; WARNING: NOT FINISHED
+; Set scroll control registers for layer B (R#21 to R#24)
+; Inputs:
+;   HL: X scroll value (9 bits)
+;   DE: Y scroll value (9 bits)
+.SetScroll_Layer_B:
+
+    ; TODO: implement
+
+    ld      a, 21           ; register number
+    ld      b, 0000 0000 b  ; value
+    call    V9.SetRegister
+
+    ld      a, 22           ; register number
+    ld      b, 0000 0000 b  ; value
+    call    V9.SetRegister
+
+    ld      a, 23           ; register number
+    ld      b, 0000 0000 b  ; value
+    call    V9.SetRegister
+
+    ld      a, 24           ; register number
+    ld      b, 0000 0000 b  ; value
+    call    V9.SetRegister
+
+    ret
+
+; -----------------------------------------------------------
+
+; Input:
+;   A: palette number for layer A (0-3)
+;   B: palette number for layer B (0-3)
+.SetPaletteControlRegister:
+
+    sla     b   ; shift left register
+    sla     b
+
+    or      b
+    ld      b, a
+
+    ; ------- set palette control register (R#13)
+    
+    ; R#13 is WRITE ONLY
+
+    ; Background colors are specified by Pattern data plus a palette offset in R#13.
+    ; P1 layer "A" and P2 pattern pixels 0,1,4,5 use offset specified in R#13 PLTO3-2.
+    ; P1 layer "B" and P2 pattern pixels 2,3,6,7 use offset specified in R#13 PLTO5-4.
+
+    ; set PLTM to 00 on R#13 (bits 7-6)
+    ; set YAE to 0 on R#13 (bit 5)
+    ; set PLTAIH to 0 on R#13 (bit 4)
+    ; set PLTO2-5 to 0 on R#13 (bits 0-3), to RESET scroll for both layers
+    
+    ;                +------- palette number for layer B
+    ;                |  +---- palette number for layer A
+    ;                |  |
+    ;ld      b, 0000 bb aa b  ; value
+
+
+    ld      a, 13           ; register number
+    call    V9.SetRegister
+
+    ret
+
+
+; -----------------------------------------------------------
+
+
+; Input:
+;   A: palette number (0-3)
+;   HL: pointer to palette data (48 bytes)
+.LoadPalette:
+
+    ld      c, a
+    
+    ; set 0000 1110 b to P#4
+    ld      a, 0000 1110 b
+    out     (V9.PORT_4), a
+
+    ld      a, c
+
+    sla     a   ; shift left register
+    sla     a
+    sla     a
+    sla     a
+    sla     a
+    sla     a
+
+    ; set palette number (6 higher bits) to P#3; 2 lower bits to 00
+    
+    ;           +---- palette number (0-3)
+    ;           |
+    ;ld      a, nn00 0000 b
+    out     (V9.PORT_3), a
+
+    ; set RED value (5 bits, 0-31 value) to P#1
+    ; set GREEN value (5 bits, 0-31 value) to P#1
+    ; set BLUE value (5 bits, 0-31 value) to P#1
+    ;ld      hl, Palette_test_0
+    ld      c, V9.PORT_1
+    ;ld      b, 16 * 3   ; number of colors * 3
+    ;otir
+    ; 48x OUTI
+    outi outi outi outi outi outi outi outi 
+    outi outi outi outi outi outi outi outi 
+    outi outi outi outi outi outi outi outi 
+    outi outi outi outi outi outi outi outi 
+    outi outi outi outi outi outi outi outi 
+    outi outi outi outi outi outi outi outi 
+
+    ret
+
+; -----------------------------------------------------------
