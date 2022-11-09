@@ -114,18 +114,23 @@ Execute:
 
 
 
-    ; ; set R#25 SPRITE GENERATOR BASE ADDRESS (READ/WRITE)
-    ; ; Sprite pattern: Selected from among 256 patterns
-    ; ; The pattern data is shared with the pattern layer (the base address should be set in register R#25.)
-    ; ; SGBA17-15: bits 3-1
-    ; ld      a, 25           ; register number
-    ; ;ld     b, 0000 sss0 b  ; value
-    ; ld      b, 0000 0000 b  ; value
-    ; call    V9.SetRegister
+    ; set R#25 SPRITE GENERATOR BASE ADDRESS (READ/WRITE)
+    ; Sprite pattern: Selected from among 256 patterns
+    ; The pattern data is shared with the pattern layer (the base address should be set in register R#25.)
+    ; SGBA17-15: bits 3-1
+    ld      a, 25           ; register number
+    ;ld     b, 0000 sss0 b  ; value
+    ld      b, 0000 0000 b  ; value
+    call    V9.SetRegister
 
     ; load sprite patterns
 
     ; load SPRATR table
+    ld		hl, SPRATR_Table_Test				    ; RAM address (source)
+    ld		a, V9.P1_SPRATR >> 16	                ; VRAM address bits 18-16 (destiny)
+    ld		de, V9.P1_SPRATR AND 0xffff             ; VRAM address bits 15-0 (destiny)
+    ld		bc, SPRATR_Table_Test.size		        ; Block length
+    call 	V9.LDIRVM        					    ; Block transfer to VRAM from memory
 
     
     ; --------
@@ -318,6 +323,9 @@ SPRATR_Table_Test:
     ;     |    |    |  |  | |     |
     ;     Y, PAT,   X, nn p d - - X
     db  106,   0, 128, 00 0 0 0 0 00 b
+    db  106,   0, 128 + 32, 01 0 0 0 0 00 b
+    db  106 + 32,   0, 128, 10 0 0 0 0 00 b
+    db  106 + 32,   0, 128 + 32, 11 0 0 0 0 00 b
 .size:  equ $ - SPRATR_Table_Test
 
 ; ----------------
