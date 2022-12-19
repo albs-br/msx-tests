@@ -53,7 +53,7 @@ BIOS_CSTCNT: equ 0F93Fh ; last def. pass 3
 BIOS_RDVRM: equ 04Ah ; last def. pass 3
 BIOS_MINDEL: equ 0F92Dh ; last def. pass 3
 BIOS_STREND: equ 0F6C6h ; last def. pass 3
-NamesTableData.size: equ 08h ; last def. pass 3
+NamesTableData.size: equ 0180h ; last def. pass 3
 BIOS_ENASLT: equ 024h ; last def. pass 3
 BIOS_H_BAKU: equ 0FEADh ; last def. pass 3
 BIOS_CSAVEA: equ 0F942h ; last def. pass 3
@@ -124,7 +124,7 @@ Wait_B_Vblanks: equ 0406Eh ; last def. pass 3
 REG3SAV: equ 0F3E2h ; last def. pass 3
 BIOS_SLTTBL: equ 0FCC5h ; last def. pass 3
 BIOS_DSCTMP: equ 0F698h ; last def. pass 3
-End: equ 042C4h ; last def. pass 3
+End: equ 042D6h ; last def. pass 3
 BIOS_H_LOC: equ 0FE99h ; last def. pass 3
 BIOS_H_CVS: equ 0FE44h ; last def. pass 3
 BIOS_MIVCNT: equ 0F951h ; last def. pass 3
@@ -133,7 +133,7 @@ BIOS_H_NOFO: equ 0FE58h ; last def. pass 3
 REG5SAV: equ 0F3E4h ; last def. pass 3
 BIOS_LINWRK: equ 0FC18h ; last def. pass 3
 Execute_VDP_LMMM: equ 041B7h ; last def. pass 3
-PatternsData.size: equ 06h ; last def. pass 3
+PatternsData.size: equ 018h ; last def. pass 3
 BIOS_H_IPL: equ 0FE03h ; last def. pass 3
 Wait_15_Vblanks.waitVBlank: equ 04084h ; last def. pass 3
 BIOS_PUTPNT: equ 0F3F8h ; last def. pass 3
@@ -470,7 +470,7 @@ BIOS_CSCLXY: equ 0F941h ; last def. pass 3
 BIOS_TXTCGP: equ 0F3B7h ; last def. pass 3
 BIOS_FLGINP: equ 0F6A6h ; last def. pass 3
 REG9SAV: equ 0FFE8h ; last def. pass 3
-NamesTableData: equ 042CAh ; last def. pass 3
+NamesTableData: equ 042EEh ; last def. pass 3
 BIOS_T32COL: equ 0F3BFh ; last def. pass 3
 BIOS_H_ERAC: equ 0FDAEh ; last def. pass 3
 BIOS_H_INLI: equ 0FDE5h ; last def. pass 3
@@ -480,7 +480,7 @@ BIOS_MODE: equ 0FAFCh ; last def. pass 3
 Execute_VDP_YMMM.vdpReady: equ 0423Eh ; last def. pass 3
 BIOS_H_MERG: equ 0FE67h ; last def. pass 3
 WRTVDP_without_DI_EI: equ 04290h ; last def. pass 3
-PatternsData: equ 042C4h ; last def. pass 3
+PatternsData: equ 042D6h ; last def. pass 3
 BIOS_AUTLIN: equ 0F6ABh ; last def. pass 3
 BIOS_H_GETP: equ 0FE4Eh ; last def. pass 3
 BIOS_H_MAIN: equ 0FF0Ch ; last def. pass 3
