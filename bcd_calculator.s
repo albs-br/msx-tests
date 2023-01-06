@@ -3,7 +3,7 @@ FNAME "bcd_calculator.rom"      ; output file
 PageSize:	    equ	0x4000	        ; 16kB
 
 ; Compilation address
-    org 0x4000, 0xbeff	                    ; 0x8000 can be also used here if Rom size is 16kB or less.
+    org 0x4000
 
     INCLUDE "Include/RomHeader.s"
     INCLUDE "Include/MsxBios.s"
@@ -11,7 +11,8 @@ PageSize:	    equ	0x4000	        ; 16kB
     INCLUDE "Include/CommonRoutines.s"
 
 ; Constants
-OPERAND_SIZE:   equ 2
+OPERAND_SIZE:   equ 2       ; unsigned 4 decimal digits (0 ... 9999)
+;OPERAND_SIZE:   equ 1 + 2    ; signed 4 decimal digits (-9999 ... +9999)
 
 ZERO_CHR:       equ 0x30
 SPACE_CHR:      equ 0x20
@@ -88,10 +89,11 @@ Execute:
     jp      $ ; eternal loop
 
 
-; HL: operand a
-; DE: operand b
-; IX: result
+; HL: Address of operand a
+; DE: Address of operand b
+; IX: Address of result
 Addition:
+    ; --- Point all three addresses (HL, DE, and IX) to end of number
     ld      bc, OPERAND_SIZE - 1
     add     hl, bc
     
@@ -101,17 +103,15 @@ Addition:
 
     add     ix, bc
 
+
     xor     a ; clear carry flag
     ld      b, OPERAND_SIZE		; number of bytes of operand
-    .loop:
-        ld      c, (hl)
-
+.loop:
         ld      a, (de)
-        ; jp      nc, .not_carry
-        ; inc     a
-        ; daa
+        ld      c, a
+        
+        ld      a, (hl)
 
-    ;.not_carry:
         adc     c
         daa
         ld      (ix), a
@@ -124,9 +124,9 @@ Addition:
 
 
 ; Inputs:
-;   HL: Operand 1
-;   DE: Operand 2
-;   IX: Result
+;   HL: Address of operand 1
+;   DE: Address of operand 2
+;   IX: Address of result
 Test_Addition:
 
     ; ---------- Print ' ' + Operand 1
@@ -175,12 +175,13 @@ Test_Addition:
 
 
 
-; Input: HL
+; Input: 
+;   HL: Address of number
 Print:
 
     ld      b, OPERAND_SIZE
-    .loop:
-        ld a, (hl)
+.loop:
+        ld      a, (hl)
         ;4x shift right
         srl     a   ; shift right register
         srl     a
@@ -237,8 +238,57 @@ Operand_8:    db      0x00, 0x99      ;   99
 Operand_9:    db      0x01, 0x01      ;  101
 Operand_10:   db      0x09, 0x80      ;  -20 ==> 999 - 20 + 1 = 980
 
-Operand_11:    db      0x00, 0x01      ;    1
+Operand_11:   db      0x00, 0x01      ;    1
 Operand_12:   db      0x09, 0x80      ;  -20 ==> 999 - 20 + 1 = 980
+
+; signed:
+; Operand_??:   db       PLUS_CHR, 0x00, 0x20      ;   20
+; Operand_??:   db      MINUS_CHR, 0x00, 0x20      ;  -20
+
+
+; ; --------------------
+; ; table aligned LUT for multiplication (uses 160 bytes, 
+; ; being 100 really used, and 60 wasted for alignement)
+; ; 
+; ; format: 0x50ab stores the result of a x b multiplication
+; ; ex.:
+; ; address 0x5000 stores the result of 0 x 0 which is 0
+; ; address 0x5001 stores the result of 0 x 1 which is 0
+; ; address 0x5009 stores the result of 0 x 9 which is 0
+; ; address 0x5037 stores the result of 3 x 7 which is 21
+; ; address 0x5099 stores the result of 9 x 9 which is 81
+
+; ; org 0x5000
+
+; ; --- 0 table:
+;     db      0x00    ; 0 x 0 = 0
+;     db      0x00    ; 0 x 1 = 0
+;     db      0x00    ; 0 x 2 = 0
+;     ...
+;     db      0x00    ; 0 x 9 = 0
+
+;     db      0xff, 0xff, 0xff, 0xff, 0xff, 0xff      ; six bytes to fill space and make next table also aligned
+
+; ; --- 1 table:
+;     db      0x00    ; 0 x 0 = 0
+;     db      0x01    ; 1 x 1 = 1
+;     db      0x02    ; 1 x 2 = 2
+;     ...
+;     db      0x09    ; 1 x 9 = 9
+
+;     db      0xff, 0xff, 0xff, 0xff, 0xff, 0xff      ; six bytes to fill space and make next table also aligned
+
+; ...
+
+; ; --- 9 table:
+;     db      0x00    ; 9 x 0 = 0
+;     db      0x09    ; 9 x 1 = 9
+;     db      0x18    ; 9 x 2 = 18
+;     ...
+;     db      0x81    ; 9 x 9 = 81
+
+;     db      0xff, 0xff, 0xff, 0xff, 0xff, 0xff      ; six bytes to fill space and make next table also aligned
+
 
 
     db      "End ROM started at 0x4000"
