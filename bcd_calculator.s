@@ -270,7 +270,7 @@ Operand_12:   db      0x09, 0x80      ;  -20 ==> 999 - 20 + 1 = 980
 ;     db      0xff, 0xff, 0xff, 0xff, 0xff, 0xff      ; six bytes to fill space and make next table also aligned
 
 ; ; --- 1 table:
-;     db      0x00    ; 0 x 0 = 0
+;     db      0x00    ; 1 x 0 = 0
 ;     db      0x01    ; 1 x 1 = 1
 ;     db      0x02    ; 1 x 2 = 2
 ;     ...
