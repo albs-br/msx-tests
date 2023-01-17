@@ -9,7 +9,11 @@ PageSize:	    equ	0x4000	        ; 16kB
     INCLUDE "Include/MsxBios.s"
     INCLUDE "Include/MsxConstants.s"
     INCLUDE "Include/CommonRoutines.s"
+
     INCLUDE "Include/dzx0_standard.asm"
+    ;INCLUDE "Include/dzx0_turbo.asm"
+    ;INCLUDE "Include/dzx0_fast.asm"
+    ;INCLUDE "Include/dzx0_mega.asm"
 
 Execute:
     call    Screen11
@@ -31,9 +35,19 @@ NAMTBL:     equ 0x00000
 
 
 ; --------- Decompress data
+; Documentation: https://github.com/einar-saukas/ZX0
+;
+; "Standard" routine: 68 bytes only
+; "Turbo" routine: 126 bytes, about 21% faster
+; "Fast" routine: 187 bytes, about 25% faster
+; "Mega" routine: 673 bytes, about 28% faster
+
     ld      hl, ZX0_ImageData
     ld      de, UncompressedData
     call    dzx0_standard
+    ;call    dzx0_turbo
+    ;call    dzx0_fast
+    ;call    dzx0_mega
 
 ; --------- Load uncompressed data to screen     
     ld		hl, UncompressedData   			        ; RAM address (source)
