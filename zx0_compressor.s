@@ -13,9 +13,17 @@ PageSize:	    equ	0x4000	        ; 16kB
     INCLUDE "Include/dzx0_standard.asm"
 
 ZX0_NonStandard_Decompressor:
+
+; code that needs to be realocated later need to be PHASE'd and DEPHASE'd 
+; in order to solve correctly the labels
+PHASE   0xe000
+
     ;INCLUDE "Include/dzx0_turbo.asm"
-    INCLUDE "Include/dzx0_fast.asm"
-    ;INCLUDE "Include/dzx0_mega.asm"
+    ;INCLUDE "Include/dzx0_fast.asm"
+    INCLUDE "Include/dzx0_mega.asm"
+
+DEPHASE
+
 ZX0_NonStandard_Decompressor_size:  equ $ - ZX0_NonStandard_Decompressor
 
 Execute:
