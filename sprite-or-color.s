@@ -152,7 +152,8 @@ SpritePattern_0_and_1:
     ;INCBIN "Images/player_plane_left_1_bottom.pat"
     ; INCLUDE "Images/item_p_patterns.s"
     ; INCLUDE "Images/font_char_0_patterns.s"
-    INCBIN "Images/enemy_plane_turning_0.pat"
+    ; INCBIN "Images/enemy_plane_turning_0.pat"
+    INCLUDE "Images/item_bomb_0_patterns.s"
 .size:  equ $ - SpritePattern_0_and_1
 
 ; SpritePattern_2_and_3:
@@ -174,7 +175,8 @@ SpriteColors_1:
     ; INCBIN "Images/player_plane_left_1_bottom.col"
     ; INCLUDE "Images/item_p_colors.s"
     ; INCLUDE "Images/font_char_0_colors.s"
-    INCBIN "Images/enemy_plane_turning_0.col"
+    ; INCBIN "Images/enemy_plane_turning_0.col"
+    INCLUDE "Images/item_bomb_0_colors.s"
 .size:  equ $ - SpriteColors_1
 
 ; SpriteColors_2:
@@ -188,7 +190,7 @@ SpriteAttributes_top:
 
     ; sprites 0 and 1
     db  90,     100,        0 * 4,      0
-    db  90+9,     100,        1 * 4,      0
+    db  90,     100,        1 * 4,      0
 
     ; ; sprites 2 and 3
     ; db  90 + 16, 100, 2 * 4, 0
