@@ -49,11 +49,11 @@
                     {
                         "value": "-script C:\\Users\\albs_\\source\\repos\\msx-tests\\msx-tests_debug.tcl",
                         "quoting": "escape"
-                    },
-                    {
-                        "value": "-script C:\\Users\\albs_\\source\\repos\\msx-tests\\add_v9990.tcl",
-                        "quoting": "escape"
                     }
+                    // {
+                    //     "value": "-script C:\\Users\\albs_\\source\\repos\\msx-tests\\add_v9990.tcl",
+                    //     "quoting": "escape"
+                    // }
                 ],
             "label": "run openmsx",
             "type": "shell",
