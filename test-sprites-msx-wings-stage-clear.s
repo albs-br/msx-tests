@@ -41,9 +41,9 @@ SPRATR:     equ 0x7600
     ld      a, 0000 0000 b
     ld      hl, SPRPAT
     call    SetVdp_Write
-    ld      de, SpritePatterns_Factor_3.size
+    ld      de, SpritePatterns_Factor_2.size
     ld      c, PORT_0        ; you can also write ld bc,#nn9B, which is faster
-    ld      hl, SpritePatterns_Factor_3
+    ld      hl, SpritePatterns_Factor_2
 .loop:    
     outi
     dec     de
@@ -84,27 +84,39 @@ SPRATR:     equ 0x7600
     ; ld      hl, SpriteColors_Factor_2_1
     ; otir
 
-    ; Set all Spr colors to 0x0f
     ld      a, 0000 0000 b
     ld      hl, SPRCOL
     call    SetVdp_Write
-    ld      de, 32 * 16
     ld      c, PORT_0        ; you can also write ld bc,#nn9B, which is faster
-.loop_Colors:
-    ld      a, 0x04
-    out     (c), a
-    dec     de
-    ld      a, e
-    or      d
+    ld      d, 2          ; number of repetitions (same as factor)
+.loop_colors:
+    ld      hl, SpriteColors_Factor_2
+    ld      b, SpriteColors_Factor_2.size
+    otir
+    dec     d
     jp      nz, .loop_Colors
+
+;     ; Set all Spr colors to 0x0f
+;     ld      a, 0000 0000 b
+;     ld      hl, SPRCOL
+;     call    SetVdp_Write
+;     ld      de, 32 * 16
+;     ld      c, PORT_0        ; you can also write ld bc,#nn9B, which is faster
+; .loop_fixedcolor:
+;     ld      a, 0x04
+;     out     (c), a
+;     dec     de
+;     ld      a, e
+;     or      d
+;     jp      nz, .loop_fixedcolor
 
     ; Atributes of all sprites
     ld      a, 0000 0000 b
     ld      hl, SPRATR
     call    SetVdp_Write
-    ld      b, SpriteAttributes_Factor_3.size
+    ld      b, SpriteAttributes_Factor_2.size
     ld      c, PORT_0        ; you can also write ld bc,#nn9B, which is faster
-    ld      hl, SpriteAttributes_Factor_3
+    ld      hl, SpriteAttributes_Factor_2
     otir
 
 
@@ -252,7 +264,7 @@ SpritePatterns_Factor_2:
 	db 00000000 b
 .size:  equ $ - SpritePatterns_Factor_2
 
-SpriteColors_Factor_2_0:
+SpriteColors_Factor_2:
     db	0x05
     db	0x05
     db	0x05
@@ -269,9 +281,7 @@ SpriteColors_Factor_2_0:
     db	0x0d
     db	0x0d
     db	0x0d
-.size:  equ $ - SpriteColors_Factor_2_0
 
-SpriteColors_Factor_2_1:
     db	0x04
     db	0x04
     db	0x04
@@ -288,7 +298,7 @@ SpriteColors_Factor_2_1:
     db	0x0d
     db	0x0d
     db	0x0d
-.size:  equ $ - SpriteColors_Factor_2_1
+.size:  equ $ - SpriteColors_Factor_2
 
 SpritePatterns_Factor_3:
 ; ----------- Sprite pattern #0
@@ -590,13 +600,62 @@ SpritePatterns_Factor_3:
 	db 00000000 b
 .size: equ $ - SpritePatterns_Factor_3
 
-
+SpriteColors_Factor_3:
+	                db	0x05
+	                db	0x05
+	                db	0x05
+	                db	0x05
+	                db	0x05
+	                db	0x05
+	                db	0x0f
+	                db	0x0f
+	                db	0x0f
+	                db	0x0f
+	                db	0x0f
+	                db	0x0f
+	                db	0x09
+	                db	0x09
+	                db	0x09
+	                db	0x09
+	                db	0x09
+	                db	0x09
+	                db	0x0d
+	                db	0x0d
+	                db	0x0d
+	                db	0x0d
+	                db	0x0d
+	                db	0x0d
+	                db	0x04
+	                db	0x04
+	                db	0x04
+	                db	0x04
+	                db	0x04
+	                db	0x04
+	                db	0x0c
+	                db	0x0c
+	                db	0x0c
+	                db	0x0c
+	                db	0x0c
+	                db	0x0c
+	                db	0x08
+	                db	0x08
+	                db	0x08
+	                db	0x08
+	                db	0x08
+	                db	0x08
+	                db	0x0d
+	                db	0x0d
+	                db	0x0d
+	                db	0x0d
+	                db	0x0d
+	                db	0x0d
+.size: equ $ - SpriteColors_Factor_3
 
 SpriteAttributes_Factor_2:
     ;   Y, X, Pattern, Reserved
-    db  0, 16, 0 * 4, 0
-    db  16, 128, 1 * 4, 0
-    db  0, 32, 2 * 4, 0
+    db  0,  16, 0 * 4, 0
+    db  16, 16, 1 * 4, 0
+    db  0,  32, 2 * 4, 0
     db  16, 32, 3 * 4, 0
 .size:  equ $ - SpriteAttributes_Factor_2
 
