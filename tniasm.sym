@@ -510,7 +510,7 @@ HKEYI: equ 0FD9Ah ; last def. pass 3
 BIOS_H_SCRE: equ 0FFC0h ; last def. pass 3
 BIOS_GRPHED: equ 0FCA6h ; last def. pass 3
 PPI.R: equ 0ABh ; last def. pass 3
-SpriteAttributes_Factor_3: equ 04504h ; last def. pass 3
+SpriteAttributes_Factor_3: equ 04508h ; last def. pass 3
 BIOS_RG3SAV: equ 0F3E2h ; last def. pass 3
 BIOS_NSTWRT: equ 0171h ; last def. pass 3
 BIOS_H_PINL: equ 0FDDBh ; last def. pass 3
@@ -529,7 +529,7 @@ BIOS_RG4SAV: equ 0F3E3h ; last def. pass 3
 BIOS_RG7SAV: equ 0F3E6h ; last def. pass 3
 BIOS_GICINI: equ 090h ; last def. pass 3
 BIOS_HOLD: equ 0F83Eh ; last def. pass 3
-SpriteAttributes_Factor_2.size: equ 010h ; last def. pass 3
+SpriteAttributes_Factor_2.size: equ 014h ; last def. pass 3
 BIOS_ENAINT: equ 0FFD4h ; last def. pass 3
 BIOS_H_RUNC: equ 0FECBh ; last def. pass 3
 BIOS_H_DIRD: equ 0FF11h ; last def. pass 3
@@ -615,7 +615,7 @@ BIOS_BUFMIN: equ 0F55Dh ; last def. pass 3
 REG14SAV: equ 0FFEDh ; last def. pass 3
 BIOS_H_LSET: equ 0FE21h ; last def. pass 3
 DisableSprites: equ 04173h ; last def. pass 3
-PaletteData: equ 0452Ch ; last def. pass 3
+PaletteData: equ 04530h ; last def. pass 3
 BIOS_CSRY: equ 0F3DCh ; last def. pass 3
 BIOS_CSRX: equ 0F3DDh ; last def. pass 3
 EnableRomPage2: equ 0404Dh ; last def. pass 3
