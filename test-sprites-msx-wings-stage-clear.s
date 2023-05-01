@@ -41,9 +41,9 @@ SPRATR:     equ 0x7600
     ld      a, 0000 0000 b
     ld      hl, SPRPAT
     call    SetVdp_Write
-    ld      de, SpritePatterns_Factor_2.size
+    ld      de, SpritePatterns_Factor_5.size
     ld      c, PORT_0        ; you can also write ld bc,#nn9B, which is faster
-    ld      hl, SpritePatterns_Factor_2
+    ld      hl, SpritePatterns_Factor_5
 .loop:    
     outi
     dec     de
@@ -89,10 +89,10 @@ SPRATR:     equ 0x7600
     ld      hl, SPRCOL
     call    SetVdp_Write
     ld      c, PORT_0        ; you can also write ld bc,#nn9B, which is faster
-    ld      d, 2          ; number of repetitions (same as factor)
+    ld      d, 5          ; number of repetitions (same as factor)
 .loop_colors:
-    ld      hl, SpriteColors_Factor_2
-    ld      b, SpriteColors_Factor_2.size
+    ld      hl, SpriteColors_Factor_5
+    ld      b, SpriteColors_Factor_5.size
     otir
     dec     d
     jp      nz, .loop_Colors
@@ -115,9 +115,9 @@ SPRATR:     equ 0x7600
     ld      a, 0000 0000 b
     ld      hl, SPRATR
     call    SetVdp_Write
-    ld      b, SpriteAttributes_Factor_2.size
+    ld      b, SpriteAttributes_Factor_5.size
     ld      c, PORT_0        ; you can also write ld bc,#nn9B, which is faster
-    ld      hl, SpriteAttributes_Factor_2
+    ld      hl, SpriteAttributes_Factor_5
     otir
 
 
@@ -152,33 +152,118 @@ SpriteColors_Factor_3:
     INCLUDE "Images/msx-wings-stage-clear-sprites/colors_factor_3.s"
 .size: equ $ - SpriteColors_Factor_3
 
+;
+
+SpritePatterns_Factor_4:
+    INCLUDE "Images/msx-wings-stage-clear-sprites/patterns_S_factor_4.s"
+.size: equ $ - SpritePatterns_Factor_4
+
+SpriteColors_Factor_4:
+    INCLUDE "Images/msx-wings-stage-clear-sprites/colors_factor_4.s"
+.size: equ $ - SpriteColors_Factor_4
+
+;
+
+SpritePatterns_Factor_5:
+    INCLUDE "Images/msx-wings-stage-clear-sprites/patterns_S_factor_5.s"
+.size: equ $ - SpritePatterns_Factor_5
+
+SpriteColors_Factor_5:
+    INCLUDE "Images/msx-wings-stage-clear-sprites/colors_factor_5.s"
+.size: equ $ - SpriteColors_Factor_5
+
+
+
 SpriteAttributes_Factor_2:
     ;   Y, X, Pattern, Reserved
-    db  0,  16, 0 * 4, 0
-    db  16, 16, 1 * 4, 0
-    db  0,  32, 2 * 4, 0
-    db  16, 32, 3 * 4, 0
+    db   0,  0, 0 * 4, 0
+    db  16,  0, 1 * 4, 0
+    db   0, 16, 2 * 4, 0
+    db  16, 16, 3 * 4, 0
 
     db  216, 0, 0, 0 ; hide all sprites from here onwards
 .size:  equ $ - SpriteAttributes_Factor_2
 
 SpriteAttributes_Factor_3:
     ;   Y, X, Pattern, Reserved
-    db  16 * 3, 16, 0 * 4, 0
-    db  16 * 4, 16, 1 * 4, 0
-    db  16 * 5, 16, 2 * 4, 0
+    db   0,  0, 0 * 4, 0
+    db  16,  0, 1 * 4, 0
+    db  32,  0, 2 * 4, 0
 
-    db  16 * 3, 32, 3 * 4, 0
-    db  16 * 4, 32, 4 * 4, 0
-    db  16 * 5, 32, 5 * 4, 0
+    db   0, 16, 3 * 4, 0
+    db  16, 16, 4 * 4, 0
+    db  32, 16, 5 * 4, 0
     
-    db  16 * 3, 48, 6 * 4, 0
-    db  16 * 4, 48, 7 * 4, 0
-    db  16 * 5, 48, 8 * 4, 0
+    db   0, 32, 6 * 4, 0
+    db  16, 32, 7 * 4, 0
+    db  32, 32, 8 * 4, 0
 
     db  216, 0, 0, 0 ; hide all sprites from here onwards
 
 .size:  equ $ - SpriteAttributes_Factor_3
+
+SpriteAttributes_Factor_4:
+    ;   Y, X, Pattern, Reserved
+    db   0,  0,  0 * 4, 0
+    db  16,  0,  1 * 4, 0
+    db  32,  0,  2 * 4, 0
+    db  48,  0,  3 * 4, 0
+
+    db   0, 16,  4 * 4, 0
+    db  16, 16,  5 * 4, 0
+    db  32, 16,  6 * 4, 0
+    db  48, 16,  7 * 4, 0
+
+    db   0, 32,  8 * 4, 0
+    db  16, 32,  9 * 4, 0
+    db  32, 32, 10 * 4, 0
+    db  48, 32, 11 * 4, 0
+
+    db   0, 48, 12 * 4, 0
+    db  16, 48, 13 * 4, 0
+    db  32, 48, 14 * 4, 0
+    db  48, 48, 15 * 4, 0
+
+    db  216, 0, 0, 0 ; hide all sprites from here onwards
+
+.size:  equ $ - SpriteAttributes_Factor_4
+
+SpriteAttributes_Factor_5:
+    ;   Y, X, Pattern, Reserved
+    db   0,  0,  0 * 4, 0
+    db  16,  0,  1 * 4, 0
+    db  32,  0,  2 * 4, 0
+    db  48,  0,  3 * 4, 0
+    db  64,  0,  4 * 4, 0
+
+    db   0, 16,  5 * 4, 0
+    db  16, 16,  6 * 4, 0
+    db  32, 16,  7 * 4, 0
+    db  48, 16,  8 * 4, 0
+    db  64, 16,  9 * 4, 0
+
+    db   0, 32, 10 * 4, 0
+    db  16, 32, 11 * 4, 0
+    db  32, 32, 12 * 4, 0
+    db  48, 32, 13 * 4, 0
+    db  64, 32, 14 * 4, 0
+
+    db   0, 48, 15 * 4, 0
+    db  16, 48, 16 * 4, 0
+    db  32, 48, 17 * 4, 0
+    db  48, 48, 18 * 4, 0
+    db  64, 48, 19 * 4, 0
+
+    db   0, 64, 20 * 4, 0
+    db  16, 64, 21 * 4, 0
+    db  32, 64, 22 * 4, 0
+    db  48, 64, 23 * 4, 0
+    db  64, 64, 24 * 4, 0
+
+    db  216, 0, 0, 0 ; hide all sprites from here onwards
+
+.size:  equ $ - SpriteAttributes_Factor_5
+
 
 PaletteData:
     INCBIN "Images/msx-wings.pal"
