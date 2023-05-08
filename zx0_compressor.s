@@ -70,7 +70,7 @@ NAMTBL:     equ 0x00000
 ; --------- Load uncompressed data to screen     
     ld		hl, UncompressedData   			        ; RAM address (source)
     ld      a, 0                                    ; VRAM address (destiny, bit 16)
-    ld		de, NAMTBL + (8192)                     ; VRAM address (destiny, bits 15-0)
+    ld		de, NAMTBL + 8192                       ; VRAM address (destiny, bits 15-0)
     ld		c, 0 + (UncompressedData.size / 256)    ; Block length * 256
     call    LDIRVM_MSX2
 
