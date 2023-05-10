@@ -13,12 +13,12 @@ PageSize:	    equ	0x4000	        ; 16kB
 
 
 ; Default VRAM tables for Screen 4
-NAMTBL:     equ 0x1800  ; to 0x???? (768 bytes)
-PATTBL:     equ 0x0000  ; to 0x???? (? bytes)
-COLTBL:     equ 0x2000  ; to 0x???? (? bytes)
-SPRPAT:     equ 0x3800  ; to 0x???? (2048 bytes)
-SPRCOL:     equ 0x1c00  ; to 0x???? (512 bytes)
-SPRATR:     equ 0x1e00  ; to 0x???? (128 bytes)
+NAMTBL:     equ 0x1800  ; to 0x1aff (768 bytes)
+PATTBL:     equ 0x0000  ; to 0x17ff (6144 bytes)
+COLTBL:     equ 0x2000  ; to 0x37ff (6144 bytes)
+SPRPAT:     equ 0x3800  ; to 0x3fff (2048 bytes)
+SPRCOL:     equ 0x1c00  ; to 0x1dff (512 bytes)
+SPRATR:     equ 0x1e00  ; to 0x1e7f (128 bytes)
 
 ;SPRCOL_2:   equ 0xfc00  ; to 0xfdff (512 bytes)
 ;SPRATR_2:   equ 0xfe00  ; to 0xfe80 (128 bytes)

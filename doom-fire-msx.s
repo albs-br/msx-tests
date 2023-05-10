@@ -13,13 +13,13 @@ PageSize:	    equ	0x4000	        ; 16kB
 
 
 ; Default VRAM tables for Screen 5
-NAMTBL:     equ 0x0000  ; to 0x???? (768 bytes)
-SPRPAT:     equ 0x7800  ; to 0x???? (2048 bytes)
-SPRCOL:     equ 0x7400  ; to 0x???? (512 bytes)
-SPRATR:     equ 0x7600  ; to 0x???? (128 bytes)
+NAMTBL:     equ 0x0000  ; to 0x???? (??? bytes)
+SPRPAT:     equ 0x7800  ; to 0x7fff (2048 bytes)
+SPRCOL:     equ 0x7400  ; to 0x75ff (512 bytes)
+SPRATR:     equ 0x7600  ; to 0x767f (128 bytes)
 
 ;SPRCOL_2:   equ 0xfc00  ; to 0xfdff (512 bytes);
-;SPRATR_2:   equ 0xfe00  ; to 0xfe80 (128 bytes)
+;SPRATR_2:   equ 0xfe00  ; to 0xfe7f (128 bytes)
 
 
 

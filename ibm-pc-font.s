@@ -11,9 +11,11 @@ PageSize:	    equ	0x4000	        ; 16kB
     INCLUDE "Include/CommonRoutines.s"
 
 ; Default VRAM tables for Screen 2
-NAMTBL:     equ 0x1800  ; to 0x???? (768 bytes)
-PATTBL:     equ 0x0000  ; to 0x???? (? bytes)
-COLTBL:     equ 0x2000  ; to 0x???? (? bytes)
+NAMTBL:     equ 0x1800  ; to 0x1aff (768 bytes)
+PATTBL:     equ 0x0000  ; to 0x17ff (6144 bytes)
+COLTBL:     equ 0x2000  ; to 0x37ff (6144 bytes)
+SPRPAT:     equ 0x3800  ; to 0x3fff (2048 bytes)
+SPRATR:     equ 0x1b00  ; to 0x1b7f (128 bytes)
 
 
     INCLUDE "Fonts/ibm-pc-font_pattern.s"
