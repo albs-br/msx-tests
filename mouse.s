@@ -80,6 +80,7 @@ INIT:
  
 SELECTPORT:
         ; Autodetect mouse port
+        ; (check if mouse is connected to joystick port 1 or 2)
         CALL 	READMOUSE
         DEC 	D
         RET 	NZ
@@ -99,6 +100,58 @@ READMOUSE:
         LD A,(PORT)
         PUSH AF
         CALL GTPAD
+
+; GTPAD
+; Address  : #00DB
+; Function : Returns current touch pad status
+; Input    : A  - Function call number. Fetch device data first, then read.
+
+;            [ 0]   Fetch touch pad data from port 1 (#FF if available)
+;            [ 1]   Read X-position
+;            [ 2]   Read Y-position
+;            [ 3]   Read touchpad status from port 1 (#FF if pressed)
+
+;            [ 4]   Fetch touch pad data from port 2 (#FF if available)
+;            [ 5]   Read X-position
+;            [ 6]   Read Y-position
+;            [ 7]   Read touchpad status from port 2 (#FF if pressed)
+
+; Output   : A  - Value
+; Registers: All
+; Remark   : On MSX2, function call numbers 8-23 are forwarded to
+;            NEWPAD in the SubROM.
+
+
+; NEWPAD
+; Address  : #01AD
+; Function : Read light pen, mouse and trackball
+; Input    : A  - Function call number. Fetch device data first, then read.
+
+;            [ 8]   Fetch light pen (#FF if available; touching screen)
+;            [ 9]   Read X-position
+;            [10]   Read Y-position
+;            [11]   Read lightpen-status (#FF if pressed)
+
+;            [12]   Fetch mouse/trackball in port 1
+;            [13]   Read X-offset
+;            [14]   Read Y-offset
+;            [15]   No function (always #00)
+
+;            [16]   Fetch mouse/trackball in port 2
+;            [17]   Read X-offset
+;            [18]   Read Y-offset
+;            [19]   No function (always #00)
+
+;            [20]   Fetch 2nd light pen (#FF if available; touching screen)
+;            [21]   Read X-position
+;            [22]   Read Y-position
+;            [23]   Read light-pen status (#FF if pressed)
+
+; Output   : A  - Read value
+; Registers: All
+; Remark   : Access via GTPAD in the main BIOS, function call numbers 8 and up
+;            will be forwarded to this call.
+
         POP AF
         ADD A, 2
         PUSH AF
@@ -125,7 +178,7 @@ HANDLER:
         LD (BUSY),A
  
         CALL READMOUSE
-        LD HL,(XPOS)
+        LD HL,(XPOS) ; put x and y on H and L registers (they are together on RAM)
         CALL CLIPADD
         LD (XPOS),HL
  

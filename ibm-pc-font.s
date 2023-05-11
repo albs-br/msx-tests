@@ -19,6 +19,8 @@ SPRATR:     equ 0x1b00  ; to 0x1b7f (128 bytes)
 
 
     INCLUDE "Fonts/ibm-pc-font_pattern.s"
+    ; lots of 8x8 fonts here:
+    ; https://damieng.com/typography/zx-origins/
  
 
 Execute:
