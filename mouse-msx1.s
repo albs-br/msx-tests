@@ -17,7 +17,24 @@ WAIT2:  equ   30              ; Long delay value
 ; the address of our program
             org 0xD000
 
+; sprite pattern
+	db 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
+
 start:
+
+	xor a
+    ld (cursorX), a
+    ld (cursorY), a
+    
+    ; TODO
+    ; set screen 2
+    
+    ; load sprpat
+    
+    ; init spratt
+
+
+loop:
 
 	;wait vblank
     ld      a, (BIOS_JIFFY)
@@ -39,7 +56,12 @@ waitVBlank:
 
 skip:
 
-	jp start
+	; update cursor position
+    ld a, (cursorX)
+    add h
+    ld (cursorX), a
+
+	jp loop
 
 noMouse:
 	ld a, 65
@@ -112,5 +134,12 @@ WTTR3:
 	djnz	WTTR3
 
 	ret            
+    
+    org 0xc000
+   
+cursorX: db 1
+cursorY: db 1
+
+   
     
     end start
