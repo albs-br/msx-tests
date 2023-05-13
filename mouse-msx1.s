@@ -1,4 +1,4 @@
-; Mouse POC for MSX Pen (works also on MSX 1) not finished
+; Mouse POC for MSX Pen (works also on MSX 1)
 ; Setup:
 ; On WebMSX: Help & Settings / Ports / Toggle Mouse Mode: ENABLED
 ; ALT+CAPS: Lock/Unlock pointer
@@ -46,7 +46,7 @@ start:
     ld a, 1 ; background color
     ld (hl), a
     inc hl
-    ld a, 1 ; border color
+    ld a, 4 ; border color
     ld (hl), a
 
 	call    BIOS_INIGRP                 ; screen 2
@@ -87,12 +87,34 @@ waitVBlank:
 skip:
 
 	; update cursor position
-    ld a, (cursorX)
-    sub h
-    ld (cursorX), a
+    ;ld a, (cursorX)
+    ;sub h
+    ;ld (cursorX), a
     
+    ;ld a, (cursorY)
+    ;sub l
+    ;ld (cursorY), a
+    
+    ; invert delta x
+    ld a, h
+    neg
+    ld h, a
+
+    ; invert delta y
+	ld a, l
+    neg
+    ld l, a
+    
+    ld e, h ; delta X
+    ld d, l ; delta Y
+    ld a, (cursorX)
+    ld l, a ; current X
     ld a, (cursorY)
-    sub l
+    ld h, a ; current Y
+    call CLIPADD
+    ld a, l
+    ld (cursorX), a
+    ld a, h
     ld (cursorY), a
 
 	;update SPRATR
@@ -183,7 +205,50 @@ WTTR3:
 	djnz	WTTR3
 
 	ret            
-    
+
+; Input:
+;  E = delta X
+;  D = delta Y
+;  L = current X
+;  H = current Y
+; Output:
+;  L = updated X
+;  H = updated Y
+CLIPADD:
+        ; Make sure that mouse pointer stays inside visible screen area
+        LD A,L
+        LD B,E
+        CALL LIMITADD
+        LD L,A
+        
+        LD A,H
+        LD B,D
+        CALL LIMITADD
+        LD H,A
+        CP 191
+        RET C
+        LD H,191
+        RET
+ 
+LIMITADD:
+ 
+; Clip mouse pointer to 0..255
+; In:  A = mouse position 0..255
+;      B = mouse move -128..+127
+; Out: A = new mouse position 0..255
+ 
+ 
+	SUB	128		; move from range 0..255 to -128..+127
+	ADD	A,B		; add mouse offset, both numbers are signed
+	JP	PE, .CLIP	; pe -> previous instruction caused a signed overflow
+	ADD	A,128		; move back to range 0..255
+	RET			;
+.CLIP:	LD	A,B		; get mouse offset
+	CPL			; flip all bits (only bit 7 matters)
+	ADD	A,A		; move bit 7 to carry flag
+	SBC	A,A		; carry set -> a=255   carry not set -> a=0
+	RET			;
+
 ;    org 0xc000
    
 cursorX: db 1
