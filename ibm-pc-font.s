@@ -32,7 +32,7 @@ Execute:
     ld 		(BIOS_BAKCLR), a     
     ld      a, 1                ; Border color
     ld 		(BIOS_BDRCLR), a    
-    call 	BIOS_CHGCLR         ; Change Screen Color
+    ;call 	BIOS_CHGCLR         ; Change Screen Color
 
     call    BIOS_INIGRP                 ; screen 2
 

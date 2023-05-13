@@ -10,28 +10,58 @@
 ; bios call to print a character on screen
 CHPUT:      equ 0x00a2
 BIOS_JIFFY:   equ 0xfc9e
+BIOS_INIGRP:  equ 0x0072
+BIOS_LDIRVM:  equ 0x005c
+BIOS_BEEP:    equ 0x00c0
+BIOS_FORCLR: EQU 0xF3E9
+
+
+SPRPAT:     equ 0x3800
+SPRATR:     equ 0x1b00
 
 WAIT1:  equ   10              ; Short delay value
 WAIT2:  equ   30              ; Long delay value
 
 ; the address of our program
-            org 0xD000
+            org 0xc000
 
-; sprite pattern
+spritePattern:
 	db 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
+    
+spriteAttributes:
+	db 96, 128, 0, 7
+    db 208 ; hide all other sprites
 
 start:
 
-	xor a
+	ld a, 128
     ld (cursorX), a
+	ld a, 96
     ld (cursorY), a
     
-    ; TODO
-    ; set screen 2
+    ld hl, BIOS_FORCLR
+    ld a, 15 ; foreground color
+    ld (hl), a
+    inc hl
+    ld a, 1 ; background color
+    ld (hl), a
+    inc hl
+    ld a, 1 ; border color
+    ld (hl), a
+
+	call    BIOS_INIGRP                 ; screen 2
     
     ; load sprpat
+    ld		hl, spritePattern       ; RAM address (source)
+    ld		de, SPRPAT		        ; VRAM address (destiny)
+    ld		bc, 8					; Block length
+    call 	BIOS_LDIRVM        	    ; Block transfer to VRAM from memory
     
     ; init spratt
+    ld		hl, spriteAttributes    ; RAM address (source)
+    ld		de, SPRATR		        ; VRAM address (destiny)
+    ld		bc, 5					; Block length
+    call 	BIOS_LDIRVM        	    ; Block transfer to VRAM from memory
 
 
 loop:
@@ -48,7 +78,7 @@ waitVBlank:
 	ld de, 01310h
     call GTMOUS
     ; if(H==255 & H==L) noMouse
-    ld h, a
+    ld a, h
     cp 255
     jp nz, skip
     cp l
@@ -58,14 +88,33 @@ skip:
 
 	; update cursor position
     ld a, (cursorX)
-    add h
+    sub h
     ld (cursorX), a
+    
+    ld a, (cursorY)
+    sub l
+    ld (cursorY), a
+
+	;update SPRATR
+    ld hl, spriteAttributes
+    ld a, (cursorY)
+    ld (hl), a
+    
+    inc hl
+    ld a, (cursorX)
+    ld (hl), a
+
+	ld		hl, spriteAttributes    ; RAM address (source)
+    ld		de, SPRATR		        ; VRAM address (destiny)
+    ld		bc, 2					; Block length
+    call 	BIOS_LDIRVM        	    ; Block transfer to VRAM from memory
 
 	jp loop
 
 noMouse:
-	ld a, 65
-    call CHPUT
+	;ld a, 65
+    ;call CHPUT
+    call BIOS_BEEP
     ret
 
 ; Routine to read the mouse by direct accesses (works on MSX1/2/2+/turbo R)
@@ -135,7 +184,7 @@ WTTR3:
 
 	ret            
     
-    org 0xc000
+;    org 0xc000
    
 cursorX: db 1
 cursorY: db 1
