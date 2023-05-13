@@ -36,6 +36,8 @@ Execute:
     ld      (cursorX), a
 	ld      a, 96
     ld      (cursorY), a
+    ld      a, 7
+    ld      (cursorColor), a
     
     ld      hl, BIOS_FORCLR
     ld      a, 15 ; foreground color
@@ -63,13 +65,13 @@ Execute:
 
 loop:
 
-; 	;wait vblank
-;     ld      a, (BIOS_JIFFY)
-;     ld      b, a
-; waitVBlank:
-;     ld      a, (BIOS_JIFFY)
-;     cp      b
-;     jp      z, waitVBlank
+	; wait vblank
+    ld      a, (BIOS_JIFFY)
+    ld      b, a
+waitVBlank:
+    ld      a, (BIOS_JIFFY)
+    cp      b
+    jp      z, waitVBlank
     
 
 	ld      de, 0x1310 ; mouse on joyport 1
@@ -118,15 +120,24 @@ skip:
 	;update SPRATR
     ld      hl, spriteAttributes
     ld      a, (cursorY)
+    dec     a ; to compensate the Y+1 bug of 9918
     ld      (hl), a
     
     inc     hl
     ld      a, (cursorX)
     ld      (hl), a
 
+    inc     hl
+    xor     a ; sprite pattern
+    ld      (hl), a
+
+    inc     hl
+    ld      a, (cursorColor)
+    ld      (hl), a
+
 	ld		hl, spriteAttributes    ; RAM address (source)
     ld		de, SPRATR		        ; VRAM address (destiny)
-    ld		bc, 2					; Block length
+    ld		bc, 4					; Block length
     call 	BIOS_LDIRVM        	    ; Block transfer to VRAM from memory
 
 	jp      loop
@@ -145,6 +156,46 @@ noMouse:
 GTMOUS:
 	ld	    b, WAIT2	; Long delay for first read
 	call	GTOFS2	; Read bits 7-4 of the x-offset
+
+    ; get mouse buttons
+    ld      b, a ; save A
+    ld      a, 7 ; default cursor color
+    bit     5, b
+    jr      z, .mouseButton_1_Clicked ; JR to optimize the most common flow (no mouse button clicked) 
+    bit     4, b
+    jp      nz, .save
+    ld      a, 12 ; color for mouse 2 button clicked
+    jp      .save
+.mouseButton_1_Clicked:
+    ld      a, 8 ; color for mouse 1 button clicked
+.save:
+    ; ld      a, c
+    ld      (cursorColor), a
+    ld      a, b ; restore A
+
+;     ;get mouse button 1
+;     push    af
+;         bit     5, a
+;         jp      nz, .mouseButton_1_NotClicked
+;         ld      a, 8
+;         jp      .continue
+; .mouseButton_1_NotClicked:
+;         ld      a, 7
+; .continue:
+;         ld      (cursorColor), a
+;     pop     af
+;     ;get mouse button 2
+;     push    af
+;         bit     4, a
+;         jp      nz, .mouseButton_2_NotClicked
+;         ld      a, 12
+;         jp      .continue_1
+; .mouseButton_2_NotClicked:
+;         ld      a, 7
+; .continue_1:
+;         ld      (cursorColor), a
+;     pop     af
+
 	and	    0x0F
 	rlca
 	rlca
@@ -257,7 +308,8 @@ LIMITADD:
 ; RAM
     org 0xc000
    
-cursorX: rb 1
-cursorY: rb 1
+cursorX:            rb 1
+cursorY:            rb 1
+cursorColor:        rb 1
 
-spriteAttributes:  rb 5
+spriteAttributes:   rb 5
