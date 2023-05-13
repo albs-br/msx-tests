@@ -63,24 +63,24 @@ Execute:
 
 loop:
 
-	;wait vblank
-    ld      a, (BIOS_JIFFY)
-    ld      b, a
-waitVBlank:
-    ld      a, (BIOS_JIFFY)
-    cp      b
-    jp      z, waitVBlank
+; 	;wait vblank
+;     ld      a, (BIOS_JIFFY)
+;     ld      b, a
+; waitVBlank:
+;     ld      a, (BIOS_JIFFY)
+;     cp      b
+;     jp      z, waitVBlank
     
 
-	ld de, 01310h ; mouse on joyport 1
+	ld      de, 0x1310 ; mouse on joyport 1
     ;ld      de, 0x6C20  ; mouse on joyport 2
-    call GTMOUS
+    call    GTMOUS
     ; if(H==255 && H==L) noMouse
-    ld a, h
-    cp 255
-    jp nz, skip
-    cp l
-    call z, noMouse
+    ld      a, h
+    cp      255
+    jp      nz, skip
+    cp      l
+    call    z, noMouse
 
 skip:
 
@@ -94,47 +94,47 @@ skip:
     ;ld (cursorY), a
     
     ; invert delta x
-    ld a, h
+    ld      a, h
     neg
-    ld h, a
+    ld      h, a
 
     ; invert delta y
-	ld a, l
+	ld      a, l
     neg
-    ld l, a
+    ld      l, a
     
-    ld e, h ; delta X
-    ld d, l ; delta Y
-    ld a, (cursorX)
-    ld l, a ; current X
-    ld a, (cursorY)
-    ld h, a ; current Y
-    call CLIPADD
-    ld a, l
-    ld (cursorX), a
-    ld a, h
-    ld (cursorY), a
+    ld      e, h ; delta X
+    ld      d, l ; delta Y
+    ld      a, (cursorX)
+    ld      l, a ; current X
+    ld      a, (cursorY)
+    ld      h, a ; current Y
+    call    CLIPADD
+    ld      a, l
+    ld      (cursorX), a
+    ld      a, h
+    ld      (cursorY), a
 
 	;update SPRATR
-    ld hl, spriteAttributes
-    ld a, (cursorY)
-    ld (hl), a
+    ld      hl, spriteAttributes
+    ld      a, (cursorY)
+    ld      (hl), a
     
-    inc hl
-    ld a, (cursorX)
-    ld (hl), a
+    inc     hl
+    ld      a, (cursorX)
+    ld      (hl), a
 
 	ld		hl, spriteAttributes    ; RAM address (source)
     ld		de, SPRATR		        ; VRAM address (destiny)
     ld		bc, 2					; Block length
     call 	BIOS_LDIRVM        	    ; Block transfer to VRAM from memory
 
-	jp loop
+	jp      loop
 
 noMouse:
-	;ld a, 65
-    ;call CHPUT
-    call BIOS_BEEP
+	;ld     a, 65
+    ;call   CHPUT
+    call    BIOS_BEEP
     ret
 
 ; Routine to read the mouse by direct accesses (works on MSX1/2/2+/turbo R)
@@ -143,62 +143,62 @@ noMouse:
 ;        DE = 06C20h for mouse in port 2 (D = 01101100b, E = 00100000b)
 ; Output: H = X-offset, L = Y-offset (H = L = 255 if no mouse)
 GTMOUS:
-	ld	b,WAIT2	; Long delay for first read
+	ld	    b, WAIT2	; Long delay for first read
 	call	GTOFS2	; Read bits 7-4 of the x-offset
-	and	0Fh
+	and	    0x0F
 	rlca
 	rlca
 	rlca
 	rlca
-	ld	c,a
+	ld	    c, a
 	call	GTOFST	; Read bits 3-0 of the x-offset
-	and	0Fh
-	or	c
-	ld	h,a	; Store combined x-offset
+	and	    0x0F
+	or	    c
+	ld	    h, a	; Store combined x-offset
 	call	GTOFST	; Read bits 7-4 of the y-offset
-	and	0Fh
+	and	    0x0F
 	rlca
 	rlca
 	rlca
 	rlca
-	ld	c,a
+	ld	    c, a
 	call	GTOFST	; Read bits 3-0 of the y-offset
-	and 0Fh
-	or c
-	ld l,a		; Store combined y-offset
+	and     0x0F
+	or      c
+	ld      l, a		; Store combined y-offset
 	ret
  
 GTOFST:	
-	ld b,WAIT1
+	ld      b, WAIT1
 GTOFS2:	
-	ld a,15		; Read PSG register 15 for mouse
+	ld      a, 15		; Read PSG register 15 for mouse
 	di		; DI useless if the routine is used during an interrupt
-	out (0A0h),a
-	in  a,(0xA1) 
-	and 0x80   ; preserve LED code/Kana state
-	or  d            ; mouse1 x0010011b / mouse2 x1101100b
-	out (0A1h),a
-	xor e
-	ld d,a
+	out     (0xA0), a
+	in      a, (0xA1) 
+	and     0x80   ; preserve LED code/Kana state
+	or      d            ; mouse1 x0010011b / mouse2 x1101100b
+	out     (0xA1), a
+	xor     e
+	ld      d, a
  
-	call WAITMS	; Extra delay because the mouse is slow
+	call    WAITMS	; Extra delay because the mouse is slow
  
-	ld a,14
-	out (0A0h),a
+	ld      a, 14
+	out     (0xA0), a
 	ei		; EI useless if the routine is used during an interrupt
-	in a,(0A2h)
+	in      a, (0xA2)
 	ret
 WAITMS:
-	ld	a,b
+	ld	    a, b
 WTTR:
 	djnz	WTTR
-	db	0EDh,055h	; Back if Z80 (RETN on Z80, NOP on R800)
+	db	0xED,0x55	; Back if Z80 (RETN on Z80, NOP on R800)
 	rlca
 	rlca
-	ld	b,a
+	ld	    b, a
 WTTR2:
 	djnz	WTTR2
-	ld	b,a	
+	ld	    b, a	
 WTTR3:
 	djnz	WTTR3
 
@@ -213,20 +213,20 @@ WTTR3:
 ;  L = updated X
 ;  H = updated Y
 CLIPADD:
-        ; Make sure that mouse pointer stays inside visible screen area
-        LD A,L
-        LD B,E
-        CALL LIMITADD
-        LD L,A
-        
-        LD A,H
-        LD B,D
-        CALL LIMITADD
-        LD H,A
-        CP 191
-        RET C
-        LD H,191
-        RET
+    ; Make sure that mouse pointer stays inside visible screen area
+    ld      a, l
+    ld      b, e
+    call    LIMITADD
+    ld      l, a
+    
+    ld      a, h
+    ld      b, d
+    call    LIMITADD
+    ld      h, a
+    cp      191
+    ret     c
+    ld      h, 191
+    ret
  
 LIMITADD:
  
@@ -236,16 +236,17 @@ LIMITADD:
 ; Out: A = new mouse position 0..255
  
  
-	SUB	128		; move from range 0..255 to -128..+127
-	ADD	A,B		; add mouse offset, both numbers are signed
-	JP	PE, .CLIP	; pe -> previous instruction caused a signed overflow
-	ADD	A,128		; move back to range 0..255
-	RET			;
-.CLIP:	LD	A,B		; get mouse offset
-	CPL			; flip all bits (only bit 7 matters)
-	ADD	A,A		; move bit 7 to carry flag
-	SBC	A,A		; carry set -> a=255   carry not set -> a=0
-	RET			;
+	sub	    128		    ; move from range 0..255 to -128..+127
+	add	    a, b		; add mouse offset, both numbers are signed
+	jp	    pe, .CLIP	; pe -> previous instruction caused a signed overflow
+	add	    a, 128		; move back to range 0..255
+	ret			        ;
+.CLIP:	
+    ld	    a, b	; get mouse offset
+	cpl	    		; flip all bits (only bit 7 matters)
+	add	    a, a	; move bit 7 to carry flag
+	sbc	    a, a	; carry set -> a=255   carry not set -> a=0
+	ret	    		;
 
     db      "End ROM started at 0x4000"
 
