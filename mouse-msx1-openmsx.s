@@ -1,53 +1,51 @@
-; Mouse POC for MSX Pen (works also on MSX 1)
-; Setup:
-; On WebMSX: Help & Settings / Ports / Toggle Mouse Mode: ENABLED
-; ALT+CAPS: Lock/Unlock pointer
+FNAME "mouse-msx1-openmsx.rom"      ; output file
 
 ; Direct usage of mouse
 ; Mouse related BIOS-calls are not available on MSX1, so in this case you need to handle mouse directly.
 ; Here is example of how to do that. Note that the trackball uses a different protocol and need a specific routine.
 
-; bios call to print a character on screen
-CHPUT:      equ 0x00a2
-BIOS_JIFFY:   equ 0xfc9e
-BIOS_INIGRP:  equ 0x0072
-BIOS_LDIRVM:  equ 0x005c
-BIOS_BEEP:    equ 0x00c0
-BIOS_FORCLR: EQU 0xF3E9
+PageSize:	    equ	0x4000	        ; 16kB
 
+; Compilation address
+    org 0x4000
 
-SPRPAT:     equ 0x3800
-SPRATR:     equ 0x1b00
+    INCLUDE "Include/RomHeader.s"
+    INCLUDE "Include/MsxBios.s"
+    INCLUDE "Include/MsxConstants.s"
+    INCLUDE "Include/CommonRoutines.s"
+
+; Default VRAM tables for Screen 2
+SPRPAT:     equ 0x3800  ; to 0x3fff (2048 bytes)
+SPRATR:     equ 0x1b00  ; to 0x1b7f (128 bytes)
+
 
 WAIT1:  equ   10              ; Short delay value
 WAIT2:  equ   30              ; Long delay value
 
-; the address of our program
-            org 0xc000
 
 spritePattern:
 	db 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
     
-spriteAttributes:
+spriteAttributes_init:
 	db 96, 128, 0, 7
     db 208 ; hide all other sprites
 
-start:
+Execute:
 
-	ld a, 128
-    ld (cursorX), a
-	ld a, 96
-    ld (cursorY), a
+	ld      a, 128
+    ld      (cursorX), a
+	ld      a, 96
+    ld      (cursorY), a
     
-    ld hl, BIOS_FORCLR
-    ld a, 15 ; foreground color
-    ld (hl), a
-    inc hl
-    ld a, 1 ; background color
-    ld (hl), a
-    inc hl
-    ld a, 4 ; border color
-    ld (hl), a
+    ld      hl, BIOS_FORCLR
+    ld      a, 15 ; foreground color
+    ld      (hl), a
+    inc     hl
+    ld      a, 1 ; background color
+    ld      (hl), a
+    inc     hl
+    ld      a, 4 ; border color
+    ld      (hl), a
 
 	call    BIOS_INIGRP                 ; screen 2
     
@@ -58,11 +56,10 @@ start:
     call 	BIOS_LDIRVM        	    ; Block transfer to VRAM from memory
     
     ; init spratt
-    ld		hl, spriteAttributes    ; RAM address (source)
+    ld		hl, spriteAttributes_init    ; RAM address (source)
     ld		de, SPRATR		        ; VRAM address (destiny)
     ld		bc, 5					; Block length
     call 	BIOS_LDIRVM        	    ; Block transfer to VRAM from memory
-
 
 loop:
 
@@ -75,7 +72,8 @@ waitVBlank:
     jp      z, waitVBlank
     
 
-	ld de, 01310h
+	ld de, 01310h ; mouse on joyport 1
+    ;ld      de, 0x6C20  ; mouse on joyport 2
     call GTMOUS
     ; if(H==255 && H==L) noMouse
     ld a, h
@@ -249,11 +247,16 @@ LIMITADD:
 	SBC	A,A		; carry set -> a=255   carry not set -> a=0
 	RET			;
 
-;    org 0xc000
-   
-cursorX: db 1
-cursorY: db 1
+    db      "End ROM started at 0x4000"
 
+	ds PageSize - ($ - 0x4000), 255	; Fill the unused area with 0xFF
+
+
+
+; RAM
+    org 0xc000
    
-    
-    end start
+cursorX: rb 1
+cursorY: rb 1
+
+spriteAttributes:  rb 5
