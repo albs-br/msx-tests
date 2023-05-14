@@ -63,15 +63,15 @@ Execute:
     ld		bc, 5					; Block length
     call 	BIOS_LDIRVM        	    ; Block transfer to VRAM from memory
 
-loop:
+.loop:
 
 	; wait vblank
     ld      a, (BIOS_JIFFY)
     ld      b, a
-waitVBlank:
+.waitVBlank:
     ld      a, (BIOS_JIFFY)
     cp      b
-    jp      z, waitVBlank
+    jp      z, .waitVBlank
     
 
 	ld      de, 0x1310 ; mouse on joyport 1
@@ -80,21 +80,41 @@ waitVBlank:
     ; if(H==255 && H==L) noMouse
     ld      a, h
     cp      255
-    jp      nz, skip
+    jp      nz, .skip
     cp      l
-    call    z, noMouse
+    call    z, .noMouse
 
-skip:
+.skip:
 
-	; update cursor position
-    ;ld a, (cursorX)
-    ;sub h
-    ;ld (cursorX), a
+    ; ----- set cursor color baased on buttons pressed
+    ld      b, 7 ; default cursor color
     
-    ;ld a, (cursorY)
-    ;sub l
-    ;ld (cursorY), a
+    ld      a, ixh
+    and     ixl
+    jp      z, .not_BothButtonsPressed
+
+    ld      b, 13 ; color for both buttons pressed
+    jp      .continue 
+
+.not_BothButtonsPressed:
+    ld      a, ixh
+    or      a
+    jp      z, .skipSetCursorRed
+    ld      b, 8 ; color for mouse 1 button clicked
+.skipSetCursorRed:
     
+    ld      a, ixl
+    or      a
+    jp      z, .skipSetCursorGreen
+    ld      b, 12 ; color for mouse 2 button clicked
+.skipSetCursorGreen:
+
+.continue:
+    ld      a, b
+    ld      (cursorColor), a
+
+
+
     ; invert delta x
     ld      a, h
     neg
@@ -140,9 +160,9 @@ skip:
     ld		bc, 4					; Block length
     call 	BIOS_LDIRVM        	    ; Block transfer to VRAM from memory
 
-	jp      loop
+	jp      .loop
 
-noMouse:
+.noMouse:
 	;ld     a, 65
     ;call   CHPUT
     call    BIOS_BEEP
@@ -152,7 +172,9 @@ noMouse:
 ;
 ; Input: DE = 01310h for mouse in port 1 (D = 00010011b, E = 00010000b)
 ;        DE = 06C20h for mouse in port 2 (D = 01101100b, E = 00100000b)
-; Output: H = X-offset, L = Y-offset (H = L = 255 if no mouse)
+; Output: 
+;   H = X-offset, L = Y-offset (H = L = 255 if no mouse)
+;   IXH = button 1, IXL = button 2
 GTMOUS:
 	ld	    b, WAIT2	; Long delay for first read
 	call	GTOFS2	; Read bits 7-4 of the x-offset
@@ -168,33 +190,6 @@ GTMOUS:
     ld      ixl, 1
 .mouseButton_2_NotClicked:
 
-    push    af, bc
-        ld      b, 7 ; default cursor color
-        
-        ld      a, ixh
-        and     ixl
-        jp      z, .not_BothButtonsPressed
-
-        ld      b, 13 ; color for both buttons pressed
-        jp      .continue 
-
-    .not_BothButtonsPressed:
-        ld      a, ixh
-        or      a
-        jp      z, .skipSetCursorRed
-        ld      b, 8 ; color for mouse 1 button clicked
-    .skipSetCursorRed:
-        
-        ld      a, ixl
-        or      a
-        jp      z, .skipSetCursorGreen
-        ld      b, 12 ; color for mouse 2 button clicked
-    .skipSetCursorGreen:
-    
-    .continue:
-        ld      a, b
-        ld      (cursorColor), a
-    pop     bc, af
 
 ;     ;get mouse button 1
 ;     push    af
