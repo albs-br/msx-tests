@@ -8,9 +8,10 @@ BIOS_SAVTXT: equ 0F6AFh ; last def. pass 3
 Wait_Vblank: equ 04090h ; last def. pass 3
 BIOS_WRSLT: equ 014h ; last def. pass 3
 BIOS_PTRFIL: equ 0F864h ; last def. pass 3
+GTMOUS.not_BothButtonsPressed: equ 04372h ; last def. pass 3
 BIOS_H_ONGO: equ 0FDEAh ; last def. pass 3
 BIOS_H_FIEL: equ 0FE2Bh ; last def. pass 3
-LIMITADD: equ 043C0h ; last def. pass 3
+LIMITADD: equ 043E3h ; last def. pass 3
 BIOS_FILNM2: equ 0F871h ; last def. pass 3
 BIOS_RAWPRT: equ 0F418h ; last def. pass 3
 BIOS_H_CRDO: equ 0FEE9h ; last def. pass 3
@@ -22,6 +23,7 @@ BIOS_WINWID: equ 0FCA5h ; last def. pass 3
 BIOS_H_ERRP: equ 0FEFDh ; last def. pass 3
 SetNonInterlacedMode: equ 04142h ; last def. pass 3
 BIOS_POSIT: equ 0C6h ; last def. pass 3
+GTMOUS.mouseButton_1_NotClicked: equ 0435Ah ; last def. pass 3
 BIOS_MLTNAM: equ 0F3D1h ; last def. pass 3
 BIOS_PINLIN: equ 0AEh ; last def. pass 3
 Screen11: equ 040FEh ; last def. pass 3
@@ -70,11 +72,11 @@ BIOS_CLPRIM: equ 0F38Ch ; last def. pass 3
 BIOS_DECTMP: equ 0F7F0h ; last def. pass 3
 BIOS_TAPIN: equ 0E4h ; last def. pass 3
 BIOS_H_CHPH: equ 0FDA4h ; last def. pass 3
+GTMOUS.continue: equ 04382h ; last def. pass 3
 REG22SAV: equ 0FFF5h ; last def. pass 3
 BIOS_NSETRD: equ 016Eh ; last def. pass 3
 BIOS_JIFFY: equ 0FC9Eh ; last def. pass 3
 Wait_15_Vblanks: equ 0407Eh ; last def. pass 3
-GTMOUS.save: equ 04361h ; last def. pass 3
 REG2SAV: equ 0F3E1h ; last def. pass 3
 BIOS_H_GONE: equ 0FF43h ; last def. pass 3
 BIOS_PRSCNT: equ 0FB35h ; last def. pass 3
@@ -85,7 +87,7 @@ BIOS_RSTMP: equ 0FB03h ; last def. pass 3
 Execute_VDP_YMMM: equ 04233h ; last def. pass 3
 BIOS_DISINT: equ 0FFCFh ; last def. pass 3
 BIOS_ATRBYT: equ 0F3F2h ; last def. pass 3
-GTOFS2: equ 04387h ; last def. pass 3
+GTOFS2: equ 043AAh ; last def. pass 3
 BIOS_H_ERRF: equ 0FF02h ; last def. pass 3
 BIOS_INTFLG: equ 0FC9Bh ; last def. pass 3
 BIOS_H_CVD: equ 0FE49h ; last def. pass 3
@@ -123,7 +125,7 @@ BIOS_CXOFF: equ 0F945h ; last def. pass 3
 skip: equ 04304h ; last def. pass 3
 BIOS_MLTCOL: equ 0F3D3h ; last def. pass 3
 BIOS_H_NTPL: equ 0FF6Bh ; last def. pass 3
-WTTR2: equ 043A8h ; last def. pass 3
+WTTR2: equ 043CBh ; last def. pass 3
 BIOS_GRPPAT: equ 0F3CFh ; last def. pass 3
 BIOS_H_ISMI: equ 0FF7Fh ; last def. pass 3
 BIOS_SETPLT: equ 014Dh ; last def. pass 3
@@ -150,6 +152,7 @@ BIOS_LPTPOS: equ 0F415h ; last def. pass 3
 BIOS_CHGMOD: equ 05Fh ; last def. pass 3
 SetPaletteColor_FromAddress: equ 04023h ; last def. pass 3
 LDIRVM_MSX2: equ 0418Bh ; last def. pass 3
+GTMOUS.skipSetCursorGreen: equ 04382h ; last def. pass 3
 BIOS_H_LPTS: equ 0FFBBh ; last def. pass 3
 BIOS_ESCCNT: equ 0FCA7h ; last def. pass 3
 BIOS_RTYCNT: equ 0FC9Ah ; last def. pass 3
@@ -193,7 +196,7 @@ BIOS_INIGRP: equ 072h ; last def. pass 3
 BIOS_GETPNT: equ 0F3FAh ; last def. pass 3
 BIOS_H_FRET: equ 0FF9Dh ; last def. pass 3
 BIOS_NMI: equ 066h ; last def. pass 3
-WTTR: equ 043A1h ; last def. pass 3
+WTTR: equ 043C4h ; last def. pass 3
 BIOS_H_CLEAR: equ 0FED0h ; last def. pass 3
 BIOS_TRAPTBL: equ 0FC4Ch ; last def. pass 3
 BIOS_ASPECT: equ 0F931h ; last def. pass 3
@@ -213,6 +216,7 @@ BIOS_H_ISRE: equ 0FF2Ah ; last def. pass 3
 WAIT1: equ 0Ah ; last def. pass 3
 BIOS_TEMPST: equ 0F67Ah ; last def. pass 3
 SetInterlacedMode: equ 0414Eh ; last def. pass 3
+GTMOUS.skipSetCursorRed: equ 0437Ah ; last def. pass 3
 BIOS_PRMFLG: equ 0F7B4h ; last def. pass 3
 Execute_VDP_HMMM.vdpReady: equ 041C2h ; last def. pass 3
 BIOS_WRPRIM: equ 0F385h ; last def. pass 3
@@ -377,7 +381,7 @@ BIOS_CENCNT: equ 0F933h ; last def. pass 3
 BIOS_SUBFLG: equ 0F6A5h ; last def. pass 3
 BIOS_CGPBAS: equ 0F924h ; last def. pass 3
 BIOS_DORES: equ 0F664h ; last def. pass 3
-WTTR3: equ 043ABh ; last def. pass 3
+WTTR3: equ 043CEh ; last def. pass 3
 BIOS_EXBRSA: equ 0FAF8h ; last def. pass 3
 BIOS_QUEUES: equ 0F3F3h ; last def. pass 3
 BIOS_RUNFLG: equ 0F866h ; last def. pass 3
@@ -387,6 +391,7 @@ BIOS_CONSAV: equ 0F668h ; last def. pass 3
 BIOS_T32CGP: equ 0F3C1h ; last def. pass 3
 BIOS_H_TIMI: equ 0FD9Fh ; last def. pass 3
 BIOS_TRCFLG: equ 0F7C4h ; last def. pass 3
+GTMOUS.mouseButton_2_NotClicked: equ 04362h ; last def. pass 3
 BIOS_LOHADR: equ 0F94Bh ; last def. pass 3
 Execute_VDP_HMMV.vdpReady: equ 04204h ; last def. pass 3
 BIOS_RG2SAV: equ 0F3E1h ; last def. pass 3
@@ -556,8 +561,8 @@ BIOS_H_PLAY: equ 0FFC5h ; last def. pass 3
 BIOS_CHGSND: equ 0135h ; last def. pass 3
 BIOS_INIFNK: equ 03Eh ; last def. pass 3
 BIOS_MCLFLG: equ 0F958h ; last def. pass 3
-LIMITADD.CLIP: equ 043C9h ; last def. pass 3
-GTOFST: equ 04385h ; last def. pass 3
+LIMITADD.CLIP: equ 043ECh ; last def. pass 3
+GTOFST: equ 043A8h ; last def. pass 3
 BIOS_ENASCR: equ 044h ; last def. pass 3
 BIOS_H_ERAF: equ 0FDB8h ; last def. pass 3
 BIOS_COMMSK: equ 0FB1Eh ; last def. pass 3
@@ -573,7 +578,7 @@ BIOS_RTPROG: equ 0F955h ; last def. pass 3
 BIOS_INIT32: equ 06Fh ; last def. pass 3
 BIOS_MLTCGP: equ 0F3D5h ; last def. pass 3
 BIOS_MEXBIH: equ 0FB07h ; last def. pass 3
-CLIPADD: equ 043AEh ; last def. pass 3
+CLIPADD: equ 043D1h ; last def. pass 3
 REG18SAV: equ 0FFF1h ; last def. pass 3
 Execute_VDP_HMMV: equ 041F9h ; last def. pass 3
 BIOS_TAPIOF: equ 0E7h ; last def. pass 3
@@ -583,7 +588,7 @@ REG0SAV: equ 0F3DFh ; last def. pass 3
 BIOS_VOICBQ: equ 0F9F5h ; last def. pass 3
 BIOS_H_KEYC: equ 0FDCCh ; last def. pass 3
 BIOS_KEYINT: equ 038h ; last def. pass 3
-WAITMS: equ 043A0h ; last def. pass 3
+WAITMS: equ 043C3h ; last def. pass 3
 BIOS_T32NAM: equ 0F3BDh ; last def. pass 3
 BIOS_NVBXLN: equ 0C9h ; last def. pass 3
 LDIRVM_MSX2.loop_1: equ 04195h ; last def. pass 3
@@ -600,7 +605,6 @@ BIOS_CALSLT: equ 01Ch ; last def. pass 3
 Wait: equ 0409Ch ; last def. pass 3
 BIOS_H_NTFL: equ 0FE62h ; last def. pass 3
 BIOS_USRTAB: equ 0F39Ah ; last def. pass 3
-GTMOUS.mouseButton_1_Clicked: equ 0435Fh ; last def. pass 3
 BIOS_H_ATTR: equ 0FE1Ch ; last def. pass 3
 BIOS_CS120: equ 0F3FCh ; last def. pass 3
 CheckCollision_16x24_16x16.x1IsLarger: equ 041A6h ; last def. pass 3

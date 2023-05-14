@@ -157,21 +157,44 @@ GTMOUS:
 	ld	    b, WAIT2	; Long delay for first read
 	call	GTOFS2	; Read bits 7-4 of the x-offset
 
-    ; get mouse buttons
-    ld      b, a ; save A
-    ld      a, 7 ; default cursor color
-    bit     5, b
-    jr      z, .mouseButton_1_Clicked ; JR to optimize the most common flow (no mouse button clicked) 
-    bit     4, b
-    jp      nz, .save
-    ld      a, 12 ; color for mouse 2 button clicked
-    jp      .save
-.mouseButton_1_Clicked:
-    ld      a, 8 ; color for mouse 1 button clicked
-.save:
-    ; ld      a, c
-    ld      (cursorColor), a
-    ld      a, b ; restore A
+    ; get mouse buttons (IXH = button 1, IXL = button 2)
+    ld      ix, 0
+    bit     5, a
+    jp      nz, .mouseButton_1_NotClicked
+    ld      ixh, 1
+.mouseButton_1_NotClicked:
+    bit     4, a
+    jp      nz, .mouseButton_2_NotClicked
+    ld      ixl, 1
+.mouseButton_2_NotClicked:
+
+    push    af, bc
+        ld      b, 7 ; default cursor color
+        
+        ld      a, ixh
+        and     ixl
+        jp      z, .not_BothButtonsPressed
+
+        ld      b, 13 ; color for both buttons pressed
+        jp      .continue 
+
+    .not_BothButtonsPressed:
+        ld      a, ixh
+        or      a
+        jp      z, .skipSetCursorRed
+        ld      b, 8 ; color for mouse 1 button clicked
+    .skipSetCursorRed:
+        
+        ld      a, ixl
+        or      a
+        jp      z, .skipSetCursorGreen
+        ld      b, 12 ; color for mouse 2 button clicked
+    .skipSetCursorGreen:
+    
+    .continue:
+        ld      a, b
+        ld      (cursorColor), a
+    pop     bc, af
 
 ;     ;get mouse button 1
 ;     push    af
