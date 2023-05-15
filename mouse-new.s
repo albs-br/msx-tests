@@ -1,31 +1,41 @@
+; TRYING TO RUN ON OPENMSX (not working yet)
+
 ; Mouse POC for MSX Pen (only MSX 2 and above)
 ; Setup:
 ; On WebMSX: Help & Settings / Ports / Toggle Mouse Mode: ENABLED
 ; ALT+CAPS: Lock/Unlock pointer
 
+FNAME "mouse.rom"      ; output file
 
-; the address of our program
-	ORG #C000
+PageSize:	    equ	0x4000	        ; 16kB
+
+; Compilation address
+	ORG 0x4000
  
+    INCLUDE "Include/RomHeader.s"
+    INCLUDE "Include/MsxBios.s"
+    ; INCLUDE "Include/MsxConstants.s"
+    ; INCLUDE "Include/CommonRoutines.s"
+
 ;--------------------------
+
+GTPAD:  EQU 0xDB
+SETWRT: EQU 0x53
+LDIRVM: EQU 0x5C
+CHGMOD: EQU 0x5F
  
-BEGIN:
+SPRATT: EQU 0xF928
+SPRGEN: EQU 0xF926
+FORCLR: EQU 0xF3E9
+HINT:   EQU 0xFD9F
  
-GTPAD:  EQU #DB
-SETWRT: EQU #53
-LDIRVM: EQU #5C
-CHGMOD: EQU #5F
- 
-SPRATT: EQU #F928
-SPRGEN: EQU #F926
-FORCLR: EQU #F3E9
-HINT:   EQU #FD9F
- 
-XPOS:   DB 128
-YPOS:   DB 96
-PORT:   DB 12
-BUSY:   DB 0
- 
+Vars_Init:
+.XPOS:   DB 128
+.YPOS:   DB 96
+.PORT:   DB 12
+.BUSY:   DB 0
+.size: equ $ - Vars_Init
+
 SPRITE_OLD:
         DB %0001000
         DB %0001000
@@ -44,7 +54,23 @@ SPRITE:
         DB %1110000
         DB %1000000
         DB %0000000
+
+
+Execute:
+ 
 INIT:
+        ; call    BIOS_INITXT
+
+        ; ld      a, 65
+        ; call    BIOS_CHPUT
+        ; jp $
+
+        ; init vars
+        ld      hl, Vars_Init
+        ld      de, Vars
+        ld      bc, Vars_Init.size
+        ldir
+
         DI
         ;Select mouse port
         CALL SELECTPORT
@@ -189,7 +215,7 @@ HANDLER:
  
         LD A,D
         SUB 4
-        OUT (#98),A   ; Sprite Y
+        OUT (0x98),A   ; Sprite Y
         LD A,E
         SUB 4
         LD C,8        ; Color
@@ -197,18 +223,18 @@ HANDLER:
         ADD A,32
         LD C,8+128    ; Color + EC
 .NOEC:
-        OUT (#98),A   ; Sprite X
+        OUT (0x98),A   ; Sprite X
         LD A,0
-        OUT (#98),A   ; Sprite number
+        OUT (0x98),A   ; Sprite number
         LD A,C
-        OUT (#98),A   ; Color + [EC]
+        OUT (0x98),A   ; Color + [EC]
  
         XOR A
         LD (BUSY),A
  
-STORE:
-        ; Here is space for old interrupt handler from the interrupt hook
-        DB 0,0,0,0,0
+; STORE:
+;         ; Here is space for old interrupt handler from the interrupt hook
+;         DB 0,0,0,0,0
         RET
  
  
@@ -248,6 +274,29 @@ LIMITADD:
  
  
  
-;END:
-            ; use the label "BEGIN" as the entry point
-            end BEGIN
+
+
+    db      "End ROM started at 0x4000"
+
+    ds PageSize - ($ - 0x4000), 255	; Fill the unused area with 0xff
+
+; RAM
+	org     0xc000, 0xe5ff                   ; for machines with 16kb of RAM (use it if you need 16kb RAM, will crash on 8kb machines, such as the Casio PV-7)
+
+
+Vars:
+XPOS:   rb 1
+YPOS:   rb 1
+PORT:   rb 1
+BUSY:   rb 1
+
+
+; STORE:
+;         ; Here is space for old interrupt handler from the interrupt hook
+;         DB 0,0,0,0,0
+;         RET
+
+STORE:
+        ; Here is space for old interrupt handler from the interrupt hook
+        rb 5 ;DB 0,0,0,0,0
+        ;RET

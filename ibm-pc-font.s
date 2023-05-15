@@ -34,7 +34,7 @@ Execute:
     ld 		(BIOS_BAKCLR), a     
     ld      a, 1                ; Border color
     ld 		(BIOS_BDRCLR), a    
-    call 	BIOS_CHGCLR         ; Change Screen Color
+    ;call 	BIOS_CHGCLR         ; Change Screen Color
 
     call    BIOS_INIGRP                 ; screen 2
 
@@ -55,7 +55,7 @@ Execute:
     call    BIOS_SETWRT
     ld      bc, 256 * 8
 .loop_1:
-    ld      a, 0xf0         ; foreground white, background black
+    ld      a, 0xf1         ; foreground white, background black
     out     (PORT_0), a
     dec     bc
     ld      a, b
@@ -67,7 +67,7 @@ Execute:
     call    BIOS_SETWRT
     ld      bc, 256 * 8
 .loop_1a:
-    ld      a, 0x0f         ; foreground black, background white
+    ld      a, 0x1f         ; foreground black, background white
     out     (PORT_0), a
     dec     bc
     ld      a, b
