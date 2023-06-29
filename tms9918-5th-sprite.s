@@ -161,3 +161,8 @@ WR2VDPREG:
 	out	    (c), b		; Write the register number (with the bit 7 always set)
 	ei			; Interrupts can be enabled here
 	ret
+
+
+
+
+	ds PageSize - ($ - 0x4000), 255	; Fill the unused area with 0xFF
