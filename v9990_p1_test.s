@@ -6,28 +6,73 @@ PageSize:	    equ	0x4000	        ; 16kB
     org 0x4000, 0xbeff	                    ; 0x8000 can be also used here if Rom size is 16kB or less.
 
     INCLUDE "Include/RomHeader.s"
+    INCLUDE "Include/MsxBios.s"
     INCLUDE "Include/V9990.s"
 
 
 Execute:
 
+    ;  debug
+    ld      hl, STR_PROG_START
+    call    PrintString
+
+
     call    V9.Mode_P1
 
+    call    V9.DisableScreen
 
 
-    ; WARNING: NOT FINISHED
-    ld      hl, 0   ; X scroll value (11 bits)
-    ld      de, 0   ; Y scroll value (13 bits)
-    call    V9.SetScroll_Layer_A
+    ; ; WARNING: NOT FINISHED
+    ; ld      hl, 0   ; X scroll value (11 bits)
+    ; ld      de, 0   ; Y scroll value (13 bits)
+    ; call    V9.SetScroll_Layer_A
 
-    ; WARNING: NOT FINISHED
-    ld      hl, 0   ; X scroll value (9 bits)
-    ld      de, 0   ; Y scroll value (9 bits)
-    call    V9.SetScroll_Layer_B
+    ; ; WARNING: NOT FINISHED
+    ; ld      hl, 0   ; X scroll value (9 bits)
+    ; ld      de, 0   ; Y scroll value (9 bits)
+    ; call    V9.SetScroll_Layer_B
 
 
+
+    ; Clear VRAM is crashing openmsx (but not webmsx)
+    ;  debug 
+    ld      hl, STR_CLR_VRAM
+    call    PrintString
 
     call    V9.ClearVRAM
+
+
+
+    ;  debug
+    ld      hl, STR_SET_PAL_CTRL_REG
+    call    PrintString
+
+    ld      a, 0    ; palette number for layer A (0-3)
+    ld      b, 1    ; palette number for layer B (0-3)
+    call    V9.SetPaletteControlRegister
+
+
+
+    ld      a, 0
+    call    V9.SetSpriteGeneratorBaseAddrRegister
+
+
+
+
+    ; ------- set names table layer A
+    ld		hl, NamesTable_test				        ; RAM address (source)
+    ld		a, V9.P1_NAMTBL_LAYER_A >> 16	        ; VRAM address bits 18-16 (destiny)
+    ld		de, V9.P1_NAMTBL_LAYER_A AND 0xffff     ; VRAM address bits 15-0 (destiny)
+    ld		bc, NamesTable_test.size		        ; Block length
+    call 	V9.LDIRVM        					    ; Block transfer to VRAM from memory
+
+    ; ------- set names table layer B
+    ld		hl, NamesTable_B_test				    ; RAM address (source)
+    ld		a, V9.P1_NAMTBL_LAYER_B >> 16	        ; VRAM address bits 18-16 (destiny)
+    ld		de, V9.P1_NAMTBL_LAYER_B AND 0xffff     ; VRAM address bits 15-0 (destiny)
+    ld		bc, NamesTable_B_test.size		        ; Block length
+    call 	V9.LDIRVM        					    ; Block transfer to VRAM from memory
+
 
 
 
@@ -74,25 +119,6 @@ Execute:
     call 	V9.SetTilePattern
 
 
-    ; ------- set names table layer A
-    ld		hl, NamesTable_test				        ; RAM address (source)
-    ld		a, V9.P1_NAMTBL_LAYER_A >> 16	        ; VRAM address bits 18-16 (destiny)
-    ld		de, V9.P1_NAMTBL_LAYER_A AND 0xffff     ; VRAM address bits 15-0 (destiny)
-    ld		bc, NamesTable_test.size		        ; Block length
-    call 	V9.LDIRVM        					    ; Block transfer to VRAM from memory
-
-    ; ------- set names table layer B
-    ld		hl, NamesTable_B_test				    ; RAM address (source)
-    ld		a, V9.P1_NAMTBL_LAYER_B >> 16	        ; VRAM address bits 18-16 (destiny)
-    ld		de, V9.P1_NAMTBL_LAYER_B AND 0xffff     ; VRAM address bits 15-0 (destiny)
-    ld		bc, NamesTable_B_test.size		        ; Block length
-    call 	V9.LDIRVM        					    ; Block transfer to VRAM from memory
-
-
-
-    ld      a, 0    ; palette number for layer A (0-3)
-    ld      b, 1    ; palette number for layer B (0-3)
-    call    V9.SetPaletteControlRegister
 
 
 
@@ -134,8 +160,31 @@ Execute:
 
     
     ; --------
+
+    call    V9.EnableScreen
+
+    ; debug
+    ld      hl, STR_PROG_END
+    call    PrintString
+
+
     jp      $   ; eternal loop
 
+
+
+; debug
+PrintString:
+    ld      a, (hl)
+    or      a
+    ret     z
+    call    BIOS_CHPUT
+    inc     hl
+    jp      PrintString
+
+STR_PROG_START:         db 'PROG_START', 13, 10, 0
+STR_CLR_VRAM:           db 'CLR_VRAM', 13, 10, 0
+STR_SET_PAL_CTRL_REG:   db 'SET_PAL_CTRL_REG', 13, 10, 0
+STR_PROG_END:           db 'PROG_END', 13, 10, 0
 
 ; -------------------------------------------------------------
 

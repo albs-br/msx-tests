@@ -76,12 +76,12 @@ V9:
 .SetVdp_Write:
     ld      b, a    ; save A register
 
+    ld      c, V9.PORT_3
+
     ; set P#4 to 0000 0000 b
     xor     a ; ld a, 0000 0000 b
     di
         out     (V9.PORT_4), a
-
-        ld      c, V9.PORT_3
 
         ; set P#3 to VRAM lower addr (bits 0-7)
         out     (c), e
@@ -90,9 +90,10 @@ V9:
         out     (c), d
 
         ; set P#3 to VRAM upper addr (bits 16-18) --> warning: higher bit here is AII (explained above)
+        ld      a, b
         and     0111 1111 b     ; force AII bit to 0
     ei
-    out     (c), b
+    out     (c), a
 
     ret
 
@@ -177,6 +178,7 @@ V9:
     ld      bc, 0 ; = 65536 (64 kb)
 .ClearVRAM_loop:
     xor     a
+
     ; 64 kb x 8 = 512 kb
     out     (v9.PORT_0), a
     out     (v9.PORT_0), a
@@ -191,6 +193,17 @@ V9:
     ld      a, b
     or      c
     jp      nz, .ClearVRAM_loop
+
+    ; --- faster
+    ; dec     c
+    ; jp      nz, .ClearVRAM_loop
+    ; dec     b
+    ; jp      nz, .ClearVRAM_loop
+
+    ; --- even faster, but uses hi and low bytes inverted (B is low, C is high)
+    ; djnz    .ClearVRAM_loop
+    ; dec     c
+    ; jp      nz, .ClearVRAM_loop
 
     ret
 
@@ -399,3 +412,181 @@ V9:
     ret
 
 ; -----------------------------------------------------------
+
+; Inputs:
+; 	ADE: 19 bits addr in VRAM
+.Fill_NAM_TBL_Sequentially:
+    call    .SetVdp_Write
+
+    ld      bc, 64 * 64     ; loop counter (size of names table)
+    ld      de, 0           ; value to be written
+.Fill_NAM_TBL_Sequentially_loop:
+
+    ; write word value (little endian)
+    ld      a, e
+    out     (V9.PORT_0), a
+    ld      a, d
+    out     (V9.PORT_0), a
+
+    inc     de
+    
+    dec     bc
+    ld      a, b
+    or      c
+    jp      nz, .Fill_NAM_TBL_Sequentially_loop
+
+    ; TODO: faster
+    ; dec     c
+    ; jp      nz, .Fill_NAM_TBL_Sequentially_loop
+    ; djnz    .Fill_NAM_TBL_Sequentially_loop
+
+    ret
+
+; -----------------------------------------------------------
+
+; Inputs:
+; 	ADE: 19 bits addr in VRAM
+.Fill_NAM_TBL_Sequentially_32_cols:
+    call    .SetVdp_Write
+    push    de
+    pop     hl              ; VRAM addr
+
+    ld      bc, 32 * 64     ; loop counter (size of names table)
+    ld      de, 0           ; value to be written
+    ld      ixl, 0            ; col number counter
+.Fill_NAM_TBL_Sequentially_32_cols_loop:
+
+    ; write word value (little endian)
+    ld      a, e
+    out     (V9.PORT_0), a
+    ld      a, d
+    out     (V9.PORT_0), a
+
+    inc     de
+    
+    inc     ixl
+    cp      32          ; number of cols
+    call    z, .Fill_NAM_TBL_Sequentially_32_cols_next_line
+
+    dec     bc
+    ld      a, b
+    or      c
+    jp      nz, .Fill_NAM_TBL_Sequentially_32_cols_loop
+
+    ret
+
+.Fill_NAM_TBL_Sequentially_32_cols_next_line:
+    ; HL += 64 (32 cols)
+    push    bc
+        ld      bc, 256
+        add     hl, bc
+    pop     bc
+
+    ; both names tables of P1 mode have the same addr on bits 18-16
+    ld		a, V9.P1_NAMTBL_LAYER_A >> 16	        ; VRAM address bits 18-16 (destiny)
+    push    de
+        push    hl
+        pop     de
+        call    .SetVdp_Write
+    pop     de
+    
+    ld      ixl, 0    ; reset col counter
+
+    ret
+
+; -----------------------------------------------------------
+
+.DisableScreen:
+    call    .Disable_Layer_A
+    call    .Disable_Layer_B
+    ret
+
+.EnableScreen:
+    call    .Enable_Layer_A
+    call    .Enable_Layer_B
+    ret
+
+; Disable layer "A" and sprites
+.Disable_Layer_A:
+    ;           +---- SDA: Set to "1" to disable layer "A" and sprites.
+    ;           |+--- SDB: Set to "1" to disable layer "B" and sprites.
+    ;           ||
+    ;ld      b, ab00 0000 b  ; value
+    ld      a, 22           ; register number
+    call    V9.ReadRegister
+
+    or      1000 0000 b     ; disable layer A
+    ld      b, a
+
+    ld      a, 22           ; register number
+    ;ld      b, 0000 0000 b  ; value
+    call    V9.SetRegister
+
+    ret
+
+
+
+; Disable layer "B" and sprites
+.Disable_Layer_B:
+    ld      a, 22           ; register number
+    call    V9.ReadRegister
+
+    or      0100 0000 b     ; disable layer B
+    ld      b, a
+
+    ld      a, 22           ; register number
+    call    V9.SetRegister
+
+    ret
+
+
+
+; Enable layer "A" and sprites
+.Enable_Layer_A:
+    ld      a, 22           ; register number
+    call    V9.ReadRegister
+
+    and     0111 1111 b     ; enable layer A
+    ld      b, a
+
+    ld      a, 22           ; register number
+    call    V9.SetRegister
+
+    ret
+
+
+
+; Enable layer "B" and sprites
+.Enable_Layer_B:
+    ld      a, 22           ; register number
+    call    V9.ReadRegister
+
+    and     1011 1111 b     ; enable layer B
+    ld      b, a
+
+    ld      a, 22           ; register number
+    call    V9.SetRegister
+
+    ret
+
+
+
+; -----------------------------------------------------------
+
+; Input:
+;   A: value of bits 17-15 of Sprite Generator Base Addr (0-7)
+; Warning: only works on P1 mode
+.SetSpriteGeneratorBaseAddrRegister:
+
+    ; set R#25 SPRITE GENERATOR BASE ADDRESS (READ/WRITE)
+    ; Sprite pattern: Selected from among 256 patterns
+    ; The pattern data is shared with the pattern layer (the base address should be set in register R#25.)
+    ; SGBA17-15: bits 3-1
+
+    sla     a   ; shift left register
+    ld      b, a
+
+    ld      a, 25            ; register number
+    call    V9.SetRegister
+
+    ret
