@@ -40,24 +40,24 @@
                         //"value": "-machine Panasonic_FS-A1WSX",         // MSX 2+ with turbo
                         // "value": "-machine Panasonic_FS-A1GT",          // MSX Turbo R
                         
-                        "quoting": "escape"
+                        "quoting": "weak"
                     },
                     {
                         "value": "-romtype ASCII16",
-                        "quoting": "escape"
+                        "quoting": "weak"
                     },
                     {
                         "value": "-script C:\\Users\\albs_\\source\\repos\\msx-tests\\msx-tests_debug.tcl",
-                        "quoting": "escape"
+                        "quoting": "weak"
                     },
                     // {
                     //     "value": "-script C:\\Users\\albs_\\source\\repos\\msx-tests\\add_mouse.tcl",
-                    //     "quoting": "escape"
-                    // }
-                    // {
-                    //     "value": "-script C:\\Users\\albs_\\source\\repos\\msx-tests\\add_v9990.tcl",
-                    //     "quoting": "escape"
-                    // }
+                    //     "quoting": "weak"
+                    // },
+                    {
+                        "value": "-script C:\\Users\\albs_\\source\\repos\\msx-tests\\add_v9990.tcl",
+                        "quoting": "weak"
+                    },
                 ],
             "label": "run openmsx",
             "type": "shell",
