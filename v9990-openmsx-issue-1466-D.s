@@ -17,8 +17,6 @@ Execute:
 
     call    V9.Mode_P1
 
-    call    V9.DisableScreen
-
     call    V9.ClearVRAM
 
 

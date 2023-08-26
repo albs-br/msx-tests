@@ -83,9 +83,6 @@
     
     ; --------
 
-    call    V9.EnableScreen
-
-
 
     jp      $   ; eternal loop
 
