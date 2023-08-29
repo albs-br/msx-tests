@@ -12,19 +12,19 @@ PageSize:	    equ	0x4000	        ; 16kB
 
     INCLUDE "Include/dzx0_standard.asm"
 
-ZX0_NonStandard_Decompressor:
+; ZX0_NonStandard_Decompressor:
 
-; code that needs to be realocated later need to be PHASE'd and DEPHASE'd 
-; in order to solve correctly the labels
-PHASE   0xe000
+; ; code that needs to be realocated later need to be PHASE'd and DEPHASE'd 
+; ; in order to solve correctly the labels
+; PHASE   0xe000
 
-    ;INCLUDE "Include/dzx0_turbo.asm"
-    ;INCLUDE "Include/dzx0_fast.asm"
-    INCLUDE "Include/dzx0_mega.asm"
+;     ;INCLUDE "Include/dzx0_turbo.asm"
+;     ;INCLUDE "Include/dzx0_fast.asm"
+;     INCLUDE "Include/dzx0_mega.asm"
 
-DEPHASE
+; DEPHASE
 
-ZX0_NonStandard_Decompressor_size:  equ $ - ZX0_NonStandard_Decompressor
+; ZX0_NonStandard_Decompressor_size:  equ $ - ZX0_NonStandard_Decompressor
 
 Execute:
     call    Screen11
@@ -53,19 +53,19 @@ NAMTBL:     equ 0x00000
 ; "Fast" routine: 187 bytes, about 25% faster
 ; "Mega" routine: 673 bytes, about 28% faster
 
-    ; ; using standard decompressor
-    ; ld      hl, ZX0_ImageData
-    ; ld      de, UncompressedData
-    ; call    dzx0_standard
-    
-    ; using non-standard decompressors (they need to be on RAM, as they use self-modifying code)
-    ld	    hl, ZX0_NonStandard_Decompressor
-    ld	    de, ZX0_DecompressCode
-    ld	    bc, ZX0_NonStandard_Decompressor_size
-    ldir
+    ; using standard decompressor
     ld      hl, ZX0_ImageData
     ld      de, UncompressedData
-    call    ZX0_DecompressCode
+    call    dzx0_standard
+    
+    ; ; using non-standard decompressors (they need to be on RAM, as they use self-modifying code)
+    ; ld	    hl, ZX0_NonStandard_Decompressor
+    ; ld	    de, ZX0_DecompressCode
+    ; ld	    bc, ZX0_NonStandard_Decompressor_size
+    ; ldir
+    ; ld      hl, ZX0_ImageData
+    ; ld      de, UncompressedData
+    ; call    ZX0_DecompressCode
 
 ; --------- Load uncompressed data to screen     
     ld		hl, UncompressedData   			        ; RAM address (source)
