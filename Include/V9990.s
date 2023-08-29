@@ -38,10 +38,10 @@ V9:
 
 ; P1 mode:
 .P1_PATTBL_LAYER_A:     equ 0x00000     ; 00000-3FDFF	(Sprite) Pattern Data (Layer A)
-.P1_PATTBL_LAYER_B:     equ 0X40000     ; 40000-7BFFF	Pattern Data (Layer B)
-.P1_SPRATR:             equ 0X3fe00     ; 3FE00-3FFFF	Sprite Attribute Table
-.P1_NAMTBL_LAYER_A:     equ 0X7c000     ; 7C000-7DFFF	PNT(A) - Pattern Name Table (Layer A)
-.P1_NAMTBL_LAYER_B:     equ 0X7e000     ; 7E000-7FFFF	PNT(B) - Pattern Name Table (Layer B)
+.P1_PATTBL_LAYER_B:     equ 0x40000     ; 40000-7BFFF	Pattern Data (Layer B)
+.P1_SPRATR:             equ 0x3fe00     ; 3FE00-3FFFF	Sprite Attribute Table
+.P1_NAMTBL_LAYER_A:     equ 0x7c000     ; 7C000-7DFFF	PNT(A) - Pattern Name Table (Layer A)
+.P1_NAMTBL_LAYER_B:     equ 0x7e000     ; 7E000-7FFFF	PNT(B) - Pattern Name Table (Layer B)
 
 ; -------------------------------------------------------------
 
@@ -176,8 +176,8 @@ V9:
 
     ; TODO: use VDP command (faster)
     ld      bc, 0 ; = 65536 (64 kb)
-.ClearVRAM_loop:
     xor     a
+.ClearVRAM_loop:
 
     ; 64 kb x 8 = 512 kb
     out     (v9.PORT_0), a
@@ -189,10 +189,10 @@ V9:
     out     (v9.PORT_0), a
     out     (v9.PORT_0), a
 
-    dec     bc
-    ld      a, b
-    or      c
-    jp      nz, .ClearVRAM_loop
+    ; dec     bc
+    ; ld      a, b
+    ; or      c
+    ; jp      nz, .ClearVRAM_loop
 
     ; --- faster
     ; dec     c
@@ -201,9 +201,9 @@ V9:
     ; jp      nz, .ClearVRAM_loop
 
     ; --- even faster, but uses hi and low bytes inverted (B is low, C is high)
-    ; djnz    .ClearVRAM_loop
-    ; dec     c
-    ; jp      nz, .ClearVRAM_loop
+    djnz    .ClearVRAM_loop
+    dec     c
+    jp      nz, .ClearVRAM_loop
 
     ret
 

@@ -259,6 +259,7 @@ BIOS_SCRMOD: equ 0FCAFh ; last def. pass 3
 BIOS_NORUSE: equ 0FAFDh ; last def. pass 3
 BIOS_H_EVAL: equ 0FF70h ; last def. pass 3
 BIOS_PARM1: equ 0F6E8h ; last def. pass 3
+Palette_layer_B: equ 04670h ; last def. pass 3
 BIOS_ONGSBF: equ 0FBD8h ; last def. pass 3
 BIOS_H_LOF: equ 0FE9Eh ; last def. pass 3
 BIOS_GRPCGP: equ 0F3CBh ; last def. pass 3
@@ -355,6 +356,7 @@ BIOS_H_DOGR: equ 0FEF3h ; last def. pass 3
 BIOS_MAXUPD: equ 0F3ECh ; last def. pass 3
 SetSpritesMagnified: equ 0411Eh ; last def. pass 3
 BIOS_PRMLN2: equ 0F74Eh ; last def. pass 3
+Palette_layer_A: equ 04640h ; last def. pass 3
 BIOS_CPLOTF: equ 0F938h ; last def. pass 3
 dzx0s_new_offset: equ 06C2Bh ; last def. pass 3
 BIOS_GRPRT: equ 089h ; last def. pass 3

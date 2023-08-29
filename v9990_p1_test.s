@@ -34,7 +34,6 @@ Execute:
 
 
 
-    ; Clear VRAM is crashing openmsx (but not webmsx)
     ;  debug 
     ld      hl, STR_CLR_VRAM
     call    PrintString

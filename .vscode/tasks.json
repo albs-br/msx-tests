@@ -42,14 +42,14 @@
                         
                         "quoting": "weak"
                     },
-                    // {
-                    //     "value": "-romtype ASCII16",
-                    //     "quoting": "weak"
-                    // },
-                    // {
-                    //     "value": "-script C:\\Users\\albs_\\source\\repos\\msx-tests\\msx-tests_debug.tcl",
-                    //     "quoting": "weak"
-                    // },
+                    {
+                        "value": "-romtype ASCII16",
+                        "quoting": "weak"
+                    },
+                    {
+                        "value": "-script C:\\Users\\albs_\\source\\repos\\msx-tests\\msx-tests_debug.tcl",
+                        "quoting": "weak"
+                    },
                     // {
                     //     "value": "-script C:\\Users\\albs_\\source\\repos\\msx-tests\\add_mouse.tcl",
                     //     "quoting": "escape"
@@ -58,6 +58,12 @@
                     //     "value": "-script C:\\Users\\????\\source\\repos\\msx-tests\\add_v9990.tcl",
                     //     "quoting": "weak"
                     // }
+                    //     "quoting": "weak"
+                    // },
+                    {
+                        "value": "-script C:\\Users\\albs_\\source\\repos\\msx-tests\\add_v9990.tcl",
+                        "quoting": "weak"
+                    },
                 ],
             "label": "run openmsx",
             "type": "shell",
