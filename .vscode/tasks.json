@@ -6,7 +6,7 @@
         {
             "label": "assembly",
             "type": "shell",
-            "command": "C:\\Users\\????\\Downloads\\tniasm045\\tniasm.exe",
+            "command": "C:\\Program Files\\tniasm045\\tniasm.exe",
                 "args": [
                     {
                       //"value": "Main.s",
@@ -21,7 +21,7 @@
             }
         },
         {
-            "command": "C:\\Users\\????\\Downloads\\openmsx-18.0-windows-vc-x64-bin\\openmsx.exe",
+            "command": "C:\\Program Files\\openMSX\\openmsx.exe",
                 "args": [
                     {
                         //"value": "C:\\Users\\albs_\\source\\repos\\penguim-platformer\\go-penguin.rom",
@@ -60,10 +60,10 @@
                     // }
                     //     "quoting": "weak"
                     // },
-                    {
-                        "value": "-script C:\\Users\\albs_\\source\\repos\\msx-tests\\add_v9990.tcl",
-                        "quoting": "weak"
-                    },
+                    // {
+                    //     "value": "-script C:\\Users\\albs_\\source\\repos\\msx-tests\\add_v9990.tcl",
+                    //     "quoting": "weak"
+                    // },
                 ],
             "label": "run openmsx",
             "type": "shell",
