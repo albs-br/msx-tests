@@ -5,8 +5,11 @@
 ;Vortex Tracker II v1.0 PT3 player for ZX Spectrum
 ;(c)2004 S.V.Bulba <vorobey@mail.khstu.ru> http://bulba.at.kz
 
+; converted to TniASM syntax by André Baptista in 20/sep/2023
+; (is issuing 4 warnings)
+
 ;Release number
-Release: .equ '6'
+Release: equ '6'
 
 ;Features
 ;--------
@@ -46,12 +49,12 @@ START:
 	JR INIT		;START+3
 	JP PLAY		;START+5
 	JR MUTE		;START+8
-SETUP:	.db 0 ;set bit0 to 1, if you want to play without looping
+SETUP:	db 0 ;set bit0 to 1, if you want to play without looping
 	     ;bit7 is set each time, when loop point is passed
-CrPsPtr:	.dw 0 
+CrPsPtr:	dw 0 
 
 ;Identifier
-	.db "=VTII PT3 Player r.",Release,"="
+	db "=VTII PT3 Player r.",Release,"="
 
 CHECKLP:	LD HL,SETUP
 	SET 7,(HL)
@@ -125,7 +128,7 @@ TP_2:	LD A,H
 	LD A,L
 	LD (BC),A
 	DEC BC
-	SUB $F0
+	SUB 0xf0
 	JR NZ,TP_0
 
 	LD HL,VARS
@@ -135,7 +138,7 @@ TP_2:	LD A,H
 	LDIR
 	INC A
 	LD (DelyCnt),A
-	LD HL,$F001 ;H - CHNPRM_Volume, L - CHNPRM_NtSkCn
+	LD HL,0xf001 ;H - CHNPRM_Volume, L - CHNPRM_NtSkCn
 	LD (ChanA+CHNPRM_NtSkCn),HL
 	LD (ChanB+CHNPRM_NtSkCn),HL
 	LD (ChanC+CHNPRM_NtSkCn),HL
@@ -152,7 +155,7 @@ TP_2:	LD A,H
 				    ;also EMPTYSAMORN comment
 
 	LD A,(IX+13-100) ;EXTRACT VERSION NUMBER
-	SUB $30
+	SUB 0x30
 	JR C,L20
 	CP 10
 	JR C,L21
@@ -178,7 +181,7 @@ L21:	LD (Version),A
 	INC HL
 	SRL E
 	SBC A,A
-	AND $A7 ;$00 (NOP) or $A7 (AND A)
+	AND 0xa7 ;0x00 (NOP) or 0xa7 (AND A)
 	LD (L3),A
 	EX DE,HL
 	POP BC ;BC=T1_
@@ -207,11 +210,11 @@ L1:	PUSH BC
 	PUSH DE
 	EX DE,HL
 	LD DE,23
-	.db $DD,$26,$08	;LD XH,8
+	db 0xdD,0x26,0x08	;LD XH,8
 
 L2:	SRL B
 	RR C
-L3:	.db $19	;AND A or NOP
+L3:	db 0x19	;AND A or NOP
 	LD A,C
 	ADC A,D	;=ADC 0
 	LD (HL),A
@@ -220,7 +223,7 @@ L3:	.db $19	;AND A or NOP
 	ADC A,D
 	LD (HL),A
 	ADD HL,DE
-	.db $DD,$25	;DEC XH
+	db 0xdD,0x25	;DEC XH
 	JR NZ,L2
 
 	POP DE
@@ -240,8 +243,8 @@ L3:	.db $19	;AND A or NOP
 	CP E
 	POP DE
 	JR NZ,CORR_1
-	LD A,$FD
-	LD (NT_+$2E),A
+	LD A,0xfD
+	LD (NT_+0x2E),A
 	
 CORR_1:
 	LD A,(DE)
@@ -271,10 +274,10 @@ TC_EXIT:
 			   ;5.. - 3.5x..3.6x..VTII1.0)
 
 	CP 5
-	LD HL,$11
+	LD HL,0x11
 	LD D,H
 	LD E,H
-	LD A,$17
+	LD A,0x17
 	JR NC,M1
 	DEC L
 	LD E,L
@@ -282,7 +285,7 @@ TC_EXIT:
 M1:      LD (M2),A
 
 	LD IX,VT_+16
-	LD C,$10
+	LD C,0x10
 
 INITV2:  PUSH HL
 
@@ -291,7 +294,7 @@ INITV2:  PUSH HL
 	SBC HL,HL
 
 INITV1:  LD A,L
-M2:      .db $7D
+M2:      db 0x7D
 	LD A,H
 	ADC A,0
 	LD (IX),A
@@ -304,7 +307,7 @@ M2:      .db $7D
 
 	POP HL
 	LD A,E
-	CP $77
+	CP 0x77
 	JR NZ,M3
 	INC E
 M3:      LD A,C
@@ -323,14 +326,14 @@ PD_OrSm:	LD (IX-12+CHNPRM_Env_En),0
 PD_SAM:	ADD A,A
 PD_SAM_:	LD E,A
 	LD D,0
-SamPtrs: .equ $+1
-	LD HL,$2121
+SamPtrs: equ $+1
+	LD HL,0x2121
 	ADD HL,DE
 	LD E,(HL)
 	INC HL
 	LD D,(HL)
-MODADDR: .equ $+1
-	LD HL,$2121
+MODADDR: equ $+1
+	LD HL,0x2121
 	ADD HL,DE
 	LD (IX-12+CHNPRM_SamPtr),L
 	LD (IX-12+CHNPRM_SamPtr+1),H
@@ -373,7 +376,7 @@ PTDECOD: LD A,(IX-12+CHNPRM_Note)
 	LD H,(IX-12+CHNPRM_CrTnSl+1)
 	LD (PrSlide+1),HL
 
-PD_LOOP:	LD DE,$2010
+PD_LOOP:	LD DE,0x2010
 PD_LP2:	LD A,(BC)
 	INC BC
 	ADD A,E
@@ -399,7 +402,7 @@ PD_LP2:	LD A,(BC)
 	LD E,A
 	
 	PUSH DE
-	LD DE,$DF20
+	LD DE,0xdF20
 	LD HL,SPCCOMS	
 	ADD HL,DE
 	POP DE
@@ -431,7 +434,7 @@ PD_RES:	LD (PDSP_+1),SP
 	PUSH HL
 	PUSH HL
 	PUSH HL
-PDSP_:	LD SP,$3131
+PDSP_:	LD SP,0x3131
 
 PD_FIN:	LD A,(IX-12+CHNPRM_NNtSkp)
 	LD (IX-12+CHNPRM_NtSkCn),A
@@ -458,7 +461,7 @@ C_PORTM: RES 2,(IX-12+CHNPRM_Flags)
 	LD H,(HL)
 	LD L,A
 	PUSH HL
-PrNote:	LD A,$3E
+PrNote:	LD A,0x3E
 	LD (IX-12+CHNPRM_Note),A
 	ADD A,A
 	LD L,A
@@ -473,11 +476,11 @@ PrNote:	LD A,$3E
 	LD (IX-12+CHNPRM_TnDelt+1),H
 	LD E,(IX-12+CHNPRM_CrTnSl)
 	LD D,(IX-12+CHNPRM_CrTnSl+1)
-Version: .equ $+1
-	LD A,$3E
+Version: equ $+1
+	LD A,0x3E
 	CP 6
 	JR C,OLDPRTM ;Old 3xxx for PT v3.5-
-PrSlide:	LD DE,$1111
+PrSlide:	LD DE,0x1111
 	LD (IX-12+CHNPRM_CrTnSl),E
 	LD (IX-12+CHNPRM_CrTnSl+1),D
 OLDPRTM:	LD A,(BC) ;SIGNED TONE STEP
@@ -574,36 +577,36 @@ SETORN:	ADD A,A
 	LD E,A
 	LD D,0
 	LD (IX-12+CHNPRM_PsInOr),D
-OrnPtrs:	.equ $+1
-	LD HL,$2121
+OrnPtrs:	equ $+1
+	LD HL,0x2121
 	ADD HL,DE
 	LD E,(HL)
 	INC HL
 	LD D,(HL)
-MDADDR2:	.equ $+1
-	LD HL,$2121
+MDADDR2:	equ $+1
+	LD HL,0x2121
 	ADD HL,DE
 	LD (IX-12+CHNPRM_OrnPtr),L
 	LD (IX-12+CHNPRM_OrnPtr+1),H
 	RET
 
 ;ALL 16 ADDRESSES TO PROTECT FROM BROKEN PT3 MODULES
-SPCCOMS: .dw C_NOP
-	.dw C_GLISS
-	.dw C_PORTM
-	.dw C_SMPOS
-	.dw C_ORPOS
-	.dw C_VIBRT
-	.dw C_NOP
-	.dw C_NOP
-	.dw C_ENGLS
-	.dw C_DELAY
-	.dw C_NOP
-	.dw C_NOP
-	.dw C_NOP
-	.dw C_NOP
-	.dw C_NOP
-	.dw C_NOP
+SPCCOMS: dw C_NOP
+	dw C_GLISS
+	dw C_PORTM
+	dw C_SMPOS
+	dw C_ORPOS
+	dw C_VIBRT
+	dw C_NOP
+	dw C_NOP
+	dw C_ENGLS
+	dw C_DELAY
+	dw C_NOP
+	dw C_NOP
+	dw C_NOP
+	dw C_NOP
+	dw C_NOP
+	dw C_NOP
 
 CHREGS:	XOR A
 	LD (Ampl),A
@@ -672,7 +675,7 @@ CH_NOAC: EX DE,HL
 	LD E,(IX+CHNPRM_CrTnSl)
 	LD D,(IX+CHNPRM_CrTnSl+1)
 	ADD HL,DE
-CSP_:	LD SP,$3131
+CSP_:	LD SP,0x3131
 	EX (SP),HL
 	XOR A
 	OR (IX+CHNPRM_TSlCnt)
@@ -759,7 +762,7 @@ NO_ENSL: RRA
 	LD (IX+CHNPRM_CrNsSl),A
 CH_MIX:	LD A,B
 	RRA
-	AND $48
+	AND 0x48
 CH_EXIT:	LD HL,AYREGS+AR_Mixer
 	OR (HL)
 	RRCA
@@ -790,8 +793,8 @@ PLAY:    XOR A
 	LD HL,ChanA+CHNPRM_NtSkCn
 	DEC (HL)
 	JR NZ,PL1B
-AdInPtA:	.equ $+1
-	LD BC,$0101
+AdInPtA:	equ $+1
+	LD BC,0x0101
 	LD A,(BC)
 	AND A
 	JR NZ,PL1A
@@ -803,8 +806,8 @@ AdInPtA:	.equ $+1
 	INC A
 	JR NZ,PLNLP
 	CALL CHECKLP
-LPosPtr:	.equ $+1
-	LD HL,$2121
+LPosPtr:	equ $+1
+	LD HL,0x2121
 	LD A,(HL)
 	INC A
 PLNLP:	LD (CrPsPtr),HL
@@ -812,8 +815,8 @@ PLNLP:	LD (CrPsPtr),HL
 	ADD A,A
 	LD E,A
 	RL D
-PatsPtr:	.equ $+1
-	LD HL,$2121
+PatsPtr:	equ $+1
+	LD HL,0x2121
 	ADD HL,DE
 	LD DE,(MODADDR)
 	LD (PSP_+1),SP
@@ -828,7 +831,7 @@ PatsPtr:	.equ $+1
 	POP HL
 	ADD HL,DE
 	LD (AdInPtC),HL
-PSP_:	LD SP,$3131
+PSP_:	LD SP,0x3131
 PL1A:	LD IX,ChanA+12
 	CALL PTDECOD
 	LD (AdInPtA),BC
@@ -837,8 +840,8 @@ PL1B:	LD HL,ChanB+CHNPRM_NtSkCn
 	DEC (HL)
 	JR NZ,PL1C
 	LD IX,ChanB+12
-AdInPtB:	.equ $+1
-	LD BC,$0101
+AdInPtB:	equ $+1
+	LD BC,0x0101
 	CALL PTDECOD
 	LD (AdInPtB),BC
 
@@ -846,13 +849,13 @@ PL1C:	LD HL,ChanC+CHNPRM_NtSkCn
 	DEC (HL)
 	JR NZ,PL1D
 	LD IX,ChanC+12
-AdInPtC:	.equ $+1
-	LD BC,$0101
+AdInPtC:	equ $+1
+	LD BC,0x0101
 	CALL PTDECOD
 	LD (AdInPtC),BC
 
-Delay:	.equ $+1
-PL1D:	LD A,$3E
+Delay:	equ $+1
+PL1D:	LD A,0x3E
 	LD (DelyCnt),A
 
 PL2:	LD IX,ChanA
@@ -879,8 +882,8 @@ PL2:	LD IX,ChanA
 	ADD A,L
 	LD (AYREGS+AR_Noise),A
 
-AddToEn: .equ $+1
-	LD A,$3E
+AddToEn: equ $+1
+	LD A,0x3E
 	LD E,A
 	ADD A,A
 	SBC A,A
@@ -897,17 +900,17 @@ AddToEn: .equ $+1
 	JR Z,ROUT_A0
 	DEC (HL)
 	JR NZ,ROUT
-Env_Del:	.equ $+1
-	LD A,$3E
+Env_Del:	equ $+1
+	LD A,0x3E
 	LD (HL),A
-ESldAdd:	.equ $+1
-	LD HL,$2121
+ESldAdd:	equ $+1
+	LD HL,0x2121
 	ADD HL,DE
 	LD (CurESld),HL
 
 ROUT:	XOR A
 ROUT_A0:
-	LD C,$A0
+	LD C,0xa0
 	LD HL,AYREGS
 LOUT:	OUT (C),A
 	INC C
@@ -924,92 +927,92 @@ LOUT:	OUT (C),A
 	OUT (C),A
 	RET
 
-NT_DATA:	.db (T_NEW_0-T1_)*2
-	.db TCNEW_0-T_
-	.db (T_OLD_0-T1_)*2+1
-	.db TCOLD_0-T_
-	.db (T_NEW_1-T1_)*2+1
-	.db TCNEW_1-T_
-	.db (T_OLD_1-T1_)*2+1
-	.db TCOLD_1-T_
-	.db (T_NEW_2-T1_)*2
-	.db TCNEW_2-T_
-	.db (T_OLD_2-T1_)*2
-	.db TCOLD_2-T_
-	.db (T_NEW_3-T1_)*2
-	.db TCNEW_3-T_
-	.db (T_OLD_3-T1_)*2
-	.db TCOLD_3-T_
+NT_DATA:	db (T_NEW_0-T1_)*2
+	db TCNEW_0-T_
+	db (T_OLD_0-T1_)*2+1
+	db TCOLD_0-T_
+	db (T_NEW_1-T1_)*2+1
+	db TCNEW_1-T_
+	db (T_OLD_1-T1_)*2+1
+	db TCOLD_1-T_
+	db (T_NEW_2-T1_)*2
+	db TCNEW_2-T_
+	db (T_OLD_2-T1_)*2
+	db TCOLD_2-T_
+	db (T_NEW_3-T1_)*2
+	db TCNEW_3-T_
+	db (T_OLD_3-T1_)*2
+	db TCOLD_3-T_
 
 T_:
 
-TCOLD_0:	.db $00+1,$04+1,$08+1,$0A+1,$0C+1,$0E+1,$12+1,$14+1
-	.db $18+1,$24+1,$3C+1,0
-TCOLD_1:	.db $5C+1,0
-TCOLD_2:	.db $30+1,$36+1,$4C+1,$52+1,$5E+1,$70+1,$82,$8C,$9C
-	.db $9E,$A0,$A6,$A8,$AA,$AC,$AE,$AE,0
-TCNEW_3:	.db $56+1
-TCOLD_3:	.db $1E+1,$22+1,$24+1,$28+1,$2C+1,$2E+1,$32+1,$BE+1,0
-TCNEW_0:	.db $1C+1,$20+1,$22+1,$26+1,$2A+1,$2C+1,$30+1,$54+1
-	.db $BC+1,$BE+1,0
-TCNEW_1: .equ TCOLD_1
-TCNEW_2:	.db $1A+1,$20+1,$24+1,$28+1,$2A+1,$3A+1,$4C+1,$5E+1
-	.db $BA+1,$BC+1,$BE+1,0
+TCOLD_0:	db 0x00+1,0x04+1,0x08+1,0x0A+1,0x0C+1,0x0E+1,0x12+1,0x14+1
+	db 0x18+1,0x24+1,0x3C+1,0
+TCOLD_1:	db 0x5C+1,0
+TCOLD_2:	db 0x30+1,0x36+1,0x4C+1,0x52+1,0x5E+1,0x70+1,0x82,0x8C,0x9C
+	db 0x9E,0xa0,0xa6,0xa8,0xaA,0xaC,0xaE,0xaE,0
+TCNEW_3:	db 0x56+1
+TCOLD_3:	db 0x1E+1,0x22+1,0x24+1,0x28+1,0x2C+1,0x2E+1,0x32+1,0xbE+1,0
+TCNEW_0:	db 0x1C+1,0x20+1,0x22+1,0x26+1,0x2A+1,0x2C+1,0x30+1,0x54+1
+	db 0xbC+1,0xbE+1,0
+TCNEW_1: equ TCOLD_1
+TCNEW_2:	db 0x1A+1,0x20+1,0x24+1,0x28+1,0x2A+1,0x3A+1,0x4C+1,0x5E+1
+	db 0xbA+1,0xbC+1,0xbE+1,0
 
-EMPTYSAMORN: .equ $-1
-	.db 1,0,$90 ;delete $90 if you don't need default sample
+EMPTYSAMORN: equ $-1
+	db 1,0,0x90 ;delete 0x90 if you don't need default sample
 
 ;first 12 values of tone tables (packed)
 
-T_PACK:	.db $06EC*2/256,$06EC*2
-	.db $0755-$06EC
-	.db $07C5-$0755
-	.db $083B-$07C5
-	.db $08B8-$083B
-	.db $093D-$08B8
-	.db $09CA-$093D
-	.db $0A5F-$09CA
-	.db $0AFC-$0A5F
-	.db $0BA4-$0AFC
-	.db $0C55-$0BA4
-	.db $0D10-$0C55
-	.db $066D*2/256,$066D*2
-	.db $06CF-$066D
-	.db $0737-$06CF
-	.db $07A4-$0737
-	.db $0819-$07A4
-	.db $0894-$0819
-	.db $0917-$0894
-	.db $09A1-$0917
-	.db $0A33-$09A1
-	.db $0ACF-$0A33
-	.db $0B73-$0ACF
-	.db $0C22-$0B73
-	.db $0CDA-$0C22
-	.db $0704*2/256,$0704*2
-	.db $076E-$0704
-	.db $07E0-$076E
-	.db $0858-$07E0
-	.db $08D6-$0858
-	.db $095C-$08D6
-	.db $09EC-$095C
-	.db $0A82-$09EC
-	.db $0B22-$0A82
-	.db $0BCC-$0B22
-	.db $0C80-$0BCC
-	.db $0D3E-$0C80
-	.db $07E0*2/256,$07E0*2
-	.db $0858-$07E0
-	.db $08E0-$0858
-	.db $0960-$08E0
-	.db $09F0-$0960
-	.db $0A88-$09F0
-	.db $0B28-$0A88
-	.db $0BD8-$0B28
-	.db $0C80-$0BD8
-	.db $0D60-$0C80
-	.db $0E10-$0D60
-	.db $0EF8-$0E10
+T_PACK:	db 0x06EC*2/256,0x06EC*2
+	db 0x0755-0x06EC
+	db 0x07C5-0x0755
+	db 0x083B-0x07C5
+	db 0x08B8-0x083B
+	db 0x093D-0x08B8
+	db 0x09CA-0x093D
+	db 0x0A5F-0x09CA
+	db 0x0AFC-0x0A5F
+	db 0x0BA4-0x0AFC
+	db 0x0C55-0x0BA4
+	db 0x0D10-0x0C55
+	db 0x066D*2/256,0x066D*2
+	db 0x06CF-0x066D
+	db 0x0737-0x06CF
+	db 0x07A4-0x0737
+	db 0x0819-0x07A4
+	db 0x0894-0x0819
+	db 0x0917-0x0894
+	db 0x09A1-0x0917
+	db 0x0A33-0x09A1
+	db 0x0ACF-0x0A33
+	db 0x0B73-0x0ACF
+	db 0x0C22-0x0B73
+	db 0x0CDA-0x0C22
+	db 0x0704*2/256,0x0704*2
+	db 0x076E-0x0704
+	db 0x07E0-0x076E
+	db 0x0858-0x07E0
+	db 0x08D6-0x0858
+	db 0x095C-0x08D6
+	db 0x09EC-0x095C
+	db 0x0A82-0x09EC
+	db 0x0B22-0x0A82
+	db 0x0BCC-0x0B22
+	db 0x0C80-0x0BCC
+	db 0x0D3E-0x0C80
+	db 0x07E0*2/256,0x07E0*2
+	db 0x0858-0x07E0
+	db 0x08E0-0x0858
+	db 0x0960-0x08E0
+	db 0x09F0-0x0960
+	db 0x0A88-0x09F0
+	db 0x0B28-0x0A88
+	db 0x0BD8-0x0B28
+	db 0x0C80-0x0BD8
+	db 0x0D60-0x0C80
+	db 0x0E10-0x0D60
+	db 0x0EF8-0x0E10
 
 ;vars from here can be stripped
 ;you can move VARS to any other address
@@ -1019,89 +1022,89 @@ VARS:
 ;ChannelsVars
 ;struc	CHNPRM
 ;reset group
-CHNPRM_PsInOr:	.equ 0	;RESB 1
-CHNPRM_PsInSm:	.equ 1	;RESB 1
-CHNPRM_CrAmSl:	.equ 2	;RESB 1
-CHNPRM_CrNsSl:	.equ 3	;RESB 1
-CHNPRM_CrEnSl:	.equ 4	;RESB 1
-CHNPRM_TSlCnt:	.equ 5	;RESB 1
-CHNPRM_CrTnSl:	.equ 6	;RESW 1
-CHNPRM_TnAcc:	.equ 8	;RESW 1
-CHNPRM_COnOff:	.equ 10	;RESB 1
+CHNPRM_PsInOr:	equ 0	;RESB 1
+CHNPRM_PsInSm:	equ 1	;RESB 1
+CHNPRM_CrAmSl:	equ 2	;RESB 1
+CHNPRM_CrNsSl:	equ 3	;RESB 1
+CHNPRM_CrEnSl:	equ 4	;RESB 1
+CHNPRM_TSlCnt:	equ 5	;RESB 1
+CHNPRM_CrTnSl:	equ 6	;RESW 1
+CHNPRM_TnAcc:	equ 8	;RESW 1
+CHNPRM_COnOff:	equ 10	;RESB 1
 ;reset group
 
-CHNPRM_OnOffD:	.equ 11	;RESB 1
+CHNPRM_OnOffD:	equ 11	;RESB 1
 
 ;IX for PTDECOD here (+12)
-CHNPRM_OffOnD:	.equ 12	;RESB 1
-CHNPRM_OrnPtr:	.equ 13	;RESW 1
-CHNPRM_SamPtr:	.equ 15	;RESW 1
-CHNPRM_NNtSkp:	.equ 17	;RESB 1
-CHNPRM_Note:	.equ 18	;RESB 1
-CHNPRM_SlToNt:	.equ 19	;RESB 1
-CHNPRM_Env_En:	.equ 20	;RESB 1
-CHNPRM_Flags:	.equ 21	;RESB 1
+CHNPRM_OffOnD:	equ 12	;RESB 1
+CHNPRM_OrnPtr:	equ 13	;RESW 1
+CHNPRM_SamPtr:	equ 15	;RESW 1
+CHNPRM_NNtSkp:	equ 17	;RESB 1
+CHNPRM_Note:	equ 18	;RESB 1
+CHNPRM_SlToNt:	equ 19	;RESB 1
+CHNPRM_Env_En:	equ 20	;RESB 1
+CHNPRM_Flags:	equ 21	;RESB 1
  ;Enabled - 0,SimpleGliss - 2
-CHNPRM_TnSlDl:	.equ 22	;RESB 1
-CHNPRM_TSlStp:	.equ 23	;RESW 1
-CHNPRM_TnDelt:	.equ 25	;RESW 1
-CHNPRM_NtSkCn:	.equ 27	;RESB 1
-CHNPRM_Volume:	.equ 28	;RESB 1
-CHNPRM_Size	.equ 29	;RESB 1
+CHNPRM_TnSlDl:	equ 22	;RESB 1
+CHNPRM_TSlStp:	equ 23	;RESW 1
+CHNPRM_TnDelt:	equ 25	;RESW 1
+CHNPRM_NtSkCn:	equ 27	;RESB 1
+CHNPRM_Volume:	equ 28	;RESB 1
+CHNPRM_Size:	equ 29	;RESB 1
 ;endstruc
 
-ChanA:	.ds CHNPRM_Size
-ChanB:	.ds CHNPRM_Size
-ChanC:	.ds CHNPRM_Size
+ChanA:	ds CHNPRM_Size
+ChanB:	ds CHNPRM_Size
+ChanC:	ds CHNPRM_Size
 
 ;struc	AR
-AR_TonA:	.equ 0	;RESW 1
-AR_TonB:	.equ 2	;RESW 1
-AR_TonC:	.equ 4	;RESW 1
-AR_Noise:	.equ 6	;RESB 1
-AR_Mixer:	.equ 7	;RESB 1
-AR_AmplA:	.equ 8	;RESB 1
-AR_AmplB:	.equ 9	;RESB 1
-AR_AmplC:	.equ 10	;RESB 1
-AR_Env:	.equ 11	;RESW 1
-AR_EnvTp:	.equ 13	;RESB 1
+AR_TonA:	equ 0	;RESW 1
+AR_TonB:	equ 2	;RESW 1
+AR_TonC:	equ 4	;RESW 1
+AR_Noise:	equ 6	;RESB 1
+AR_Mixer:	equ 7	;RESB 1
+AR_AmplA:	equ 8	;RESB 1
+AR_AmplB:	equ 9	;RESB 1
+AR_AmplC:	equ 10	;RESB 1
+AR_Env:	equ 11	;RESW 1
+AR_EnvTp:	equ 13	;RESB 1
 ;endstruc
 
 ;GlobalVars
-DelyCnt:	.db 0
-CurESld:	.dw 0
-CurEDel:	.db 0
+DelyCnt:	db 0
+CurESld:	dw 0
+CurEDel:	db 0
 Ns_Base_AddToNs:
-Ns_Base:	.db 0
-AddToNs:	.db 0
+Ns_Base:	db 0
+AddToNs:	db 0
 
 AYREGS:
 
-VT_:	.ds 256 ;CreatedVolumeTableAddress
+VT_:	ds 256 ;CreatedVolumeTableAddress
 
-EnvBase:	.equ VT_+14
+EnvBase:	equ VT_+14
 
-T1_:	.equ VT_+16 ;Tone tables data depacked here
+T1_:	equ VT_+16 ;Tone tables data depacked here
 
-T_OLD_1:	.equ T1_
-T_OLD_2:	.equ T_OLD_1+24
-T_OLD_3:	.equ T_OLD_2+24
-T_OLD_0:	.equ T_OLD_3+2
-T_NEW_0:	.equ T_OLD_0
-T_NEW_1:	.equ T_OLD_1
-T_NEW_2:	.equ T_NEW_0+24
-T_NEW_3:	.equ T_OLD_3
+T_OLD_1:	equ T1_
+T_OLD_2:	equ T_OLD_1+24
+T_OLD_3:	equ T_OLD_2+24
+T_OLD_0:	equ T_OLD_3+2
+T_NEW_0:	equ T_OLD_0
+T_NEW_1:	equ T_OLD_1
+T_NEW_2:	equ T_NEW_0+24
+T_NEW_3:	equ T_OLD_3
 
-NT_:	.ds 192 ;CreatedNoteTableAddress
+NT_:	ds 192 ;CreatedNoteTableAddress
 
 ;local var
-Ampl:	.equ AYREGS+AR_AmplC
+Ampl:	equ AYREGS+AR_AmplC
 
-VAR0END:	.equ VT_+16 ;INIT zeroes from VARS to VAR0END-1
+VAR0END:	equ VT_+16 ;INIT zeroes from VARS to VAR0END-1
 
-VARSEND: .equ $
+VARSEND: equ $
 
-MDLADDR: .equ $		;Place your song here.
+MDLADDR: equ $		;Place your song here.
 
 ;Release 0 steps:
 ;11.Sep.2004 - Note tables creator
