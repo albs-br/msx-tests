@@ -44,6 +44,7 @@
 900  END
 
 1000 ' state machine = 0 (space)
+1005 IF LB$ <> "" AND C$ <> " " THEN ER$ = "Not allowed after label" : RETURN
 1010 IF C$ = " " THEN RETURN
 1015 IF N AND TE$ = "" THEN ER$ = "Line cant start by number" : RETURN
 1020 IF T THEN S = 1 : TE$ = C$ : RETURN
@@ -71,12 +72,12 @@
 
 10000 ' check if text is a command
 10002 IF CM$ <> "" THEN TE$ = "" : RETURN ' only one command per line allowed
+10003 IF ER$ <> "" THEN RETURN
+10004 IF LB$ <> "" THEN RETURN
 
 10005 ZZ$ = TE$ : GOSUB 60000 : TE$ = ZZ$ ' ToLowerCase(TE$)
 
 10010 ' check if is a valid command
-10012 IF ER$ <> "" THEN RETURN
-10013 IF LB$ <> "" THEN RETURN
 10015 ZF = 0 ' instruction not found
 10020 FOR ZI = 0 TO 10
 10025   IF TE$ = I$(ZI) THEN ZF = 1 ' instruction found
@@ -86,6 +87,9 @@
 10050 S = 3
 10900 RETURN
 
+20000 '' check if line is valid
+20001 'IF CM$ <> "" AND LB$ <> "" THEN ER$ = "Command not allowed after label" : RETURN
+20900 'RETURN 
 
 
 60000 ' ToLowerCase()
