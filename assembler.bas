@@ -7,16 +7,18 @@
 
 80    ' test lines
 81   DATA "  LD a, 5", "ldir", "loop:", "  Loop1:  ", "ld (ix - 1),a", "LD HL,0xAbcd"
-82   DATA "MULT A,B", " 10:", "8: add h", "l1: add 10", "L7: EITA"
+82   DATA "MULT A,B", " 10:", "8: add h", "l1: add 10", "L7: EITA", ":"
 
-90   PRINT   "              CMD  LBL    PAR          |"
-100  FOR J = 0 TO 10 'number of test lines
+90   LOCATE 0, 0 : PRINT   "INPUT         CMD  LBL    PAR 1   PAR 2 "
+95   LOCATE 0, 1 : PRINT   "------------- ---- ------ ------- ------"
+100  FOR J = 0 TO 11 'number of test lines
 120    READ A$
-150    S = 0 'state machine; 0 = space; 1=text (label/command); 2=number; 3=parameters
+150    S = 0 ' state machine: 0=space; 1=text (label/command); 2=number; 3=parameter 1; 4=parameter 2
 170    TE$ = "" ' current text
 180    CM$ = "" ' command
 190    LB$ = "" ' label
-210    PA$ = "" ' parameters
+210    P1$ = "" ' parameter 1
+215    P2$ = "" ' parameter 2
 220    ER$ = "" ' error description
 250    FOR I = 1 TO LEN(A$)
 275      IF ER$ <> "" GOTO 550 ' if error end loop
@@ -24,21 +26,24 @@
 350      D = ASC(C$) ' ASCII code of current char
 360      T = (D >= 65 AND D <= 90) OR (D >= 97 AND D <= 122) ' IsChar
 370      N = (D >= 48 AND D <= 57) ' IsNumber
-400      IF S = 0 THEN GOSUB 1000     ELSE IF S = 1 THEN GOSUB 2000     ELSE IF S = 2 THEN GOSUB 3000     ELSE IF S = 3 THEN GOSUB 4000
+400      IF S = 0 THEN GOSUB 1000     ELSE IF S = 1 THEN GOSUB 2000     ELSE IF S = 2 THEN GOSUB 3000     ELSE IF S = 3 THEN GOSUB 4000     ELSE IF S = 4 THEN GOSUB 5000
 450      'PRINT C$, S 'debug
 490    NEXT I
+
 500    GOSUB 10000
-506    'ZZ$ = CM$ : GOSUB 60000 : CM$ = ZZ$ ' ToLowerCase(CM$)
+502    'GOSUB 20000
+504    ZZ$ = P1$ : GOSUB 60000 : P1$ = ZZ$ ' ToLowerCase(P1$)
+505    ZZ$ = P2$ : GOSUB 60000 : P2$ = ZZ$ ' ToLowerCase(P2$)
 
 508	   IF ER$ <> "" THEN 550
 
 509    ' print valid line
-510    LOCATE 0, J+1 : PRINT A$ : LOCATE 14, J+1 : PRINT CM$ : LOCATE 19, J+1 : PRINT LB$
-514    LOCATE 26, J+1 : PRINT PA$
+510    LOCATE 0, J+2 : PRINT A$ : LOCATE 14, J+2 : PRINT CM$ : LOCATE 19, J+2 : PRINT LB$
+514    LOCATE 26, J+2 : PRINT P1$ : LOCATE 34, J+2 : PRINT P2$
 515    GOTO 890 ' end loop
 
 550	   ' print error description
-560    LOCATE 0, J+1 : PRINT A$ : LOCATE 14, J+1 : PRINT ER$
+560    LOCATE 0, J+2 : PRINT A$ : LOCATE 14, J+2 : PRINT ER$
 
 890  NEXT J
 900  END
@@ -64,11 +69,14 @@
 3030 IF N THEN RETURN
 3900 RETURN
 
-4000 ' state machine = 3 (parameters)
-4010 IF C$ <> " " THEN PA$ = PA$ + C$ : RETURN
+4000 ' state machine = 3 (parameter 1)
+4005 IF C$ = "," THEN S = 4 : RETURN
+4010 IF C$ <> " " THEN P1$ = P1$ + C$ : RETURN
 4900 RETURN
 
-
+5000 ' state machine = 4 (parameter 2)
+5010 IF C$ <> " " THEN P2$ = P2$ + C$ : RETURN
+5900 RETURN
 
 10000 ' check if text is a command
 10002 IF CM$ <> "" THEN TE$ = "" : RETURN ' only one command per line allowed
