@@ -28,11 +28,16 @@
 100  DATA "add (hl)",      "86"
 101  DATA "NOP",           "00"
 102  DATA "XOR 7",         "EE 7"
+103  DATA "XOR H",         "AC"
+104  DATA " xor 0x10",     "EE 10"
+105  DATA "XOR  (HL)",     "AE"
+106  DATA "add 0x1234",    ""
 
 110  GOSUB 50000 : ' print header
 
-115  FOR K = 0 TO 21 'number of test lines
-117    IF K>20 THEN LOCATE 0, 23 : INPUT "Press enter to continue";A : J = K-21 : CLS : GOSUB 50000 ELSE J = K ' J = variable for LOCATE of PRINTS
+115  FOR K = 0 TO 25 'number of test lines
+117    IF K=21 THEN LOCATE 0, 23 : INPUT "Press enter to continue";A : CLS : GOSUB 50000 ' J = variable for LOCATE of PRINTS
+118    IF K>20 THEN J = K-21 ELSE J = K 
 
 120    READ A$ : READ RE$ ' read test line / expected result
 
