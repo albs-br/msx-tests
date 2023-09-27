@@ -6,30 +6,37 @@
 13   DATA "ldir"
 
 80    ' test lines
-81   DATA "  LD a, 5", "ldir",  "loop:",    "  Loop1:  ", "ld (ix - 1),a", "LD HL,0xAbcd"
-82   DATA "MULT A,B",  " 10:",  "8: add h", "l1: add 10", "L7: EITA",      ":"
-83   DATA "ADD 120",   "add A", "add d",    "NOP"
+81   DATA "  LD a, 5", "ldir",     "loop:",    "  Loop1:  ", "ld (ix - 1),a", "LD HL,0xAbcd"
+82   DATA "MULT A,B",  " 10:",     "8: add h", "l1: add 10", "L7: EITA",      ":"
+83   DATA "ADD 120",   "add 0x1f", "add 0x0Z", "add A", "add    d",    "NOP"
 
 90   LOCATE 0, 0 : PRINT   "INPUT         CMD  LBL    PAR 1   PAR 2  OUTPUT"
 95   LOCATE 0, 1 : PRINT   "------------- ---- ------ ------- ------ -----------"
-100  FOR J = 0 TO 15 'number of test lines
+100  FOR J = 0 TO 17 'number of test lines
 120    READ A$
 150    S = 0 ' state machine: 0=space; 1=text (label/command); 2=number; 3=parameter 1; 4=parameter 2
 170    TE$ = "" ' current text
 180    CM$ = "" ' command
 190    LB$ = "" ' label
 210    P1$ = "" ' parameter 1
+
 211    T1 = 0 ' parameter 1 IsText 
 212    N1 = 0 ' parameter 1 IsNumber
+213    H1 = 0 ' parameter 1 IsHexadecimalNumber
+ 
 215    P2$ = "" ' parameter 2
 217    OU$ = "" ' output
 220    ER$ = "" ' error description
 250    FOR I = 1 TO LEN(A$)
 275      IF ER$ <> "" GOTO 550 ' if error end loop
+
+
+
 300	     C$ = MID$(A$, I, 1) ' Current char
 350      D = ASC(C$) ' ASCII code of current char
 360      T = (D >= 65 AND D <= 90) OR (D >= 97 AND D <= 122) ' IsChar
-370      N = (D >= 48 AND D <= 57) ' IsNumber
+370      N = (D >= 48 AND D <= 57) ' IsDecimalChar
+380      H = N OR ((D >= 97 AND D <= 102) OR (D >= 65 AND D <= 70)) ' IsHexadecimalChar
 400      IF S = 0 THEN GOSUB 1000     ELSE IF S = 1 THEN GOSUB 2000     ELSE IF S = 2 THEN GOSUB 3000     ELSE IF S = 3 THEN GOSUB 4000     ELSE IF S = 4 THEN GOSUB 5000
 450      'PRINT C$, S 'debug
 490    NEXT I
@@ -42,6 +49,8 @@
 508	   IF ER$ <> "" THEN 550
 
 520    GOSUB 30000 ' decode instructions
+
+530    IF ER$ <> "" THEN 550
 
 539    ' print valid line
 540    LOCATE 0, J+2 : PRINT A$ : LOCATE 14, J+2 : PRINT CM$ : LOCATE 19, J+2 : PRINT LB$
@@ -77,9 +86,13 @@
 
 4000 ' state machine = 3 (parameter 1)
 4005 IF C$ = "," THEN S = 4 : RETURN
-4007 IF N AND N1 = 0 THEN N1 = 1 : P1$ = P1$ + C$ : RETURN ' parameter started by number
-4008 IF T AND T1 = 0 THEN T1 = 1 : P1$ = P1$ + C$ : RETURN ' parameter started by text
-4010 IF C$ <> " " THEN P1$ = P1$ + C$ : RETURN
+4007 IF H1 AND H THEN P1$ = P1$ + C$ : RETURN ' deal with parameter as hexadecimal number
+4008 IF H1 AND NOT H THEN ER$ = "Parameter invalid" : RETURN ' error with parameter as hexadecimal number 
+4010 IF N AND N1 = 0 AND T1 = 0 THEN N1 = -1 : P1$ = P1$ + C$ : RETURN ' parameter started by number
+4020 IF T AND N1 = 0 AND T1 = 0 THEN T1 = -1 : P1$ = P1$ + C$ : RETURN ' parameter started by text
+4030 IF N1 AND P1$ = "0" AND C$ = "x" THEN H1 = -1 : N1 = 0 : P1$ = P1$ + "x" : RETURN ' set parameter as hexadecimal number
+4040 IF N1 AND N THEN P1$ = P1$ + C$ : RETURN ' decimal number
+4100 IF C$ <> " " THEN P1$ = P1$ + C$ : RETURN
 4900 RETURN
 
 5000 ' state machine = 4 (parameter 2)
@@ -96,7 +109,7 @@
 10010 ' check if is a valid command
 10015 ZF = 0 ' instruction not found
 10020 FOR ZI = 0 TO 10
-10025   IF TE$ = I$(ZI) THEN ZF = 1 ' instruction found
+10025   IF TE$ = I$(ZI) THEN ZF = -1 ' instruction found
 10030 NEXT ZI
 10035 IF ZF = 0 THEN ER$ = "Invalid instruction" : RETURN
 10040 CM$ = TE$ : TE$ = ""
@@ -120,9 +133,12 @@
 31900 RETURN
 
 32000 ' decode instructions with 1 parameter
-32005 IF T1 = 1 THEN ZZ$ = P1$ : GOSUB 40000 : R1 = ZO ' convert register to value
-32010 IF CM$ = "add"  AND N1 = 1 THEN OU$ = "C6 " + HEX$(VAL(P1$)) : RETURN    ' add n
-32020 IF CM$ = "add"  AND T1 = 1 THEN OU$ = HEX$(&h80 + R1) : RETURN           ' add r
+32005 IF T1 THEN ZZ$ = P1$ : GOSUB 40000 : R1 = ZO ' convert 8-bit register to value
+32007 IF H1 THEN O1$ = HEX$(VAL("&H" + RIGHT$(P1$, 2))) ' hexadecimal value
+32008 IF N1 THEN O1$ = HEX$(VAL(P1$))                   ' decimal value
+
+32010 IF CM$ = "add"  AND (N1 OR H1) THEN OU$ = "C6 " + O1$ : RETURN     ' add n
+32020 IF CM$ = "add"  AND T1 THEN OU$ = HEX$(&h80 + R1) : RETURN         ' add r
 32900 RETURN
 
 
@@ -131,7 +147,7 @@
 
 
 
-40000 ' convert register to value
+40000 ' convert 8-bit register to value
 40010 ' Input: ZZ$, Output: ZO
 40020 IF ZZ$ = "a" THEN ZO = 7 : RETURN
 40030 IF ZZ$ = "b" THEN ZO = 0 : RETURN
