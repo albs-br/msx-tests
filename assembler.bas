@@ -1,19 +1,40 @@
 1    COLOR 15, 1, 7 : SCREEN 0 : WIDTH 80 : KEYOFF : DEFINT A-Z
 
-10   ' instructions
+10   ' allowed instructions
 11 	 DIM I$(10) : FOR I = 0 TO 10 : READ I$(I) : NEXT I
 12   DATA "nop", "ld", "add", "adc", "sub", "sbc", "and", "or", "xor", "cp"
 13   DATA "ldir"
 
-80    ' test lines
-81   DATA "  LD a, 5", "ldir",     "loop:",    "  Loop1:  ", "ld (ix - 1),a", "LD HL,0xAbcd"
-82   DATA "MULT A,B",  " 10:",     "8: add h", "l1: add 10", "L7: EITA",      ":"
-83   DATA "ADD 120",   "add 0x1f", "add 0x0Z", "add A", "add    d",    "NOP"
+80   ' test lines / expected results
+81   DATA "  LD a, 5",     "3E 05"
+82   DATA "ldir",          "ED B0"
+83   DATA "loop:",         "TODO: test labels"
+84   DATA "  Loop1:  ",    "TODO: test labels"
+85   DATA "ld (ix - 1),a", "DD 77 FF"
+86   DATA "LD HL,0xAbcd",  "21 CD AB"
+87   DATA "MULT A,B",      "Invalid instruction"
+88   DATA " 10:",          "Line cant start by number"
+89   DATA "8: add h",      "Line cant start by number"
+90   DATA "l1: add 10",    "Not allowed after label"
+91   DATA "L7: EITA",      "Not allowed after label"
+92   DATA ":",             "Invalid instruction"
+93   DATA "ADD 120",       "C6 78"
+94   DATA "ADD 0xa",       "C6 A"
+95   DATA " add 0x1",      "C6 1"
+96   DATA "add 0x1f",      "C6 1F"
+97   DATA "add 0x0Z",      "Parameter invalid"
+98   DATA " adD A",        "87"
+99   DATA "add    d",      "82"
+100  DATA "add (hl)",      "86"
+101  DATA "NOP",           "00"
+102  'DATA "XOR 7",         "EE 7"
 
-90   LOCATE 0, 0 : PRINT   "INPUT         CMD  LBL    PAR 1   PAR 2  OUTPUT"
-95   LOCATE 0, 1 : PRINT   "------------- ---- ------ ------- ------ -----------"
-100  FOR J = 0 TO 17 'number of test lines
-120    READ A$
+
+110  LOCATE 0, 0 : PRINT   "INPUT         CMD  LBL    PAR 1   PAR 2  OUTPUT      PASSED"
+111  LOCATE 0, 1 : PRINT   "------------- ---- ------ ------- ------ ----------- ------"
+115  FOR J = 0 TO 20 'number of test lines
+120    READ A$ : READ RE$ ' read test line / expected result
+
 150    S = 0 ' state machine: 0=space; 1=text (label/command); 2=number; 3=parameter 1; 4=parameter 2
 170    TE$ = "" ' current text
 180    CM$ = "" ' command
@@ -55,11 +76,14 @@
 539    ' print valid line
 540    LOCATE 0, J+2 : PRINT A$ : LOCATE 14, J+2 : PRINT CM$ : LOCATE 19, J+2 : PRINT LB$
 544    LOCATE 26, J+2 : PRINT P1$ : LOCATE 34, J+2 : PRINT P2$ : LOCATE 41, J+2 : PRINT OU$
-545    GOTO 890 ' end loop
+545    LOCATE 53, J+2 : IF OU$ = RE$ THEN PRINT "OK" ELSE PRINT "-" ' print test passed/failed
+546    GOTO 800 ' next loop iteration
 
 550	   ' print error description
 560    LOCATE 0, J+2 : PRINT A$ : LOCATE 14, J+2 : PRINT ER$
+570    LOCATE 53, J+2 : IF ER$ = RE$ THEN PRINT "OK" ELSE PRINT "-" ' print test passed/failed
 
+800    ' next loop iteration
 890  NEXT J
 900  END
 
@@ -134,11 +158,23 @@
 
 32000 ' decode instructions with 1 parameter
 32005 IF T1 THEN ZZ$ = P1$ : GOSUB 40000 : R1 = ZO ' convert 8-bit register to value
-32007 IF H1 THEN O1$ = HEX$(VAL("&H" + RIGHT$(P1$, 2))) ' hexadecimal value
+32007 IF H1 THEN O1$ = HEX$(VAL("&H" + RIGHT$(P1$, LEN(P1$)-2))) ' hexadecimal value
 32008 IF N1 THEN O1$ = HEX$(VAL(P1$))                   ' decimal value
 
-32010 IF CM$ = "add"  AND (N1 OR H1) THEN OU$ = "C6 " + O1$ : RETURN     ' add n
-32020 IF CM$ = "add"  AND T1 THEN OU$ = HEX$(&h80 + R1) : RETURN         ' add r
+32100 IF CM$ = "add" THEN 32110 ELSE 32200
+32110 IF P1$ = "(hl)" THEN OU$ = "86" : RETURN            ' add (hl)
+32120 IF N1 OR H1     THEN OU$ = "C6 " + O1$ : RETURN     ' add n
+32130 IF T1           THEN OU$ = HEX$(&h80 + R1) : RETURN ' add r
+32190 RETURN
+
+32200 IF CM$ = "xor" THEN 32210 ELSE 32300
+32210 IF P1$ = "(hl)" THEN OU$ = "AE" : RETURN            ' xor (hl)
+32220 IF N1 OR H1     THEN OU$ = "EE " + O1$ : RETURN     ' xor n
+32230 IF T1           THEN OU$ = HEX$(&hA8 + R1) : RETURN ' xor r
+32290 RETURN
+
+32300 'TODO: next instruction
+
 32900 RETURN
 
 
