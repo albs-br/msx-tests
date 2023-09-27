@@ -1,4 +1,4 @@
-1    COLOR 15, 1, 7 : SCREEN 0 : WIDTH 40 : KEYOFF : DEFINT A-Z
+1    COLOR 15, 1, 7 : SCREEN 0 : WIDTH 80 : KEYOFF : DEFINT A-Z
 
 10   ' instructions
 11 	 DIM I$(10) : FOR I = 0 TO 10 : READ I$(I) : NEXT I
@@ -6,19 +6,23 @@
 13   DATA "ldir"
 
 80    ' test lines
-81   DATA "  LD a, 5", "ldir", "loop:", "  Loop1:  ", "ld (ix - 1),a", "LD HL,0xAbcd"
-82   DATA "MULT A,B", " 10:", "8: add h", "l1: add 10", "L7: EITA", ":"
+81   DATA "  LD a, 5", "ldir",  "loop:",    "  Loop1:  ", "ld (ix - 1),a", "LD HL,0xAbcd"
+82   DATA "MULT A,B",  " 10:",  "8: add h", "l1: add 10", "L7: EITA",      ":"
+83   DATA "ADD 120",   "add A", "add d",    "NOP"
 
-90   LOCATE 0, 0 : PRINT   "INPUT         CMD  LBL    PAR 1   PAR 2 "
-95   LOCATE 0, 1 : PRINT   "------------- ---- ------ ------- ------"
-100  FOR J = 0 TO 11 'number of test lines
+90   LOCATE 0, 0 : PRINT   "INPUT         CMD  LBL    PAR 1   PAR 2  OUTPUT"
+95   LOCATE 0, 1 : PRINT   "------------- ---- ------ ------- ------ -----------"
+100  FOR J = 0 TO 15 'number of test lines
 120    READ A$
 150    S = 0 ' state machine: 0=space; 1=text (label/command); 2=number; 3=parameter 1; 4=parameter 2
 170    TE$ = "" ' current text
 180    CM$ = "" ' command
 190    LB$ = "" ' label
 210    P1$ = "" ' parameter 1
+211    T1 = 0 ' parameter 1 IsText 
+212    N1 = 0 ' parameter 1 IsNumber
 215    P2$ = "" ' parameter 2
+217    OU$ = "" ' output
 220    ER$ = "" ' error description
 250    FOR I = 1 TO LEN(A$)
 275      IF ER$ <> "" GOTO 550 ' if error end loop
@@ -37,10 +41,12 @@
 
 508	   IF ER$ <> "" THEN 550
 
-509    ' print valid line
-510    LOCATE 0, J+2 : PRINT A$ : LOCATE 14, J+2 : PRINT CM$ : LOCATE 19, J+2 : PRINT LB$
-514    LOCATE 26, J+2 : PRINT P1$ : LOCATE 34, J+2 : PRINT P2$
-515    GOTO 890 ' end loop
+520    GOSUB 30000 ' decode instructions
+
+539    ' print valid line
+540    LOCATE 0, J+2 : PRINT A$ : LOCATE 14, J+2 : PRINT CM$ : LOCATE 19, J+2 : PRINT LB$
+544    LOCATE 26, J+2 : PRINT P1$ : LOCATE 34, J+2 : PRINT P2$ : LOCATE 41, J+2 : PRINT OU$
+545    GOTO 890 ' end loop
 
 550	   ' print error description
 560    LOCATE 0, J+2 : PRINT A$ : LOCATE 14, J+2 : PRINT ER$
@@ -71,6 +77,8 @@
 
 4000 ' state machine = 3 (parameter 1)
 4005 IF C$ = "," THEN S = 4 : RETURN
+4007 IF N AND N1 = 0 THEN N1 = 1 : P1$ = P1$ + C$ : RETURN ' parameter started by number
+4008 IF T AND T1 = 0 THEN T1 = 1 : P1$ = P1$ + C$ : RETURN ' parameter started by text
 4010 IF C$ <> " " THEN P1$ = P1$ + C$ : RETURN
 4900 RETURN
 
@@ -98,6 +106,42 @@
 20000 '' check if line is valid
 20001 'IF CM$ <> "" AND LB$ <> "" THEN ER$ = "Command not allowed after label" : RETURN
 20900 'RETURN 
+
+
+
+30000 ' decode instructions
+30110 IF CM$ <> "" AND P1$ = "" AND P2$ = "" THEN 31000 ' decode instructions without parameters
+30120 IF CM$ <> "" AND P1$ <> "" AND P2$ = "" THEN 32000 ' decode instructions with 1 parameter
+30900 RETURN
+
+31000 ' decode instructions without parameters
+31010 IF CM$ = "nop"  THEN OU$ = "00" : RETURN
+31020 IF CM$ = "ldir" THEN OU$ = "ED B0" : RETURN
+31900 RETURN
+
+32000 ' decode instructions with 1 parameter
+32005 IF T1 = 1 THEN ZZ$ = P1$ : GOSUB 40000 : R1 = ZO ' convert register to value
+32010 IF CM$ = "add"  AND N1 = 1 THEN OU$ = "C6 " + HEX$(VAL(P1$)) : RETURN    ' add n
+32020 IF CM$ = "add"  AND T1 = 1 THEN OU$ = HEX$(&h80 + R1) : RETURN           ' add r
+32900 RETURN
+
+
+39000 ' ---------- FUNCTIONS ---------
+39001 ' function variables always started by Z (DO NOT use such variables outside of functions)
+
+
+
+40000 ' convert register to value
+40010 ' Input: ZZ$, Output: ZO
+40020 IF ZZ$ = "a" THEN ZO = 7 : RETURN
+40030 IF ZZ$ = "b" THEN ZO = 0 : RETURN
+40040 IF ZZ$ = "c" THEN ZO = 1 : RETURN
+40050 IF ZZ$ = "d" THEN ZO = 2 : RETURN
+40060 IF ZZ$ = "e" THEN ZO = 3 : RETURN
+40070 IF ZZ$ = "h" THEN ZO = 4 : RETURN
+40080 IF ZZ$ = "l" THEN ZO = 5 : RETURN
+40900 RETURN
+
 
 
 60000 ' ToLowerCase()
