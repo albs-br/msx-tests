@@ -27,12 +27,13 @@
 99   DATA "add    d",      "82"
 100  DATA "add (hl)",      "86"
 101  DATA "NOP",           "00"
-102  'DATA "XOR 7",         "EE 7"
+102  DATA "XOR 7",         "EE 7"
 
+110  GOSUB 50000 : ' print header
 
-110  LOCATE 0, 0 : PRINT   "INPUT         CMD  LBL    PAR 1   PAR 2  OUTPUT      PASSED"
-111  LOCATE 0, 1 : PRINT   "------------- ---- ------ ------- ------ ----------- ------"
-115  FOR J = 0 TO 20 'number of test lines
+115  FOR K = 0 TO 21 'number of test lines
+117    IF K>20 THEN LOCATE 0, 23 : INPUT "Press enter to continue";A : J = K-21 : CLS : GOSUB 50000 ELSE J = K ' J = variable for LOCATE of PRINTS
+
 120    READ A$ : READ RE$ ' read test line / expected result
 
 150    S = 0 ' state machine: 0=space; 1=text (label/command); 2=number; 3=parameter 1; 4=parameter 2
@@ -84,7 +85,7 @@
 570    LOCATE 53, J+2 : IF ER$ = RE$ THEN PRINT "OK" ELSE PRINT "-" ' print test passed/failed
 
 800    ' next loop iteration
-890  NEXT J
+890  NEXT K
 900  END
 
 1000 ' state machine = 0 (space)
@@ -194,6 +195,11 @@
 40080 IF ZZ$ = "l" THEN ZO = 5 : RETURN
 40900 RETURN
 
+
+50000 ' print header
+50010 LOCATE 0, 0 : PRINT   "INPUT         CMD  LBL    PAR 1   PAR 2  OUTPUT      PASSED"
+50020 LOCATE 0, 1 : PRINT   "------------- ---- ------ ------- ------ ----------- ------"
+50900 RETURN
 
 
 60000 ' ToLowerCase()
