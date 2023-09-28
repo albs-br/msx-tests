@@ -1,9 +1,11 @@
 1    COLOR 15, 1, 7 : SCREEN 0 : WIDTH 80 : KEYOFF : DEFINT A-Z
 
 10   ' allowed instructions
-11 	 DIM I$(10) : FOR I = 0 TO 10 : READ I$(I) : NEXT I
+11 	 DIM I$(11) : FOR I = 0 TO 11 : READ I$(I) : NEXT I
 12   DATA "nop", "ld", "add", "adc", "sub", "sbc", "and", "or", "xor", "cp"
 13   DATA "ldir"
+14   DATA "jp" 
+
 
 80   ' test lines / expected results
 81   DATA "  LD a, 5",     "3E 05"
@@ -31,11 +33,13 @@
 103  DATA "XOR H",         "AC"
 104  DATA " xor 0x10",     "EE 10"
 105  DATA "XOR  (HL)",     "AE"
-106  DATA "add 0x1234",    ""
+106  DATA "jp 0x1234",     "C3 34 12"
+107  DATA "jp 0xF0",       "C3 F0 00"
+108  DATA "jp    255",     "C3 FF 00"
 
 110  GOSUB 50000 : ' print header
 
-115  FOR K = 0 TO 25 'number of test lines
+115  FOR K = 0 TO 27 'number of test lines
 117    IF K=21 THEN LOCATE 0, 23 : INPUT "Press enter to continue";A : CLS : GOSUB 50000 ' J = variable for LOCATE of PRINTS
 118    IF K>20 THEN J = K-21 ELSE J = K 
 
@@ -45,15 +49,21 @@
 170    TE$ = "" ' current text
 180    CM$ = "" ' command
 190    LB$ = "" ' label
-210    P1$ = "" ' parameter 1
 
-211    T1 = 0 ' parameter 1 IsText 
-212    N1 = 0 ' parameter 1 IsNumber
-213    H1 = 0 ' parameter 1 IsHexadecimalNumber
+210    P1$ = "" ' parameter 1
+211    T1 = 0   ' parameter 1 IsText 
+212    N1 = 0   ' parameter 1 IsNumber
+213    H1 = 0   ' parameter 1 IsHexadecimalNumber
+214    O1$ = "" ' parameter 1 output
+216    W1$ = "" ' parameter 1 output (word)
  
-215    P2$ = "" ' parameter 2
-217    OU$ = "" ' output
-220    ER$ = "" ' error description
+214    ' TODO: init all vars here
+
+230    P2$ = "" ' parameter 2
+
+245    OU$ = "" ' output
+247    ER$ = "" ' error description
+
 250    FOR I = 1 TO LEN(A$)
 275      IF ER$ <> "" GOTO 550 ' if error end loop
 
@@ -138,7 +148,7 @@
 
 10010 ' check if is a valid command
 10015 ZF = 0 ' instruction not found
-10020 FOR ZI = 0 TO 10
+10020 FOR ZI = 0 TO 11
 10025   IF TE$ = I$(ZI) THEN ZF = -1 ' instruction found
 10030 NEXT ZI
 10035 IF ZF = 0 THEN ER$ = "Invalid instruction" : RETURN
@@ -163,9 +173,11 @@
 31900 RETURN
 
 32000 ' decode instructions with 1 parameter
-32005 IF T1 THEN ZZ$ = P1$ : GOSUB 40000 : R1 = ZO ' convert 8-bit register to value
-32007 IF H1 THEN O1$ = HEX$(VAL("&H" + RIGHT$(P1$, LEN(P1$)-2))) ' hexadecimal value
-32008 IF N1 THEN O1$ = HEX$(VAL(P1$))                   ' decimal value
+32010 IF T1 THEN ZZ$ = P1$ : GOSUB 40000 : R1 = ZO ' convert 8-bit register to value
+32020 IF H1 THEN O1$ = HEX$(VAL("&H" + RIGHT$(P1$, LEN(P1$)-2))) ' hexadecimal value (8 bit)
+32030 IF H1 AND LEN(P1$) = 6 THEN W1$ = MID$(P1$, 5, 2) + " " + MID$(P1$, 3, 2)' hexadecimal value (16 bits) with both high and low bytes
+32035 IF H1 AND LEN(P1$) = 4 THEN W1$ = MID$(P1$, 3, 2) + " 00" ' hexadecimal value (16 bits) with only low byte
+32040 IF N1 THEN O1$ = HEX$(VAL(P1$)) : W1$ = O1$ + " 00"       ' decimal value
 
 32100 IF CM$ = "add" THEN 32110 ELSE 32200
 32110 IF P1$ = "(hl)" THEN OU$ = "86" : RETURN            ' add (hl)
@@ -179,7 +191,14 @@
 32230 IF T1           THEN OU$ = HEX$(&hA8 + R1) : RETURN ' xor r
 32290 RETURN
 
-32300 'TODO: next instruction
+32300 IF CM$ = "jp" THEN 32310 ELSE 32400
+32310 IF P1$ = "(hl)" THEN OU$ = "E9" : RETURN            ' jp (hl)
+32320 IF N1 OR H1     THEN OU$ = "C3 " + W1$ : RETURN     ' jp n
+32330 'IF T1           THEN OU$ = HEX$(&hA8 + R1) : RETURN ' xor r
+32390 RETURN
+
+
+32400 'next instruction
 
 32900 RETURN
 
