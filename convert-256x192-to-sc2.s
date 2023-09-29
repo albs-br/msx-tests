@@ -1,12 +1,57 @@
 ; some untested code for ploting pixels on screen 2/4 converting from 
 ; x, y pixels (256x192) to cols, lines (32x192)
 
-    ; convert y (L register) in pixels (0-191) to cols (0-23)
-    srl     l   ; shift right register
-    srl     l
-    srl     l
 
-    sla     l   ; shift left register
+; Inputs: H = x (0-255), L = y (0-191)
+; Outputs: 
+;   DE = PATTBL address offset
+;   A = bit pattern
+Convert_XY_to_Addr:
+
+    ; TODO: 3 low bits of Y should be converted to pattern:
+    ; 000 = 1000 0000
+    ; 001 = 0100 0000
+    ; 010 = 0010 0000
+    ; ...
+    ; 111 = 0000 0001
+
+    ; convert y (L register) in pixels (0-191) to PATTBL addr
+    ld      a, h
+
+    sla     l   ; shift left register, 0 --> bit 0, bit 7 --> carry
+    rla         ; rotate left A, carry --> bit 0, bit 7 --> carry
+    sla     l
+    rla
+    sla     l
+    rla
+    sla     l
+    rla
+    sla     l
+    rla
+
+    ld      a, d
+
+    
+    
+    ; convert x
+    srl     h   ; shift right, 0 --> bit 7, bit 0 --> carry
+    srl     h
+    srl     h
+
+
+    ; E = H or L
+    ld      a, l
+    or      h
+    ld      e, a
+
+
+
+    ret
+
+
+
+
+
 
 
     ; ld      hl, LOOKUP_TABLE_NAMTBL_BUFFER_LINES
