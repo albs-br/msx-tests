@@ -14,15 +14,26 @@ PageSize:	    equ	0x4000	        ; 16kB
 ; INCLUDES from msxlib:
 	include	"include/msxlib/asm.asm"
 
+; -----------------------------------------------------------------------------
 
+; Automatically reads the keyboard
+	; CFG_HOOK_ENABLE_AUTO_KEYBOARD:
 
 ; -----------------------------------------------------------------------------
 
 SONG_TABLE:
 	dw	.PT3_Music_sample
-	; dw	.empty
+	dw	.ShuffleOne
+	dw	.YouWin1
+	dw	.empty
 .PT3_Music_sample:
     INCBIN "Sound/StayorGo.pt3", 100
+.ShuffleOne:
+	incbin	"Sound/RUN23_ShuffleOne.pt3"
+.YouWin1:
+	incbin	"Sound/RUN23_YouWin1.pt3"
+.empty:
+	incbin	"Sound/empty.pt3"
 ; .empty:
 ; 	incbin	"games/minigames/run23/music/empty.pt3.hl.zx0"
 
@@ -40,10 +51,10 @@ SOUND_BANK:
 ; Replayer routines
 
 ; Define to enable packed songs when using the PT3-based implementation
-	CFG_PT3_PACKED:
+	; CFG_PT3_PACKED:
 
 ; Define to use headerless PT3 files (without first 100 bytes)
-	CFG_PT3_HEADERLESS:
+	; CFG_PT3_HEADERLESS:
 
 ; PT3-based implementation
 	include	"include/replayer_pt3.asm"
@@ -61,7 +72,8 @@ SOUND_BANK:
 
 
 ; ; Starts the music
-; 	xor	a
+; 	; xor	a
+;     ld      a, 1
 ; 	call	REPLAYER.PLAY
 
 
@@ -96,7 +108,7 @@ Execute:
     jp      z, .waitVBlank
 
 ; Invokes the replayer
-IFEXIST REPLAYER.FRAME
+; IFEXIST REPLAYER.FRAME
 ; Invokes the replayer (with frameskip in 60Hz machines)
 	ld	a, 5 ;6 ; [frames_per_tenth]
 	cp	5
@@ -116,9 +128,13 @@ IFEXIST REPLAYER.FRAME
 ; Executes a frame of the replayer
 	call	REPLAYER.FRAME
 .FRAMESKIP:
-ENDIF ; REPLAYER.FRAME
+; ENDIF ; REPLAYER.FRAME
 
     ; call    BIOS_BEEP
+
+
+    ld      hl, Debug_Message
+    call    PrintString
 
     jp      .loop
 
@@ -132,7 +148,7 @@ PrintString:
     jr      PrintString
 
 Debug_Message:
-    db      "Test message", 0
+    db      "Test message", 13, 10, 0
 
     db      "End ROM started at 0x4000"
 
