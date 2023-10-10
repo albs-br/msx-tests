@@ -14,6 +14,9 @@ Convert_XY_to_Addr:
     ; 010 = 0010 0000
     ; ...
     ; 111 = 0000 0001
+    ld      h, LOOKUP_TABLE_BITS >> 8
+    ld      l, nnn ; n = value (0-7)
+    ld      a, (hl)
 
     ; convert y (L register) in pixels (0-191) to PATTBL addr
     ld      a, h
@@ -89,3 +92,10 @@ LOOKUP_TABLE_NAMTBL_BUFFER_LINES: ; must be table aligned
     dw      NAMTBL_BUFFER + (32 * 3)
     ; TODO ...
 
+
+LOOKUP_TABLE_BITS:
+    db      1000 0000 b ; 0
+    db      0100 0000 b ; 1
+    db      0010 0000 b ; 2
+    ; ...
+    db      0000 0001 b ; 7

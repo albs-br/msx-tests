@@ -116,8 +116,9 @@ Execute:
     ld      a, (BIOS_JIFFY)
     ld      ixl, a
 
-    ; MAX: 15 lines in one frame
-    ld      b, 15      ; number of repetitions
+    ; MAX: 15 lines of 128 x 128 in one frame
+    ; MAX: 9 lines of 255 x 128 in one frame
+    ld      b, 9      ; number of repetitions
 .loop:
     ; test LINE
     ld      hl, LINE_Parameters
@@ -129,7 +130,7 @@ Execute:
     ; check if it took more than one frame
     ld      a, (BIOS_JIFFY)
     cp      ixl
-    jp      z, .doBeeps
+    jp      z, .doBeeps ; if(a == ixl) doBeeps
 
     jp      $
 
@@ -199,7 +200,7 @@ LMMM_Parameters_size: equ $ - LMMM_Parameters
 LINE_Parameters:
 .Start_X:    dw    0      ; Starting point X (9 bits)
 .Start_Y:    dw    0      ; Starting point Y (10 bits)
-.Cols:       dw  128      ; number of cols (9 bits)
+.Cols:       dw  255      ; number of cols (9 bits)
 .Lines:      dw  128      ; number of lines (10 bits)
 .Color:      db   15      ; 4 bits (G4, G5), 2 bits (G6), 8 bits (G7)
 .Options:    db    0      ; select destination memory and direction from base coordinate
