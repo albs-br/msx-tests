@@ -154,9 +154,9 @@ SpritePattern_0_and_1:
     ; INCLUDE "Images/font_char_0_patterns.s"
     ; INCBIN "Images/enemy_plane_turning_0.pat"
     ; INCLUDE "Images/item_bomb_0_patterns.s"
-    INCBIN "Images/enemy_chopper_0_bottom_left.pat"
-    INCBIN "Images/enemy_chopper_0_bottom_right.pat"
-    INCBIN "Images/enemy_chopper_0_top_left.pat"
+    INCBIN "Images/enemy_chopper_1_bottom_left.pat"
+    INCBIN "Images/enemy_chopper_1_bottom_right.pat"
+    INCBIN "Images/enemy_chopper_1_top_left.pat"
 .size:  equ $ - SpritePattern_0_and_1
 
 ; SpritePattern_2_and_3:
@@ -180,9 +180,9 @@ SpriteColors_1:
     ; INCLUDE "Images/font_char_0_colors.s"
     ; INCBIN "Images/enemy_plane_turning_0.col"
     ; INCLUDE "Images/item_bomb_0_colors.s"
-    INCBIN "Images/enemy_chopper_0_bottom_left.col"
-    INCBIN "Images/enemy_chopper_0_bottom_right.col"
-    INCBIN "Images/enemy_chopper_0_top_left.col"
+    INCBIN "Images/enemy_chopper_1_bottom_left.col"
+    INCBIN "Images/enemy_chopper_1_bottom_right.col"
+    INCBIN "Images/enemy_chopper_1_top_left.col"
 .size:  equ $ - SpriteColors_1
 
 ; SpriteColors_2:

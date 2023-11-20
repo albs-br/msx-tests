@@ -80,12 +80,12 @@ NAMTBL:     equ 0x00000
 
 ; Original data
 ImageData:
-    INCBIN "Images/level1_0.sra.new.first8kb"
+    INCBIN "Images/level1_0.sra.new.first8kb" ; 8 kb
 .size:      equ $ - ImageData
 
 ; Compressed data
 ZX0_ImageData:
-    INCBIN "Images/level1_0.sra.new.first8kb.zx0"
+    INCBIN "Images/level1_0.sra.new.first8kb.zx0" ; 2.25 kb
 .size:      equ $ - ZX0_ImageData
 
 
