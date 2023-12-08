@@ -14,7 +14,7 @@ BIOS_FILNM2: equ 0F871h ; last def. pass 3
 SpritePattern_0_and_1: equ 0431Fh ; last def. pass 3
 BIOS_RAWPRT: equ 0F418h ; last def. pass 3
 BIOS_H_CRDO: equ 0FEE9h ; last def. pass 3
-SpriteColors_1.size: equ 070h ; last def. pass 3
+SpriteColors_1.size: equ 060h ; last def. pass 3
 BIOS_T32PAT: equ 0F3C5h ; last def. pass 3
 ClearVram_MSX2: equ 040E3h ; last def. pass 3
 BIOS_INSFLG: equ 0FCA8h ; last def. pass 3
@@ -378,7 +378,7 @@ BIOS_TXTTAB: equ 0F676h ; last def. pass 3
 BIOS_CONSAV: equ 0F668h ; last def. pass 3
 BIOS_T32CGP: equ 0F3C1h ; last def. pass 3
 BIOS_H_TIMI: equ 0FD9Fh ; last def. pass 3
-SpriteColors_1: equ 043FFh ; last def. pass 3
+SpriteColors_1: equ 043DFh ; last def. pass 3
 BIOS_TRCFLG: equ 0F7C4h ; last def. pass 3
 BIOS_LOHADR: equ 0F94Bh ; last def. pass 3
 Execute_VDP_HMMV.vdpReady: equ 04204h ; last def. pass 3
@@ -535,7 +535,7 @@ BIOS_H_LIST: equ 0FF89h ; last def. pass 3
 BIOS_AUTINC: equ 0F6ADh ; last def. pass 3
 BIOS_TTYPOS: equ 0F661h ; last def. pass 3
 BIOS_NVBXFL: equ 0CDh ; last def. pass 3
-SpritePattern_0_and_1.size: equ 0E0h ; last def. pass 3
+SpritePattern_0_and_1.size: equ 0C0h ; last def. pass 3
 BIOS_CHSNS: equ 09Ch ; last def. pass 3
 BIOS_BUF: equ 0F55Eh ; last def. pass 3
 BIOS_GTPAD: equ 0DBh ; last def. pass 3
@@ -603,14 +603,14 @@ BIOS_DRWANG: equ 0FCBDh ; last def. pass 3
 BIOS_CONTYP: equ 0F669h ; last def. pass 3
 BIOS_H_INIP: equ 0FDC7h ; last def. pass 3
 BIOS_H_KILL: equ 0FDFEh ; last def. pass 3
-SpriteAttributes_top: equ 0446Fh ; last def. pass 3
+SpriteAttributes_top: equ 0443Fh ; last def. pass 3
 BIOS_TAPION: equ 0E1h ; last def. pass 3
 BIOS_CSTYLE: equ 0FCAAh ; last def. pass 3
 BIOS_BUFMIN: equ 0F55Dh ; last def. pass 3
 REG14SAV: equ 0FFEDh ; last def. pass 3
 BIOS_H_LSET: equ 0FE21h ; last def. pass 3
 DisableSprites: equ 04173h ; last def. pass 3
-PaletteData: equ 0448Bh ; last def. pass 3
+PaletteData: equ 0445Bh ; last def. pass 3
 BIOS_CSRY: equ 0F3DCh ; last def. pass 3
 BIOS_CSRX: equ 0F3DDh ; last def. pass 3
 EnableRomPage2: equ 0404Dh ; last def. pass 3
