@@ -892,10 +892,10 @@ Execute_VDP_HMMM:
 ;   Input:  HL = pointer to 11-byte VDP command data
 ;   Output: HL = updated
 ;   Destroys: A, B, C
-
 Execute_VDP_PSET:
 Execute_VDP_LINE:
 Execute_VDP_HMMV:
+;Execute_VDP_HMMC_Init:
     ld      a, 36           ; number of first register
     di
     out     (PORT_1), a
@@ -929,6 +929,72 @@ Execute_VDP_HMMV:
     outi
     ret
 
+; not working
+; ; HL:   command registers values (R#36 to R#46)
+; ; DE:   source data address in RAM
+; Execute_VDP_HMMC:
+;     ; initialize VDP for HMMC using Grauw method (https://www.msx.org/forum/msx-talk/development/transferring-data-after-hmmc-lmmc-command)
+;   ;  push    hl
+;         call    Execute_VDP_HMMC_Init
+;    ; pop     hl
+
+
+
+;     ; ; set width & height
+;     ; call    Execute_VDP_HMMC_Init
+
+
+
+; ; .debug_111:
+; ;     call bios_beep
+; ;     jp .debug_111
+    
+
+
+;     ex      de, hl ; HL = DE (old HL not needed)
+
+;     ; read status reg S#2
+; .readS2:
+;     ld      a, 2
+;     di
+;     out     (PORT_1), a     ; select s#2
+;     ld      a, 15 + 128
+;     out     (PORT_1), a
+;     in      a, (PORT_1)
+;     ld      b, a            ; value of S#2 to B
+;     xor     a ; ld a, 0          ; back to s#0, enable ints
+;     out     (PORT_1), a
+;     ld      a, 15 + 128
+;     ei
+;     out     (PORT_1), a
+
+;     ; S#2:
+;     ; CE = bit 0
+;     ; TR = bit 7
+
+;     ; if (CE == 0) ret 
+;     ld      a, b
+;     and     0000 0001 b
+;     ret     z
+    
+;     ; if (TR == 0) { readS2; } else { dataTransmit; readS2; }
+;     ld      a, b
+;     and     1000 000 b
+;     jp      z, .readS2
+
+; .dataTransmit:
+;     ld      c, 0x9b
+;     outi
+;     jp      .readS2
+
+
+; Dummy_HMMC_Parameters:    ; R#36 to R#46
+;    dw    0, 0 	    ; Destiny X (9 bits), Destiny Y (10 bits)
+;    dw    1, 0		; number of cols (9 bits), number of lines (10 bits)
+;    db    0          ; R#44 color register
+;    db    0, VDP_COMMAND_HMMC
+
+    
 
 ;   Input:  HL = pointer to 13-byte VDP command data
 ;   Output: HL = updated
