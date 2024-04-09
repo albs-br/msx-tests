@@ -108,6 +108,13 @@ Execute:
 
 
 
+    ; ; test HMMC (not working)
+    ; ld      hl, HMMC_Parameters
+    ; ld      de, Image_Test_8x8
+    ; call    Execute_VDP_HMMC
+
+
+    ; ----------------- test LINE cmd spedd
 
     ; wait until the start of a frame
     call    Wait_Vblank
@@ -157,7 +164,15 @@ Image_Test_16x8:
     db  0x00, 0x00, 0x88, 0x88, 0x88, 0x88, 0x00, 0x00
     db  0x00, 0x00, 0x00, 0x88, 0x88, 0x00, 0x00, 0x00
 
-
+Image_Test_8x8:
+    db  0x11, 0x23, 0x45, 0x67
+    db  0x89, 0xab, 0xcd, 0xef
+    db  0x01, 0x23, 0x45, 0x67
+    db  0x89, 0xab, 0xcd, 0xef
+    db  0x01, 0x23, 0x45, 0x67
+    db  0x89, 0xab, 0xcd, 0xef
+    db  0x01, 0x23, 0x45, 0x67
+    db  0x89, 0xab, 0xcd, 0xef
 
 HMMM_Parameters:
 ;    db 0,0,0,1       ; R#32, R#33, R#34, R#35
@@ -217,11 +232,12 @@ PSET_Parameters:
 .Command:    db    VDP_COMMAND_PSET
 PSET_Parameters_size: equ $ - PSET_Parameters
 
-; Not working:
+; not working
 HMMC_Parameters:    ; R#36 to R#46
-   dw    128, 96 	; Destiny X (9 bits), Destiny Y (10 bits)
-   dw    20, 20		; number of cols (9 bits), number of lines (10 bits)
-   db    0, 0, VDP_COMMAND_HMMC
+   dw    128, 128 	; Destiny X (9 bits), Destiny Y (10 bits)
+   dw    8, 8		; number of cols (9 bits), number of lines (10 bits)
+   db    0          ; R#44 color register
+   db    0, VDP_COMMAND_HMMC
 
 HMMV_Parameters:    ; R#36 to R#46
    dw    0, 0 	    ; Destiny X (9 bits), Destiny Y (10 bits)
@@ -273,8 +289,8 @@ VDP_LOGIC_OPERATION_TNOT:   equ 1100 b
 ; https://msx.org/forum/msx-talk/development/doubts-about-9938-commands
 
 ; HMMC copies data from your ram to the vram. The destination is a xy square in the vram however 
-; your source is a starting adress in ram. You then out your data byte by byte until you have everything 
-; you need. The first byte you out will be at the start of the adress where your gfx data is.
+; your source is a starting address in ram. You then out your data byte by byte until you have everything 
+; you need. The first byte you out will be at the start of the address where your gfx data is.
 
 ; The other command HMMV simply fills an area with one single color. So you basicly tell the VDP to fill 
 ; up that area for you. Very handy when you for example quickly want to fill a part of the VRAM area with 
