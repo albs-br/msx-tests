@@ -44,26 +44,61 @@ Execute:
                     ; ld      a, (hl)
                     ; ld      (debug_1), a
                     ; ld      hl, ImageData_2.palette ; PaletteData
-    ld      hl, msxmas_palette
+    ld      hl, Palette
     call    LoadPalette
 
+	; ; enable page 1
+    ; ld	    a, 1
+	; ld	    (Seg_P8000_SW), a
+    ; ; write to VRAM bitmap area
+    ; ld		hl, ImageData        				    ; RAM address (source)
+    ; ld		de, 0					                ; VRAM address (destiny)
+    ; ld		bc, ImageData.size					    ; Block length
+    ; call 	BIOS_LDIRVM        						; Block transfer to VRAM from memory
+            
+	; ; enable page 2
+    ; ld	    a, 2
+	; ld	    (Seg_P8000_SW), a
+    ; ; write to VRAM bitmap area
+    ; ld		hl, ImageData_2      				    ; RAM address (source)
+    ; ld		de, 16384			                    ; VRAM address (destiny)
+    ; ld		bc, ImageData_2.size					; Block length
+    ; call 	BIOS_LDIRVM        						; Block transfer to VRAM from memory
+
+    ; ---- load sc5 image with width = 103 pixels (52 bytes), and height = 71 lines
 	; enable page 1
     ld	    a, 1
 	ld	    (Seg_P8000_SW), a
-    ; write to VRAM bitmap area
     ld		hl, ImageData        				    ; RAM address (source)
     ld		de, 0					                ; VRAM address (destiny)
-    ld		bc, ImageData.size					    ; Block length
-    call 	BIOS_LDIRVM        						; Block transfer to VRAM from memory
-            
-	; enable page 2
-    ld	    a, 2
-	ld	    (Seg_P8000_SW), a
-    ; write to VRAM bitmap area
-    ld		hl, ImageData_2      				    ; RAM address (source)
-    ld		de, 16384			                    ; VRAM address (destiny)
-    ld		bc, ImageData_2.size					; Block length
-    call 	BIOS_LDIRVM        						; Block transfer to VRAM from memory
+    ld      b, 71 ; height
+.loop:
+    push    bc
+        push    de
+            ; write to VRAM bitmap area
+            ; ld		bc, 52 ; width			                ; Block length
+            ; call 	BIOS_LDIRVM        						; Block transfer to VRAM from memory
+            ld      a, 0000 0000 b
+            ; ld      hl, PATTBL
+            ex      de, hl
+                call    SetVdp_Write
+            ex      de, hl
+            ld      b, 52
+            ld      c, PORT_0
+            otir
+        pop     de
+        
+        ; DE += 128
+        push    hl
+            ex      de, hl
+                ld      bc, 128         ; next sc5 line
+                add     hl, bc
+            ex      de, hl
+        pop     hl
+
+    pop     bc
+
+    djnz    .loop
 
     call    BIOS_ENASCR
 
@@ -74,8 +109,9 @@ Execute:
 
 End:
 
-msxmas_palette:
-    INCBIN "Images/title-screen.pal"
+Palette:
+    ; INCBIN "Images/title-screen.pal"
+    INCBIN "Images/plane_rotating.pal"
 
     db      "End ROM started at 0x4000"
 
@@ -88,18 +124,19 @@ msxmas_palette:
 ImageData:
     ;INCBIN "Images/aerofighters-xaa"
     ;INCBIN "Images/metalslug-xaa"
-    INCBIN "Images/msxmas title scr.SC5"
+    ; INCBIN "Images/msxmas title scr.SC5"
+    INCBIN "Images/plane_rotating_0_size_103x71_position_5_3.sc5_small"
 .size:      equ $ - ImageData
 	ds PageSize - ($ - 0x8000), 255
 
-; ------- Page 2
-	org	0x8000, 0xBFFF
-ImageData_2:
-    INCBIN "Images/aerofighters-xab"
-    ;INCBIN "Images/metalslug-xab"
-.size:      equ $ - ImageData_2
-.palette:   equ $ - 32
-	ds PageSize - ($ - 0x8000), 255
+; ; ------- Page 2
+; 	org	0x8000, 0xBFFF
+; ImageData_2:
+;     INCBIN "Images/aerofighters-xab"
+;     ;INCBIN "Images/metalslug-xab"
+; .size:      equ $ - ImageData_2
+; .palette:   equ $ - 32
+; 	ds PageSize - ($ - 0x8000), 255
 
 
 

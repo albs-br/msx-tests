@@ -273,6 +273,7 @@ RestoreRegisters:
 
 ; -----------------------------------------------------------------------------
 
+; trash all registers for testing purposes
 TrashAllRegisters:
         ld      bc, 0
         ld      de, 0
