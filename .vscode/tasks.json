@@ -7,7 +7,6 @@
             "label": "assembly",
             "type": "shell",
             "command": "C:\\Users\\Public\\msx\\tniasm\\tniasm.exe", //"C:\\Program Files\\tniasm045\\tniasm.exe",
-            //"command": "C:\\Users\\????\\Downloads\\tniasm045\\tniasm.exe",
                 "args": [
                     {
                       //"value": "Main.s",
@@ -23,7 +22,6 @@
         },
         {
             "command": "C:\\Users\\Public\\msx\\openmsx\\openmsx.exe", //"C:\\Program Files\\openMSX\\openmsx.exe",
-            //"command": "C:\\Users\\????\\Downloads\\openmsx-18.0-windows-vc-x64-bin\\openmsx.exe",
                 "args": [
                     {
                         //"value": "C:\\Users\\albs_\\source\\repos\\penguim-platformer\\go-penguin.rom",
@@ -34,21 +32,22 @@
                         // When changing this, it's necessary to first save this file before build, it will not work with
                         // the "auto save all unsaved files before build" feature of VS Code (it executes this file before save)
                         
-                        "value": "-machine Sony_HB-10",                // MSX 1 with only 16kb of RAM
+                        //"value": "-machine Sony_HB-10",                // MSX 1 with only 16kb of RAM
                         //"value": "-machine Gradiente_Expert_GPC-1",     // MSX 1
+                        "value": "-machine Sharp_HB-8000_1.2",     // MSX 1
                         //"value": "-machine Yamaha_CX11",                // MSX 1 with V9938
-                        // "value": "-machine Sony_HB-F1",               // MSX 2 without disk drive
+                        //"value": "-machine Sony_HB-F1",               // MSX 2 without disk drive
                         //"value": "-machine Sony_HB-F1XD",               // MSX 2 with disk drive
-                        "value": "-machine Sony_HB-F1XDJ",                // MSX 2+
-                        // "value": "-machine Panasonic_FS-A1WSX",         // MSX 2+ with turbo
+                        //"value": "-machine Sony_HB-F1XDJ",                // MSX 2+
+                        //"value": "-machine Panasonic_FS-A1WSX",         // MSX 2+ with turbo
                         // "value": "-machine Panasonic_FS-A1GT",          // MSX Turbo R
-                        
+                       
                         "quoting": "weak"
                     },
-                    {
-                        "value": "-romtype ASCII16",
-                        "quoting": "weak"
-                    },
+                    // {
+                    //     "value": "-romtype ASCII16",
+                    //     "quoting": "weak"
+                    // },
                     {
                         "value": "-script ${workspaceFolder}\\msx-tests_debug.tcl",
 
