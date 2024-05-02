@@ -18,7 +18,6 @@ Execute:
 
     ; Code only working on MSX 1 Gradiente Expert/Sharp Hotbit
     ; on MSX 2 and above probably crashing due to sub-slots
-    ; not working also on Yamaha_CX11 (MSX1)
 
 
     ; set screen 0
