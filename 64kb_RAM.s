@@ -32,13 +32,42 @@ Execute:
 
 
 
-
+    ; code for MSX1
     ; call    Set_RAM_Page_2
     ; call    Set_RAM_Page_0
-    call    Set_RAM_Page_1
+    ; call    Set_RAM_Page_1
+  	
 
-    ; ld      a, 66
-    ; call    BIOS_CHPUT ; debug
+
+    ; code for MSX2 and over
+
+    ; https://www.msx.org/forum/msx-talk/development/i-dont-understand-enaslt-sample-in-the-wiki
+    ; Select the slot 2-1 for page 1 (4000h-07FFFh) using BIOS routine
+    ; ENASLT	equ	0024h
+    ; 	ld	h,040h
+    ; 	ld	a,086h	;Slot ID
+    ; 	call	ENASLT
+    ; Slot ID is coded this way: F000EEPP
+    ; if F is set, then EE (subslot) is used.
+    ; 0x86 = 1000 0110, primary = 2, extended = 1
+
+    ; set page 1 (0x4000-0x7fff) to slot ?-?
+    ld	    hL, ADDRESS_TO_BE_TESTED
+    ;          F000EEPP
+   	; ld	    a, 10001111 b ; slot ID 3-3
+   	ld	    a, 10000011 b ; slot ID 3-0
+   	call	BIOS_ENASLT
+
+    ; Physical page 0 → FCH port
+    ; Physical page 1 → FDH port
+    ; Physical page 2 → FEH port
+    ; Physical page 3 → FFH port
+     in      a, (0xff)
+    ;ld      a, 0
+    out     (0xfd), a
+
+    ld      a, 66
+    call    BIOS_CHPUT ; debug
 
     ld      a, 32
     ld      (ADDRESS_TO_BE_TESTED), a
@@ -50,7 +79,7 @@ Execute:
     ; -----------------------------------
     ; call    Set_RAM_Page_2
     ; call    Set_RAM_Page_0
-    call    Set_RAM_Page_1
+    ; call    Set_RAM_Page_1
 
     ld      hl, ADDRESS_TO_BE_TESTED
 
@@ -66,7 +95,7 @@ Execute:
     ; -----------------------------------
     ; call    Restore_Page_2
     ; call    Restore_Page_0
-    call    Restore_Page_1
+    ; call    Restore_Page_1
 
     ld      hl, ADDRESS_TO_BE_TESTED
     ld      a, (hl)
