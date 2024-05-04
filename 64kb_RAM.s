@@ -55,9 +55,10 @@ Execute:
     ld	    hL, ADDRESS_TO_BE_TESTED
     ;          F000EEPP
    	; ld	    a, 10001111 b ; slot ID 3-3
-   	ld	    a, 10000011 b ; slot ID 3-0
+   	ld	    a, 10001111 b ; slot ID 3-0
    	call	BIOS_ENASLT
 
+    ; select segment (0-255) of memory mapper
     ; Physical page 0 → FCH port
     ; Physical page 1 → FDH port
     ; Physical page 2 → FEH port
@@ -65,6 +66,32 @@ Execute:
      in      a, (0xff)
     ;ld      a, 0
     out     (0xfd), a
+
+
+    ; TODO:
+    
+    ;https://www.msx.org/forum/development/msx-development/universal-ram-allocator
+
+    ; Q: I don't know, can't you just use whatever slot is being used on page 3?
+    ; A: No. It would be too easy! That was my first approach, but there are some strange 
+    ; machines around. For example, the Toshiba HX-20 (RAM divided between slots 0 and 3-0)
+    ;  or the SONY HB-900 (not confirmed be me), with RAM divided
+    ; in different slots. Any clues?
+
+    ; You need to parse each slot for a page (or each page) to look for RAM.
+    ; You can use $000C (RDSLT) and $0014 (WRSLT) to hunt for memory without having 
+    ; to set the slot yourself first. SCC-I RAM is detected in a different way. The
+    ;  cartridge is set in ReadOnly mode and you need to set it to RAM mode yourself. SCC is 
+    ;  usually ROM anyway and if you write to a switch address in a slot where a 
+    ;  MegaROM is detected the ROM area will change in a whole, not change just one byte.
+
+    ; Detecting RAM in general is like this:
+    ; Read current value, write test value, read test value, restore old value... 
+    ; if writing and reading the test value succeeds it's most likely RAM, and if the
+    ; current value is read after writing the test value, it's most likely ROM.
+
+    ; oh yeah, you need to use $FCC1 (EXPTBL) to determine if the slot is expanded 
+    ; and you need to parse secundary slots as well.1
 
     ld      a, 66
     call    BIOS_CHPUT ; debug
