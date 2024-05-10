@@ -91,7 +91,32 @@ Execute:
     ; current value is read after writing the test value, it's most likely ROM.
 
     ; oh yeah, you need to use $FCC1 (EXPTBL) to determine if the slot is expanded 
-    ; and you need to parse secundary slots as well.1
+    ; and you need to parse secundary slots as well.
+
+    ; EXPTBL
+    ; #FCC1	1	Slot 0: #80 = expanded, 0 = not expanded. Also main BIOS-ROM slot address.
+    ; #FCC2	1	Slot 1: #80 = expanded, 0 = not expanded.
+    ; #FCC3	1	Slot 2: #80 = expanded, 0 = not expanded.
+    ; #FCC4	1	Slot 3: #80 = expanded, 0 = not expanded.
+
+
+    ; more info:
+    ;
+    ; RSLREG
+    ; Address  : #0138
+    ; Function : Reads the primary slot register
+    ; Output   : A  - For the value which was read
+    ;            33221100
+    ;            ││││││└┴─ Page 0 (#0000-#3FFF)
+    ;            ││││└┴─── Page 1 (#4000-#7FFF)
+    ;            ││└┴───── Page 2 (#8000-#BFFF)
+    ;            └┴─────── Page 3 (#C000-#FFFF)
+    ; Registers: A
+    ; WSLREG
+    ; Address  : #013B
+    ; Function : Writes value to the primary slot register
+    ; Input    : A  - Value to write, see RSLREG    
+
 
     ld      a, 66
     call    BIOS_CHPUT ; debug
