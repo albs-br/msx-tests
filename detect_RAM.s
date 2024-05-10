@@ -81,6 +81,11 @@ Execute:
 
 .loopSubslots:
 
+    call    PrintCrLf
+    ld      hl, STRINGS.CHECKING_SUBSLOT
+    call    PrintString
+
+
     call    CheckRAM_On_SlotId
     ;jr      .nextSubslot
 
@@ -91,7 +96,8 @@ Execute:
     cp      0000 1100 b
     jr      z, .nextSlot    ; if (subslot == 3) nextSlot
 
-    inc     a
+    ld      a, (SlotId)
+    add     0000 0100 b ; next subslot
     ld      (SlotId), a
 
     jr      .loopSubslots
@@ -294,6 +300,7 @@ STRINGS:
     .PAGE_3:            db 'Page 3 (0xC000)', 0
     .RAM_FOUND:         db ' RAM found at slot ', 0
     .CHECKING_SLOT:     db '  checking slot ', 0
+    .CHECKING_SUBSLOT:  db '    checking subslot ', 0
     .IS_EXPANDED:       db ' (expanded)', 0
 
     db      "End ROM started at 0x4000"

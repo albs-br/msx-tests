@@ -52,7 +52,7 @@ REG15SAV: equ 0FFEEh ; last def. pass 3
 BIOS_H_QINL: equ 0FDE0h ; last def. pass 3
 BIOS_GRPACX: equ 0FCB7h ; last def. pass 3
 BIOS_FILTAB: equ 0F860h ; last def. pass 3
-CheckRAM_On_SlotId.IsNotRAM: equ 08347h ; last def. pass 3
+CheckRAM_On_SlotId.IsNotRAM: equ 08354h ; last def. pass 3
 BIOS_CSTCNT: equ 0F93Fh ; last def. pass 3
 BIOS_RDVRM: equ 04Ah ; last def. pass 3
 BIOS_MINDEL: equ 0F92Dh ; last def. pass 3
@@ -98,7 +98,7 @@ BIOS_GRPNAM: equ 0F3C7h ; last def. pass 3
 BIOS_VDP_DW: equ 07h ; last def. pass 3
 BIOS_YSAVE: equ 0FB00h ; last def. pass 3
 BIOS_DECTM2: equ 0F7F2h ; last def. pass 3
-STRINGS.IS_EXPANDED: equ 083C7h ; last def. pass 3
+STRINGS.IS_EXPANDED: equ 083E8h ; last def. pass 3
 BIOS_H_RSET: equ 0FE26h ; last def. pass 3
 BIOS_BAKCLR: equ 0F3EAh ; last def. pass 3
 BIOS_H_NEWS: equ 0FF3Eh ; last def. pass 3
@@ -157,7 +157,7 @@ BIOS_EXPTBL: equ 0FCC1h ; last def. pass 3
 BIOS_CRTCNT: equ 0F3B1h ; last def. pass 3
 BIOS_LOHMSK: equ 0F949h ; last def. pass 3
 BIOS_RDSLT: equ 0Ch ; last def. pass 3
-STRINGS.PAGE_1: equ 08372h ; last def. pass 3
+STRINGS.PAGE_1: equ 0837Fh ; last def. pass 3
 BIOS_AUTFLG: equ 0F6AAh ; last def. pass 3
 BIOS_CPCNT: equ 0F939h ; last def. pass 3
 BIOS_DCOMPR: equ 020h ; last def. pass 3
@@ -269,7 +269,7 @@ BIOS_BOTTOM: equ 0FC48h ; last def. pass 3
 LoadPalette: equ 08035h ; last def. pass 3
 BIOS_CHGCLR: equ 062h ; last def. pass 3
 SetPaletteColor: equ 08010h ; last def. pass 3
-PrintCrLf: equ 08357h ; last def. pass 3
+PrintCrLf: equ 08364h ; last def. pass 3
 Wait_Vblank.waitVBlank: equ 08094h ; last def. pass 3
 BIOS_HIGH: equ 0F408h ; last def. pass 3
 BIOS_BDRCLR: equ 0F3EBh ; last def. pass 3
@@ -287,7 +287,7 @@ REG17SAV: equ 0FFF0h ; last def. pass 3
 BIOS_H_TOTE: equ 0FDBDh ; last def. pass 3
 BIOS_STRTMS: equ 099h ; last def. pass 3
 BIOS_GSPSIZ: equ 08Ah ; last def. pass 3
-CheckRAM_On_SlotId.isRAM: equ 08338h ; last def. pass 3
+CheckRAM_On_SlotId.isRAM: equ 08345h ; last def. pass 3
 BIOS_VLZADR: equ 0F419h ; last def. pass 3
 BIOS_NOFUNS: equ 0F7B7h ; last def. pass 3
 BIOS_VALTYP: equ 0F663h ; last def. pass 3
@@ -307,7 +307,7 @@ BIOS_TEMP: equ 0F6A7h ; last def. pass 3
 BIOS_EOL: equ 0168h ; last def. pass 3
 BIOS_PHYDIO: equ 0144h ; last def. pass 3
 BIOS_H_FINI: equ 0FF16h ; last def. pass 3
-STRINGS.RAM_FOUND: equ 083A2h ; last def. pass 3
+STRINGS.RAM_FOUND: equ 083AFh ; last def. pass 3
 BIOS_HOLD2: equ 0F836h ; last def. pass 3
 BIOS_CLRSPR: equ 069h ; last def. pass 3
 BIOS_LFPROG: equ 0F954h ; last def. pass 3
@@ -366,7 +366,7 @@ BIOS_ASPCT1: equ 0F40Bh ; last def. pass 3
 BIOS_LOHDIR: equ 0F94Ah ; last def. pass 3
 BIOS_CALPAT: equ 084h ; last def. pass 3
 BIOS_DATCNT: equ 0FB18h ; last def. pass 3
-STRINGS: equ 08362h ; last def. pass 3
+STRINGS: equ 0836Fh ; last def. pass 3
 BIOS_ENDBUF: equ 0F660h ; last def. pass 3
 PPI.B: equ 0A9h ; last def. pass 3
 BIOS_INIMLT: equ 075h ; last def. pass 3
@@ -393,7 +393,7 @@ BIOS_CASPRV: equ 0FCB1h ; last def. pass 3
 BIOS_PADX: equ 0FC9Dh ; last def. pass 3
 BIOS_MLTPAT: equ 0F3D9h ; last def. pass 3
 BIOS_H_KYEA: equ 0FDD1h ; last def. pass 3
-STRINGS.PAGE_3: equ 08392h ; last def. pass 3
+STRINGS.PAGE_3: equ 0839Fh ; last def. pass 3
 SetVdp_Read: equ 080C9h ; last def. pass 3
 BIOS_CONTXT: equ 0F666h ; last def. pass 3
 BIOS_CLIKSW: equ 0F3DBh ; last def. pass 3
@@ -449,9 +449,9 @@ SetSprites16x16: equ 08112h ; last def. pass 3
 Wait_B_Vblanks.waitVBlank: equ 08073h ; last def. pass 3
 BIOS_DRWSCL: equ 0FCBCh ; last def. pass 3
 BIOS_H_DSPC: equ 0FDA9h ; last def. pass 3
-Execute.nextSubslot: equ 082EFh ; last def. pass 3
+Execute.nextSubslot: equ 082F8h ; last def. pass 3
 BIOS_WRTVDP: equ 047h ; last def. pass 3
-PrintNumber: equ 08351h ; last def. pass 3
+PrintNumber: equ 0835Eh ; last def. pass 3
 REG6SAV: equ 0F3E5h ; last def. pass 3
 SetVdp_Write: equ 080ADh ; last def. pass 3
 BIOS_CLMLST: equ 0F3B2h ; last def. pass 3
@@ -468,7 +468,7 @@ BIOS_TRGFLG: equ 0F3E8h ; last def. pass 3
 BIOS_CHKRAM: equ 00h ; last def. pass 3
 BIOS_GETYPR: equ 028h ; last def. pass 3
 BIOS_H_KEYI: equ 0FD9Ah ; last def. pass 3
-STRINGS.PAGE_2: equ 08382h ; last def. pass 3
+STRINGS.PAGE_2: equ 0838Fh ; last def. pass 3
 BIOS_OUTDO: equ 018h ; last def. pass 3
 ClearVram_MSX2.loop_1: equ 080EFh ; last def. pass 3
 BIOS_H_BINL: equ 0FE76h ; last def. pass 3
@@ -496,7 +496,7 @@ REG9SAV: equ 0FFE8h ; last def. pass 3
 BIOS_T32COL: equ 0F3BFh ; last def. pass 3
 BIOS_H_ERAC: equ 0FDAEh ; last def. pass 3
 BIOS_H_INLI: equ 0FDE5h ; last def. pass 3
-CheckRAM_On_SlotId: equ 0830Fh ; last def. pass 3
+CheckRAM_On_SlotId: equ 0831Ch ; last def. pass 3
 BIOS_ENSTOP: equ 0FBB0h ; last def. pass 3
 BIOS_DSPFNK: equ 0CFh ; last def. pass 3
 BIOS_MODE: equ 0FAFCh ; last def. pass 3
@@ -519,7 +519,7 @@ BIOS_NSTWRT: equ 0171h ; last def. pass 3
 BIOS_H_PINL: equ 0FDDBh ; last def. pass 3
 BIOS_KANAST: equ 0FCACh ; last def. pass 3
 BIOS_NTMSXP: equ 0F417h ; last def. pass 3
-Execute.end: equ 0830Dh ; last def. pass 3
+Execute.end: equ 0831Ah ; last def. pass 3
 BIOS_NRDVRM: equ 0174h ; last def. pass 3
 BIOS_LPTSTT: equ 0A8h ; last def. pass 3
 BIOS_SETT32: equ 07Bh ; last def. pass 3
@@ -551,7 +551,7 @@ BIOS_BUF: equ 0F55Eh ; last def. pass 3
 BIOS_GTPAD: equ 0DBh ; last def. pass 3
 BIOS_CHGET: equ 09Fh ; last def. pass 3
 PORT_3: equ 09Bh ; last def. pass 3
-Execute.nextSlot: equ 082FEh ; last def. pass 3
+Execute.nextSlot: equ 0830Bh ; last def. pass 3
 BIOS_CSAVEM: equ 0F944h ; last def. pass 3
 BIOS_CODSAV: equ 0FBCCh ; last def. pass 3
 BIOS_FUNACT: equ 0F7BAh ; last def. pass 3
@@ -604,9 +604,10 @@ BIOS_CS120: equ 0F3FCh ; last def. pass 3
 CheckCollision_16x24_16x16.x1IsLarger: equ 081A6h ; last def. pass 3
 BIOS_SETPAG: equ 013Dh ; last def. pass 3
 BIOS_ACPAGE: equ 0FAF6h ; last def. pass 3
-PrintString: equ 08348h ; last def. pass 3
+PrintString: equ 08355h ; last def. pass 3
 BIOS_RSFCB: equ 0FB04h ; last def. pass 3
 BIOS_LINTTB: equ 0FBB2h ; last def. pass 3
+STRINGS.CHECKING_SUBSLOT: equ 083D4h ; last def. pass 3
 BIOS_FRETOP: equ 0F69Bh ; last def. pass 3
 PPI_A_saved: equ 0C000h ; last def. pass 3
 BIOS_H_FILO: equ 0FE85h ; last def. pass 3
@@ -616,7 +617,7 @@ BIOS_CONTYP: equ 0F669h ; last def. pass 3
 BIOS_H_INIP: equ 0FDC7h ; last def. pass 3
 BIOS_H_KILL: equ 0FDFEh ; last def. pass 3
 BIOS_TAPION: equ 0E1h ; last def. pass 3
-STRINGS.CHECKING_SLOT: equ 083B6h ; last def. pass 3
+STRINGS.CHECKING_SLOT: equ 083C3h ; last def. pass 3
 BIOS_CSTYLE: equ 0FCAAh ; last def. pass 3
 BIOS_BUFMIN: equ 0F55Dh ; last def. pass 3
 REG14SAV: equ 0FFEDh ; last def. pass 3
@@ -627,7 +628,7 @@ BIOS_CSRX: equ 0F3DDh ; last def. pass 3
 EnableRomPage2: equ 0804Dh ; last def. pass 3
 BIOS_ERRFLG: equ 0F414h ; last def. pass 3
 BIOS_H_COPY: equ 0FE08h ; last def. pass 3
-STRINGS.PAGE_0: equ 08362h ; last def. pass 3
+STRINGS.PAGE_0: equ 0836Fh ; last def. pass 3
 BIOS_RDPSG: equ 096h ; last def. pass 3
 BIOS_HEADER: equ 0F40Ah ; last def. pass 3
 BIOS_H_READ: equ 0FF07h ; last def. pass 3
