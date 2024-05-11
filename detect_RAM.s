@@ -47,16 +47,14 @@ Execute:
     call    PrintString
 
 
-    ; --- check if slot is expanded
+    ; print slot number
     ld      a, (SlotId)
     and     0000 0011 b ; get slot number
-    ; srl     a               ; shift right register
-    ; srl     a               ; shift right register
     ld      b, 0
     ld      c, a
-
     call    PrintNumber
 
+    ; --- check if slot is expanded
     ld      hl, BIOS_EXPTBL
     add     hl, bc
     ld      a, (hl)
@@ -84,6 +82,13 @@ Execute:
     call    PrintCrLf
     ld      hl, STRINGS.CHECKING_SUBSLOT
     call    PrintString
+
+    ; print subslot number
+    ld      a, (SlotId)
+    and     0000 1100 b ; get subslot number
+    srl     a               ; shift right register
+    srl     a               ; shift right register
+    call    PrintNumber
 
 
     call    CheckRAM_On_SlotId
@@ -164,11 +169,11 @@ CheckRAM_On_SlotId:
     ld      hl, STRINGS.RAM_FOUND
     call    PrintString
 
-    ; TODO
-    ; print slot/subslot
-    ld      a, (SlotId)
-    and     0000 0011 b
-    call    PrintNumber
+    ; ; TODO
+    ; ; print slot/subslot
+    ; ld      a, (SlotId)
+    ; and     0000 0011 b
+    ; call    PrintNumber
 
     ;jp $
     ret
@@ -298,7 +303,7 @@ STRINGS:
     .PAGE_1:            db 'Page 1 (0x4000)', 0
     .PAGE_2:            db 'Page 2 (0x8000)', 0
     .PAGE_3:            db 'Page 3 (0xC000)', 0
-    .RAM_FOUND:         db ' RAM found at slot ', 0
+    .RAM_FOUND:         db ' RAM found', 0
     .CHECKING_SLOT:     db '  checking slot ', 0
     .CHECKING_SUBSLOT:  db '    checking subslot ', 0
     .IS_EXPANDED:       db ' (expanded)', 0
