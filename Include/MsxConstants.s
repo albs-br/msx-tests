@@ -18,8 +18,17 @@ PPI.R: equ $ab ; PPI ports control register (write only)
     ; bit 0 = Bit status to change
     ; bit 1-3 = Number of the bit to change at port C of the PPI
     ; bit 4-6 = Unused
-    ; bit 7 = Must be always reset on MSX
+    ; bit 7 
 
+; select segment (0-255) of memory mapper
+; Physical page 0 → FCH port
+; Physical page 1 → FDH port
+; Physical page 2 → FEH port
+; Physical page 3 → FFH port
+MEMORY_MAPPER_SEGMENT_PAGE_0:   equ 0xfc
+MEMORY_MAPPER_SEGMENT_PAGE_1:   equ 0xfd
+MEMORY_MAPPER_SEGMENT_PAGE_2:   equ 0xfe
+MEMORY_MAPPER_SEGMENT_PAGE_3:   equ 0xff
 
 ;RG0SAV  equ     0F3DFH     ; from MSX BIOS disassembled source (https://sourceforge.net/projects/msxsyssrc/)
 ;

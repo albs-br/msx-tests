@@ -12,7 +12,7 @@ PageSize:	    equ	0x4000	        ; 16kB
 
 ; ADDRESS_TO_BE_TESTED: equ 0x8000 ; start of page 2
 ; ADDRESS_TO_BE_TESTED: equ 0x0000 ; start of page 0
-ADDRESS_TO_BE_TESTED: equ 0x4000 ; start of page 1
+; ADDRESS_TO_BE_TESTED: equ 0x4000 ; start of page 1
 
 Execute:
 
@@ -26,17 +26,40 @@ Execute:
     ; and     00001100 b      ; keep only page 1 position
     ld      (PPI_A_saved), a
 
+    ; save current segment (0-255) of memory mapper
+    ; Physical page 0 → FCH port
+    ; Physical page 1 → FDH port
+    ; Physical page 2 → FEH port
+    ; Physical page 3 → FFH port
+    in      a, (MEMORY_MAPPER_SEGMENT_PAGE_0)
+    ld      (Port_0xFC_saved), a
+    in      a, (MEMORY_MAPPER_SEGMENT_PAGE_1)
+    ld      (Port_0xFD_saved), a
+    in      a, (MEMORY_MAPPER_SEGMENT_PAGE_2)
+    ld      (Port_0xFE_saved), a
+    in      a, (MEMORY_MAPPER_SEGMENT_PAGE_3)
+    ld      (Port_0xFF_saved), a
 
-    ; ------------------------ detect RAM on page 1 (0x4000)
+
+
 
     xor     a
     ld      (SlotId), a
 
-    ld      hl, 0x4000 ; Page 1
+    ; ; ------------------------ detect RAM on page 1 (0x4000)
+    ; ld      hl, 0x4000 ; Page 1
+    ; ld      (Page), hl
+    ; ld      hl, STRINGS.PAGE_1
+
+
+
+    ; ------------------------ detect RAM on page 2 (0x8000)
+    ld      hl, 0x8000 ; Page 2
     ld      (Page), hl
+    ld      hl, STRINGS.PAGE_2
 
 
-    ld      hl, STRINGS.PAGE_1
+
     call    PrintString
 
 
@@ -162,12 +185,69 @@ CheckRAM_On_SlotId:
 
     ld      hl, SavedValue
     cp      (hl) ; if (new value == old value) IsNotRAM();
-    jr      z, .IsNotRAM
+    jr      z, .isNotRAM
 
 .isRAM:
 
     ld      hl, STRINGS.RAM_FOUND
     call    PrintString
+
+;     ; TODO (not working)
+;     ; -----------------------------------------------------
+;     ; --- check memory mapper segments, if any
+    
+;     ld          b, 1
+; .loop_Segments:
+;     push    bc
+
+;         ; set segment
+;         ld      a, b
+;         out     (MEMORY_MAPPER_SEGMENT_PAGE_1), a
+
+;         ; --- read and save current value at sample address
+;         ld      a, (SlotId)
+;         ld      hl, (Page)
+;         call    BIOS_RDSLT ; This routine turns off the interrupt, but won't turn it on again
+;         ei
+
+;         ld      (SavedValue), a
+
+;         ; --- write new value to the address
+;         inc     a
+;         ld      e, a    ; value to be writen
+
+;         ld      a, (SlotId)
+;         ld      hl, (Page)
+;         call    BIOS_WRSLT ; This routine turns off the interrupt, but won't turn it on again
+;         ei
+
+
+;         ; --- read again value and check it
+;         ld      a, (SlotId)
+;         ld      hl, (Page)
+;         call    BIOS_RDSLT ; This routine turns off the interrupt, but won't turn it on again
+;         ei
+
+;         ld      hl, SavedValue
+;         cp      (hl) ; if (new value == old value) IsNotRAM();
+;     pop     bc
+;     jr      z, .segment_isNotRAM
+
+;     inc     b
+;     ld  a, b
+;     cp 9
+;     jp      nz, .loop_Segments
+
+; .segment_isNotRAM:
+
+;     ; number of last segment = B-1
+;     ; number of segments = B-2
+;     call    PrintCrLf
+
+;     ld      a, b
+;     call    PrintNumber
+
+;     ; -----------------------------------------------------
 
     ; ; TODO
     ; ; print slot/subslot
@@ -178,7 +258,7 @@ CheckRAM_On_SlotId:
     ;jp $
     ret
 
-.IsNotRAM:
+.isNotRAM:
     ret
 
     ; ------------------------ 
@@ -285,6 +365,8 @@ PrintString:
     inc     hl
     jr      PrintString
 
+; Input:
+;   A (only 0-9 values)
 PrintNumber:
     add     '0'
     call    BIOS_CHPUT
@@ -316,6 +398,11 @@ STRINGS:
     org 0xc000
 
 PPI_A_saved:        rb 1
+Port_0xFC_saved:    rb 1
+Port_0xFD_saved:    rb 1
+Port_0xFE_saved:    rb 1
+Port_0xFF_saved:    rb 1
+
 SavedValue:         rb 1
 CurrentSlot:        rb 1
 CurrentSubslot:     rb 1
