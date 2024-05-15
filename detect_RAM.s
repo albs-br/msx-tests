@@ -46,17 +46,17 @@ Execute:
     xor     a
     ld      (SlotId), a
 
-    ; ; ------------------------ detect RAM on page 1 (0x4000)
-    ; ld      hl, 0x4000 ; Page 1
-    ; ld      (Page), hl
-    ; ld      hl, STRINGS.PAGE_1
-
-
-
-    ; ------------------------ detect RAM on page 2 (0x8000)
-    ld      hl, 0x8000 ; Page 2
+    ; ------------------------ detect RAM on page 1 (0x4000)
+    ld      hl, 0x4000 ; Page 1
     ld      (Page), hl
-    ld      hl, STRINGS.PAGE_2
+    ld      hl, STRINGS.PAGE_1
+
+
+
+    ; ; ------------------------ detect RAM on page 2 (0x8000)
+    ; ld      hl, 0x8000 ; Page 2
+    ; ld      (Page), hl
+    ; ld      hl, STRINGS.PAGE_2
 
 
 
@@ -191,6 +191,15 @@ CheckRAM_On_SlotId:
 
     ld      hl, STRINGS.RAM_FOUND
     call    PrintString
+
+    ; --- restore previously saved value, to avoid memory corruption
+    ld      a, (SavedValue)
+    ld      e, a    ; value to be writen
+
+    ld      a, (SlotId)
+    ld      hl, (Page)
+    call    BIOS_WRSLT ; This routine turns off the interrupt, but won't turn it on again
+    ei
 
 ;     ; TODO (not working)
 ;     ; -----------------------------------------------------
@@ -390,6 +399,69 @@ STRINGS:
     .CHECKING_SUBSLOT:  db '    checking subslot ', 0
     .IS_EXPANDED:       db ' (expanded)', 0
 
+; --------------------------------------
+
+; Mapper size test. Tests for sizes 64KB - 4MB.
+; MagicBox 2022, may be used freely!
+
+; In:   None.
+; Out:  A  - Upper memory mapper page available, unmapped will return 3.
+; Flg:  CF - 0: RAM found in page.
+;            1: No RAM found in page.
+;       xF - ?
+; Mod:  B, C, D, H, L
+; Rem:  Tests in page 2 by default. Update the mapper IO register in
+;       register C to test in another page and change HL to an address
+;       inside that page as well. Make sure HL never points to a
+;       R/W location in a ROM page (like with the diskrom) when this
+;       routine is used in a slot-scan.
+
+        ; ORG   &HC000          ; The routine may be anywhere
+
+; MTSTRT: 
+;         LD    B,&H00          ; Page in which the test values are written
+;         LD    C,&HFE          ; Load C with the mapper register
+;         LD    HL,&H8000       ; Load HL with the test location
+
+;         OUT   (C),B           ; Set the test value page
+;         LD    D,(HL)          ; Get the memory location value to save it
+
+;         PUSH  DE              ; Save the original value
+;             LD    D,&HFC          ; Lower page under test, starting at 64KB
+;     MTLOOP: 
+;             LD    A,&H55          ; Test value 1
+;             CALL  MTTVAL          ; Test the value for the page under test
+;             JR    NZ,MTNEXT       ; Test value fail, exit test for the page.
+;             LD    A,&HAA          ; Test value 2
+;             CALL  MTTVAL          ; And test this value for the page under test
+;             JR    Z,MTOK          ; When test was ok exit the test and form output
+;     MTNEXT: 
+;             SLA   D               ; Shift-left D and nudge out the MSB
+;             JR    C,MTLOOP        ; Keep looping untill D rotates out a non-carry
+;     MTFAIL: 
+;             SCF                   ; Failed finding RAM, set carry
+;     MTOK:   
+;             LD    A,D             ; Move the upper page to A
+;             CPL                   ; Complement the result, it's now the upper page
+;         POP   DE              ; Restore the original value and page
+;         LD    (HL),D          ; Put back the original value
+
+;         RET                   ; Return from the test, A contains the upper page
+
+; MTTVAL: 
+;         LD    (HL),A          ; Store the test value in the write page
+;         CP    (HL)            ; Compare it to see whether it's ROM/RAM
+;         RET   NZ              ; If not equal, return; it was ROM
+;         OUT   (C),D           ; Set the page under test
+;         LD    A,(HL)          ; Load the value from the page under test
+;         OUT   (C),B           ; Restore the test value write page
+;         CP    (HL)            ; Compare the test value with the memory content
+
+;         RET                   ; Return, Z is set when the value was identical
+
+; --------------------------------------
+
+
     db      "End ROM started at 0x4000"
 
     ds PageSize - ($ - 0x4000), 255	; Fill the unused area with 0xff
@@ -398,10 +470,10 @@ STRINGS:
     org 0xc000
 
 PPI_A_saved:        rb 1
-Port_0xFC_saved:    rb 1
-Port_0xFD_saved:    rb 1
-Port_0xFE_saved:    rb 1
-Port_0xFF_saved:    rb 1
+Port_0xFC_saved:    rb 1 ; Physical page 0 → FCH port
+Port_0xFD_saved:    rb 1 ; Physical page 1 → FDH port
+Port_0xFE_saved:    rb 1 ; Physical page 2 → FEH port
+Port_0xFF_saved:    rb 1 ; Physical page 3 → FFH port
 
 SavedValue:         rb 1
 CurrentSlot:        rb 1
