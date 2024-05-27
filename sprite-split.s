@@ -170,30 +170,27 @@ Execute:
     ; ------------------------ setup line interrupt -----------------------------
 
     di
+        ; override HKEYI hook
+        ld 		a, 0xc3    ; 0xc3 is the opcode for "jp", so this sets "jp LineInterruptHook" as the interrupt code
+        ld 		(HKEYI), a
+        ld 		hl, LineInterruptHook
+        ld 		(HKEYI + 1), hl
 
-    
-    ; override HKEYI hook
-    ld 		a, 0xc3    ; 0xc3 is the opcode for "jp", so this sets "jp LineInterruptHook" as the interrupt code
-    ld 		(HKEYI), a
-    ld 		hl, LineInterruptHook
-    ld 		(HKEYI + 1), hl
-
-    
-    ; enable line interrupts
-    ld  	a, (REG0SAV)
-    or  	16
-    ld  	b, a		; data to write
-    ld  	c, 0		; register number
-    call  	WRTVDP_without_DI_EI		; Write B value to C register
-
+        
+        ; enable line interrupts
+        ld  	a, (REG0SAV)
+        or  	16
+        ld  	(REG0SAV), a ; it's a good practice to update the REGnSAV values
+        ld  	b, a		; data to write
+        ld  	c, 0		; register number
+        call  	WRTVDP_without_DI_EI		; Write B value to C register
 
 
-    ; set the interrupt to happen on line n
-    ld  	b, LINE_INTERRUPT_NUMBER - 1 - 3		; data to write
-    ld  	c, 19		; register number
-    call  	WRTVDP_without_DI_EI		; Write B value to C register
 
-
+        ; set the interrupt to happen on line n
+        ld  	b, LINE_INTERRUPT_NUMBER - 1 - 3		; data to write
+        ld  	c, 19		; register number
+        call  	WRTVDP_without_DI_EI		; Write B value to C register
     ei
 
 

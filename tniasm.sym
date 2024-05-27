@@ -75,6 +75,7 @@ BIOS_JIFFY: equ 0FC9Eh ; last def. pass 3
 Wait_15_Vblanks: equ 0807Eh ; last def. pass 3
 REG2SAV: equ 0F3E1h ; last def. pass 3
 BIOS_H_GONE: equ 0FF43h ; last def. pass 3
+MTTVAL: equ 0844Bh ; last def. pass 3
 BIOS_PRSCNT: equ 0FB35h ; last def. pass 3
 BIOS_H_CVI: equ 0FE3Fh ; last def. pass 3
 BIOS_TEMP9: equ 0F7B8h ; last def. pass 3
@@ -100,6 +101,7 @@ BIOS_YSAVE: equ 0FB00h ; last def. pass 3
 BIOS_DECTM2: equ 0F7F2h ; last def. pass 3
 STRINGS.IS_EXPANDED: equ 08407h ; last def. pass 3
 BIOS_H_RSET: equ 0FE26h ; last def. pass 3
+MTLOOP: equ 08433h ; last def. pass 3
 BIOS_BAKCLR: equ 0F3EAh ; last def. pass 3
 BIOS_H_NEWS: equ 0FF3Eh ; last def. pass 3
 BIOS_HIMEM: equ 0FC4Ah ; last def. pass 3
@@ -482,6 +484,7 @@ BIOS_CNSDFG: equ 0F3DEh ; last def. pass 3
 BIOS_H_NMI: equ 0FDD6h ; last def. pass 3
 BIOS_VCBA: equ 0FB41h ; last def. pass 3
 BIOS_ARYTA2: equ 0F7B5h ; last def. pass 3
+MTOK: equ 08446h ; last def. pass 3
 BIOS_PRMPRV: equ 0F74Ch ; last def. pass 3
 REG13SAV: equ 0FFECh ; last def. pass 3
 BIOS_H_FILE: equ 0FD7Bh ; last def. pass 3
@@ -516,6 +519,7 @@ BIOS_RDVDP: equ 013Eh ; last def. pass 3
 BIOS_RG6SAV: equ 0F3E5h ; last def. pass 3
 BIOS_CPCSUM: equ 0F93Dh ; last def. pass 3
 HKEYI: equ 0FD9Ah ; last def. pass 3
+STRINGS.SEGMENT_NOT_RAM: equ 08413h ; last def. pass 3
 BIOS_H_SCRE: equ 0FFC0h ; last def. pass 3
 BIOS_GRPHED: equ 0FCA6h ; last def. pass 3
 PPI.R: equ 0ABh ; last def. pass 3
@@ -564,6 +568,7 @@ BIOS_H_PLAY: equ 0FFC5h ; last def. pass 3
 MEMORY_MAPPER_SEGMENT_PAGE_1: equ 0FDh ; last def. pass 3
 BIOS_CHGSND: equ 0135h ; last def. pass 3
 BIOS_INIFNK: equ 03Eh ; last def. pass 3
+MTNEXT: equ 08441h ; last def. pass 3
 BIOS_MCLFLG: equ 0F958h ; last def. pass 3
 BIOS_ENASCR: equ 044h ; last def. pass 3
 BIOS_H_ERAF: equ 0FDB8h ; last def. pass 3
@@ -622,7 +627,9 @@ BIOS_GRPCOL: equ 0F3C9h ; last def. pass 3
 BIOS_DRWANG: equ 0FCBDh ; last def. pass 3
 BIOS_CONTYP: equ 0F669h ; last def. pass 3
 BIOS_H_INIP: equ 0FDC7h ; last def. pass 3
+MTSTRT: equ 08426h ; last def. pass 3
 BIOS_H_KILL: equ 0FDFEh ; last def. pass 3
+MTFAIL: equ 08445h ; last def. pass 3
 BIOS_TAPION: equ 0E1h ; last def. pass 3
 STRINGS.CHECKING_SLOT: equ 083E0h ; last def. pass 3
 BIOS_CSTYLE: equ 0FCAAh ; last def. pass 3

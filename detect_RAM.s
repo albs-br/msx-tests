@@ -205,12 +205,13 @@ CheckRAM_On_SlotId:
 ;     ; -----------------------------------------------------
 ;     ; --- check memory mapper segments, if any
     
-;     ld          b, 1
+;     ld          b, 0
 ; .loop_Segments:
 ;     push    bc
 
 ;         ; set segment
 ;         ld      a, b
+;         or      0xe0
 ;         out     (MEMORY_MAPPER_SEGMENT_PAGE_1), a
 
 ;         ; --- read and save current value at sample address
@@ -244,28 +245,40 @@ CheckRAM_On_SlotId:
 
 ;     inc     b
 ;     ld  a, b
-;     cp 9
+;     cp 250
 ;     jp      nz, .loop_Segments
+
+    ret
 
 ; .segment_isNotRAM:
 
 ;     ; number of last segment = B-1
 ;     ; number of segments = B-2
+;     ld      a, b
+;     ; or      0xe0
+;     call    PrintNumber
+
+;     ld      hl, STRINGS.SEGMENT_NOT_RAM
+;     call    PrintString
+
 ;     call    PrintCrLf
 
-;     ld      a, b
-;     call    PrintNumber
 
 ;     ; -----------------------------------------------------
 
-    ; ; TODO
-    ; ; print slot/subslot
-    ; ld      a, (SlotId)
-    ; and     0000 0011 b
-    ; call    PrintNumber
+;     ; ; TODO
+;     ; ; print slot/subslot
+;     ; ld      a, (SlotId)
+;     ; and     0000 0011 b
+;     ; call    PrintNumber
 
-    ;jp $
-    ret
+;     ;jp $
+;     ret
+
+
+
+
+
 
 .isNotRAM:
     ret
@@ -398,6 +411,7 @@ STRINGS:
     .CHECKING_SLOT:     db '  checking slot ', 0
     .CHECKING_SUBSLOT:  db '    checking subslot ', 0
     .IS_EXPANDED:       db ' (expanded)', 0
+    .SEGMENT_NOT_RAM:   db 'segment is not RAM', 0
 
 ; --------------------------------------
 
@@ -416,23 +430,23 @@ STRINGS:
 ;       R/W location in a ROM page (like with the diskrom) when this
 ;       routine is used in a slot-scan.
 
-        ; ORG   &HC000          ; The routine may be anywhere
+        ; ORG   0xC000          ; The routine may be anywhere
 
 ; MTSTRT: 
-;         LD    B,&H00          ; Page in which the test values are written
-;         LD    C,&HFE          ; Load C with the mapper register
-;         LD    HL,&H8000       ; Load HL with the test location
+;         LD    B,0x00          ; Page in which the test values are written
+;         LD    C,0xFE          ; Load C with the mapper register
+;         LD    HL,0x8000       ; Load HL with the test location
 
 ;         OUT   (C),B           ; Set the test value page
 ;         LD    D,(HL)          ; Get the memory location value to save it
 
 ;         PUSH  DE              ; Save the original value
-;             LD    D,&HFC          ; Lower page under test, starting at 64KB
+;             LD    D,0xFC          ; Lower page under test, starting at 64KB
 ;     MTLOOP: 
-;             LD    A,&H55          ; Test value 1
+;             LD    A,0x55          ; Test value 1
 ;             CALL  MTTVAL          ; Test the value for the page under test
 ;             JR    NZ,MTNEXT       ; Test value fail, exit test for the page.
-;             LD    A,&HAA          ; Test value 2
+;             LD    A,0xAA          ; Test value 2
 ;             CALL  MTTVAL          ; And test this value for the page under test
 ;             JR    Z,MTOK          ; When test was ok exit the test and form output
 ;     MTNEXT: 
