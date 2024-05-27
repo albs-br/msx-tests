@@ -855,9 +855,9 @@ Execute_VDP_HMMM:
     ld      a, 32           ; number of first register
     di
     out     (PORT_1), a
-    ld      a, 17 + 128
+    ld      a, 17 + 128     ; R#17 + most significant bit set (auto increment)
     out     (PORT_1), a
-    ld      c, 0x9B
+    ld      c, 0x9B ; port number on register C to be used by OUTI's
 .vdpReady:
     ld      a, 2
     di

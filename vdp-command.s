@@ -82,27 +82,27 @@ Execute:
 
 ; ----------------- Execute test VDP commands on the first page (visible)
 
-    ; test HMMM
+    ; test HMMM (red rectangle in the middle of screen)
     ld      hl, HMMM_Parameters
     call    Execute_VDP_HMMM	    ; High speed move VRAM to VRAM
 
 
-    ; test HMMV
+    ; test HMMV (yellow and green striped rectangle on top-left of screen)
     ld      hl, HMMV_Parameters
     call    Execute_VDP_HMMV        ; High speed move VDP to VRAM (fills an area with one single color)
 
 
-    ; test YMMM
+    ; test YMMM (red line on top of screen)
     ld      hl, YMMM_Parameters
     call    Execute_VDP_YMMM        ; High speed move VRAM to VRAM, Y coordinate only
 
 
-    ; test LMMM (will put an image on screen like a sprite)
+    ; test LMMM (will put an image on screen like a sprite - red diamond)
     ld      hl, LMMM_Parameters
     call    Execute_VDP_LMMM        ; Logical move CPU to VRAM (copies data from your ram to the vram)
 
 
-    ; test PSET
+    ; test PSET (white pixel on left of screen)
     ld      hl, PSET_Parameters
     call    Execute_VDP_PSET
 
