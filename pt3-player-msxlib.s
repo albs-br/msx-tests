@@ -27,15 +27,13 @@ SONG_TABLE:
 	dw	.YouWin1
 	dw	.empty
 .PT3_Music_sample:
-    INCBIN "Sound/StayorGo.pt3", 100
+    INCBIN "Sound/StayorGo.pt3"
 .ShuffleOne:
 	incbin	"Sound/RUN23_ShuffleOne.pt3"
 .YouWin1:
 	incbin	"Sound/RUN23_YouWin1.pt3"
 .empty:
 	incbin	"Sound/empty.pt3"
-; .empty:
-; 	incbin	"games/minigames/run23/music/empty.pt3.hl.zx0"
 
 SOUND_BANK:
 	; incbin	"games/minigames/run23/music/run23.afb"
@@ -65,32 +63,30 @@ SOUND_BANK:
 
 
 
+Execute:
+
+
+; Install the interrupt routine
+	di
+		ld	a, 0xc3 ; opcode for "JP nn"
+		ld	[HTIMI], a
+		ld	hl, HOOK
+		ld	[HTIMI+1], hl
+	ei
+
+
+
 ; ---- init new game
-; ; No music
-; 	ld	a, 2
-; 	call	REPLAYER.PLAY
-
-
-; ; Starts the music
-; 	; xor	a
-;     ld      a, 1
-; 	call	REPLAYER.PLAY
-
 
 ; Starts the music
-	; ld	a, $80 + 1
-	ld	a, $80 + 0
-	call	REPLAYER.PLAY
+    ld      a, 0 ; index of music on SONG_TABLE
+ 	call	REPLAYER.PLAY
+
+
 
 
 ; ; Stops the music
 ; 	jp	REPLAYER.STOP
-
-
-
-
-Execute:
-
     ; ld      hl, Debug_Message
     ; call    PrintString
 
@@ -107,33 +103,9 @@ Execute:
     cp      b
     jp      z, .waitVBlank
 
-; Invokes the replayer
-; IFEXIST REPLAYER.FRAME
-; Invokes the replayer (with frameskip in 60Hz machines)
-	ld	a, 5 ;6 ; [frames_per_tenth]
-	cp	5
-	jr	z, .NO_FRAMESKIP ; No frameskip (50Hz machine)
-; Checks frameskip (60Hz machine)
-	; ld	a, 6 ; (unnecessary)
-	ld	hl, replayer.frameskip
-	inc	[hl]
-	sub	[hl]
-	jr	nz, .NO_FRAMESKIP ; No framewksip
-; Resets frameskip counter
-	; xor	a ; (unnecessary)
-	ld	[hl], a
-	jr	.FRAMESKIP
 
-.NO_FRAMESKIP:
-; Executes a frame of the replayer
-	call	REPLAYER.FRAME
-.FRAMESKIP:
-; ENDIF ; REPLAYER.FRAME
-
-    ; call    BIOS_BEEP
-
-
-    ld      hl, Debug_Message
+    
+	ld      hl, Debug_Message
     call    PrintString
 
     jp      .loop
@@ -149,6 +121,71 @@ PrintString:
 
 Debug_Message:
     db      "Test message", 13, 10, 0
+
+
+; -----------------------------------------------------------------------------
+; H.TIMI hook
+; 1. Invokes the replayer
+; 2. Reads the inputs
+; 3. Tricks BIOS' KEYINT to skip keyboard scan, TRGFLG, OLDKEY/NEWKEY, ON STRIG...
+; 5. Invokes the previously existing hook
+HOOK:
+	push	af ; Preserves VDP status register S#0 (a)
+
+		; Invokes the replayer (with frameskip in 60Hz machines)
+		ld	a, [frames_per_tenth]
+		cp	5
+		jr	z, .NO_FRAMESKIP ; No frameskip (50Hz machine)
+
+		; Checks frameskip (60Hz machine)
+		; ld	a, 6 ; (unnecessary)
+		ld	hl, replayer.frameskip
+		inc	[hl]
+		sub	[hl]
+		jr	nz, .NO_FRAMESKIP ; No framewksip
+
+		; Resets frameskip counter
+		; xor	a ; (unnecessary)
+		ld	[hl], a
+		jr	.FRAMESKIP
+
+	.NO_FRAMESKIP:
+		; Executes a frame of the replayer
+		call	REPLAYER.FRAME
+	.FRAMESKIP:
+
+		; ; Reads the inputs
+		; 	IFDEF CFG_HOOK_ENABLE_AUTO_KEYBOARD
+		; 		call	READ_KEYBOARD
+		; 	ENDIF ; CFG_HOOK_ENABLE_AUTO_KEYBOARD
+
+		; 	IFEXIST CFG_HOOK_DISABLE_AUTO_INPUT
+		; 	ELSE
+		; 		call	READ_INPUT
+		; 	ENDIF ; CFG_HOOK_DISABLE_AUTO_INPUT
+
+		; Tricks BIOS' KEYINT to skip keyboard scan, TRGFLG, OLDKEY/NEWKEY, ON STRIG...
+		xor	a
+		ld	[BIOS_SCNCNT], a
+		ld	[BIOS_INTCNT], a
+
+	pop	af ; Restores VDP status register S#0 (a)
+
+	; Tricks BIOS' KEYINT to skip ON SPRITE...
+	; IFDEF CFG_HOOK_PRESERVE_SPRITE_COLLISION_FLAG
+	; ELSE
+	and	$df ; Turns off sprite collision flag
+	; ENDIF ; IFDEF CFG_HOOK_PRESERVE_SPRITE_COLLISION_FLAG
+
+	; Invokes the previously existing hook
+	; IFDEF CFG_INIT_USE_HIMEM_KEEP_HOOKS
+	; 	jp	old_htimi_hook
+	; ELSE
+	ret
+	; ENDIF ; IFDEF CFG_INIT_USE_HIMEM_KEEP_HOOKS
+
+; -----------------------------------------------------------------------------
+
 
     db      "End ROM started at 0x4000"
 
@@ -170,4 +207,10 @@ Debug_Message:
 
 ; 60Hz replayer synchronization
 replayer.frameskip:
+	rb	1
+
+; Refresh rate in Hertzs (50Hz/60Hz) and related convenience vars
+frame_rate:
+	rb	1
+frames_per_tenth:
 	rb	1

@@ -1,5 +1,8 @@
 FNAME "pt3-player.rom"      ; output file
 
+
+; ---------------------------------------- NOT WORKING! ------------------------------------------------ 
+
 PageSize:	    equ	0x4000	        ; 16kB
 
 ; Compilation address

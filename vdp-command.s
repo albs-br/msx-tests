@@ -39,7 +39,7 @@ Execute:
 
 
 
-; ----------- Load test bg image on second page (not visible)
+; ----------- Load test bg image (red diamond) on second page (not visible)
 
     ld      ix, 0x8000 + (128 * 64)         ; vram base address
     ld      iy, Image_Test_16x8             ; ram base address
@@ -99,7 +99,7 @@ Execute:
 
     ; test LMMM (will put an image on screen like a sprite - red diamond)
     ld      hl, LMMM_Parameters
-    call    Execute_VDP_LMMM        ; Logical move CPU to VRAM (copies data from your ram to the vram)
+    call    Execute_VDP_LMMM        ; Logical move VRAM to VRAM (copies data from your ram to the vram)
 
 
     ; test PSET (white pixel on left of screen)
@@ -154,7 +154,7 @@ Execute:
 
 
 
-Image_Test_16x8:
+Image_Test_16x8: ; red diamond
     db  0x00, 0x00, 0x00, 0x88, 0x88, 0x00, 0x00, 0x00
     db  0x00, 0x00, 0x88, 0x88, 0x88, 0x88, 0x00, 0x00
     db  0x00, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x00
