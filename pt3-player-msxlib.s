@@ -36,13 +36,13 @@ SONG_TABLE:
 	incbin	"Sound/empty.pt3"
 
 SOUND_BANK:
+    INCBIN "Sound/MsxWingsSfx_Bank.afb"
 	; incbin	"games/minigames/run23/music/run23.afb"
 
-	; CFG_SOUND_JOIN:			equ 1 -1
-	; CFG_SOUND_PUSH:			equ 2 -1
-	; CFG_SOUND_TIMEOUT:		equ 3 -1
-	; CFG_SOUND_WEIGHT_MOVE:		equ 5 -1
-	; CFG_SOUND_WEIGHT_FALL:		equ 4 -1
+SFX_EXPLOSION:          equ 0
+SFX_SHOT:               equ 1
+SFX_GET_ITEM:           equ 2
+SFX_GET_DOLLAR_ITEM:    equ 3
 
 
 ; -----------------------------------------------------------------------------
@@ -57,8 +57,8 @@ SOUND_BANK:
 ; PT3-based implementation
 	include	"include/replayer_pt3.asm"
 
-; ayFX REPLAYER v1.31
-	include	"include/ayFX-ROM.tniasm.asm"
+; ; ayFX REPLAYER v1.31
+; 	include	"include/ayFX-ROM.tniasm.asm"
 ; -----------------------------------------------------------------------------
 
 
@@ -79,8 +79,8 @@ Execute:
 ; ---- init new game
 
 ; Starts the music
-    ld      a, 0 ; index of music on SONG_TABLE
- 	call	REPLAYER.PLAY
+    ld      a, 0 			; index of music on SONG_TABLE
+ 	call	REPLAYER.PLAY 	; param a: liiiiiii, where l (MSB) is the loop flag (0 = loop), and iiiiiii is the 0-based song index (0, 1, 2...)
 
 
 
@@ -104,6 +104,25 @@ Execute:
     jp      z, .waitVBlank
 
 
+
+; 	; ----- play sfx when spacebar pressed
+;     ld      a, 0                    ; read spacebar
+;     call    BIOS_GTTRIG
+;     jp    	nz, .playSFX
+; 	jp		.continue
+
+
+; .playSFX:
+; 	ld      hl, Spacebar_Pressed_Message
+;     call    PrintString
+
+; 	ld	a, SFX_GET_DOLLAR_ITEM		; sfx index
+; 	ld	c, 0						; sound priority
+; 	call	ayFX_INIT
+; .continue:
+; 	; -------------------------------------
+
+
     
 	ld      hl, Debug_Message
     call    PrintString
@@ -119,9 +138,8 @@ PrintString:
     inc     hl
     jr      PrintString
 
-Debug_Message:
-    db      "Test message", 13, 10, 0
-
+Debug_Message:    				db      "Test message", 13, 10, 13, 10, 0
+Spacebar_Pressed_Message:    	db      "Spacbar pressed", 13, 10, 0
 
 ; -----------------------------------------------------------------------------
 ; H.TIMI hook
@@ -203,14 +221,12 @@ HOOK:
 
 	include	"include/PT3-RAM.tniasm.asm"
 
-	include	"include/ayFX-RAM.tniasm.asm"
+	;include	"include/ayFX-RAM.tniasm.asm"
 
 ; 60Hz replayer synchronization
-replayer.frameskip:
-	rb	1
+replayer.frameskip:		rb	1
 
 ; Refresh rate in Hertzs (50Hz/60Hz) and related convenience vars
-frame_rate:
-	rb	1
-frames_per_tenth:
-	rb	1
+frame_rate:				rb	1
+
+frames_per_tenth:		rb	1
