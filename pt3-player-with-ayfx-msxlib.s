@@ -1,4 +1,4 @@
-FNAME "pt3-player-msxlib.rom"      ; output file
+FNAME "pt3-player-with-ayfx-msxlib.rom"      ; output file
 
 PageSize:	    equ	0x4000	        ; 16kB
 
@@ -57,14 +57,19 @@ SFX_GET_DOLLAR_ITEM:    equ 3
 ; PT3-based implementation
 	include	"include/replayer_pt3.asm"
 
-; ; ayFX REPLAYER v1.31
-; 	include	"include/ayFX-ROM.tniasm.asm"
+; ayFX REPLAYER v1.31
+	include	"include/ayFX-ROM.tniasm.asm"
 ; -----------------------------------------------------------------------------
 
 
 
 Execute:
 
+; PSG: silence
+	call	BIOS_GICINI
+
+; Initializes the replayer
+	call	REPLAYER.RESET
 
 ; Install the interrupt routine
 	di
@@ -76,10 +81,10 @@ Execute:
 
 
 
-; ---- init new game
+
 
 ; Starts the music
-    ld      a, 0 			; index of music on SONG_TABLE
+    ld      a, 1 			; index of music on SONG_TABLE
  	call	REPLAYER.PLAY 	; param a: liiiiiii, where l (MSB) is the loop flag (0 = loop), and iiiiiii is the 0-based song index (0, 1, 2...)
 
 
@@ -105,22 +110,22 @@ Execute:
 
 
 
-; 	; ----- play sfx when spacebar pressed
-;     ld      a, 0                    ; read spacebar
-;     call    BIOS_GTTRIG
-;     jp    	nz, .playSFX
-; 	jp		.continue
+	; ----- play sfx when spacebar pressed
+    ld      a, 0                    ; read spacebar
+    call    BIOS_GTTRIG
+    jp    	nz, .playSFX
+	jp		.continue
 
 
-; .playSFX:
-; 	ld      hl, Spacebar_Pressed_Message
-;     call    PrintString
+.playSFX:
+	ld      hl, Spacebar_Pressed_Message
+    call    PrintString
 
-; 	ld	a, SFX_GET_DOLLAR_ITEM		; sfx index
-; 	ld	c, 0						; sound priority
-; 	call	ayFX_INIT
-; .continue:
-; 	; -------------------------------------
+	ld	a, SFX_GET_DOLLAR_ITEM		; sfx index
+	ld	c, 0						; sound priority
+	call	ayFX_INIT
+.continue:
+	; -------------------------------------
 
 
     
@@ -221,7 +226,7 @@ HOOK:
 
 	include	"include/PT3-RAM.tniasm.asm"
 
-	;include	"include/ayFX-RAM.tniasm.asm"
+	include	"include/ayFX-RAM.tniasm.asm"
 
 ; 60Hz replayer synchronization
 replayer.frameskip:		rb	1
