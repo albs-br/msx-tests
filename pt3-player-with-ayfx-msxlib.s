@@ -48,12 +48,6 @@ SFX_GET_DOLLAR_ITEM:    equ 3
 ; -----------------------------------------------------------------------------
 ; Replayer routines
 
-; Define to enable packed songs when using the PT3-based implementation
-	; CFG_PT3_PACKED:
-
-; Define to use headerless PT3 files (without first 100 bytes)
-	; CFG_PT3_HEADERLESS:
-
 ; PT3-based implementation
 	include	"include/replayer_pt3.asm"
 
@@ -121,7 +115,7 @@ Execute:
 	ld      hl, Spacebar_Pressed_Message
     call    PrintString
 
-	ld	a, SFX_GET_DOLLAR_ITEM		; sfx index
+	ld	a, SFX_SHOT		; sfx index
 	ld	c, 0						; sound priority
 	call	ayFX_INIT
 .continue:
@@ -144,7 +138,7 @@ PrintString:
     jr      PrintString
 
 Debug_Message:    				db      "Test message", 13, 10, 13, 10, 0
-Spacebar_Pressed_Message:    	db      "Spacbar pressed", 13, 10, 0
+Spacebar_Pressed_Message:    	db      "Spacebar pressed", 13, 10, 0
 
 ; -----------------------------------------------------------------------------
 ; H.TIMI hook
