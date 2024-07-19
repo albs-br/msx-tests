@@ -46,10 +46,10 @@
                        
                         "quoting": "weak"
                     },
-                    // {
-                    //     "value": "-romtype ASCII16",
-                    //     "quoting": "weak"
-                    // },
+                    {
+                        "value": "-romtype ASCII16",
+                        "quoting": "weak"
+                    },
                     {
                         "value": "-script ${workspaceFolder}\\msx-tests_debug.tcl",
 
