@@ -1,5 +1,5 @@
 10 defint a-z
-15 screen 1, 2, 0 : color 15, 1, 7
+15 screen 2, 2, 0 : color 15, 1, 7
 20 's$=""
 30 'FOR I=0 TO 7: READ A: s$=s$+CHR$(A): NEXT I
 40 'SPRITE$(0)=s$ 
@@ -13,8 +13,8 @@
 108 'next i
 110 ON STRIG GOSUB 800 : STRIG(0) ON 
 115 J = -1
-116 DIM B(37) : FOR I=0 TO 36 : READ A : B(I)=A : NEXT I
-117 DATA -5, -5, -5, -5, -4, -4, -4, -4, -3, -3, -3, -2, -2, -2, -2, -1, -1, -1, 0, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5
+116 DIM B(29) : FOR I=0 TO 28 : READ A : B(I)=A : NEXT I
+117 DATA -6, -5, -5, -5, -4, -4, -3, -3, -2, -2, -2, -1, -1, -1, 0, 1, 1, 1, 2, 2, 2, 3, 3, 4, 4, 5, 5, 5, 6
 
 150 GOSUB 10000
 
@@ -32,12 +32,12 @@
 550 goto 500
 
 599' if MID$(s$, (x+17)/16+1, 1) = "." then x=x+2
-600 if x<=236 then x=x+2 : V = X+8
+600 if x<=236 then x=x+3 : V = X+8
 645 P=P+2 : if p=8 then p=2
 690 RETURN
 
 699' if MID$(s$, (x-2)/16+1, 1) = "." then x=x-2
-700 if x>=2 then x=x-2 : V = X+8
+700 if x>=3 then x=x-3 : V = X+8
 790 RETURN
 
 800 IF J=-1 THEN J=0
@@ -47,7 +47,7 @@
 910 GOTO 530
 
 1000 Y = Y + B(J) : W = Y+8
-1010 IF J=36 THEN 1100
+1010 IF J=28 THEN 1100
 1020 J=J+1
 1030 RETURN
 
