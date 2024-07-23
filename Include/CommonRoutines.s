@@ -895,7 +895,7 @@ Execute_VDP_HMMM:
 Execute_VDP_PSET:
 Execute_VDP_LINE:
 Execute_VDP_HMMV:
-;Execute_VDP_HMMC_Init:
+Execute_VDP_HMMC_Init:
     ld      a, 36           ; number of first register
     di
     out     (PORT_1), a
@@ -929,70 +929,111 @@ Execute_VDP_HMMV:
     outi
     ret
 
-; not working
-; ; HL:   command registers values (R#36 to R#46)
-; ; DE:   source data address in RAM
-; Execute_VDP_HMMC:
-;     ; initialize VDP for HMMC using Grauw method (https://www.msx.org/forum/msx-talk/development/transferring-data-after-hmmc-lmmc-command)
-;   ;  push    hl
-;         call    Execute_VDP_HMMC_Init
-;    ; pop     hl
+
+;  --- HMMC working
+; 10 SCREEN 5
+; 20 REM VDP(26) = VDP(26) OR 64 'only MSX 2+
+; 30 VDP(37) = 128-4 : VDP(38) = 0 : VDP(39) = 96-4 : VDP(40) = 0 'R#36-39: DX, DY
+; 40 VDP(41) = 0 : VDP(42) = 0 : VDP(43) = 0 : VDP(44) = 0 'R#40-43: NX, NY (dummy values)
+; 50 VDP(45) = 255 'R#44: CLR (dummy value)
+; 60 VDP(46) = 0 : VDP(47) = &HF0 : VDP(41) = 8 : VDP(43) = 8 : VDP(47) = &HF0
+; 70 IF VDP(-2) AND 1 THEN VDP(45) = &Hf8 : GOTO 70
+; 
+; 1000 goto 1000
 
 
+; HL:   command registers values (R#36 to R#46)
+; DE:   source data address in RAM
+Execute_VDP_HMMC:
+    ; initialize VDP for HMMC using Grauw method (https://www.msx.org/forum/msx-talk/development/transferring-data-after-hmmc-lmmc-command)
+    push    hl, de
+        call    Execute_VDP_HMMC_Init
+    pop     de, hl
 
-;     ; ; set width & height
-;     ; call    Execute_VDP_HMMC_Init
+
+    ;---: VDP(41) = 8 : VDP(43) = 8 : VDP(47) = &HF0
+    push    de
+        ld      bc, 4
+        add     hl, bc ; set HL to R#40 position
+
+        ; --- set R#40-43 (NX, NY) again
+        ld      b, (hl)         ; data
+        ld      c, 40           ; register #
+        call    BIOS_WRTVDP
+        inc     hl
+
+        ld      b, (hl)         ; data
+        ld      c, 41           ; register #
+        call    BIOS_WRTVDP
+        inc     hl
+
+        ld      b, (hl)         ; data
+        ld      c, 42           ; register #
+        call    BIOS_WRTVDP
+        inc     hl
+
+        ld      b, (hl)         ; data
+        ld      c, 43           ; register #
+        call    BIOS_WRTVDP
+        inc     hl
 
 
-
-; ; .debug_111:
-; ;     call bios_beep
-; ;     jp .debug_111
+        ; --- set R#46 (CMD) again
+        ld      b, 0xf0         ; data
+        ld      c, 46           ; register #
+        call    BIOS_WRTVDP
+    pop     hl ; HL = DE (old HL not needed)
     
+    ; --- read status reg S#2
+.readS2:
+    ld      a, 2
+    di
+        out     (PORT_1), a     ; select s#2
+        ld      a, 15 + 128
+        out     (PORT_1), a
+        in      a, (PORT_1)
+        ld      b, a            ; value of S#2 to B
+        ld      a, 0          ; back to s#0, enable ints
+        out     (PORT_1), a
+        ld      a, 15 + 128
+    ei
+    out     (PORT_1), a
 
+    ; S#2:
+    ; CE = bit 0
+    ; TR = bit 7
 
-;     ex      de, hl ; HL = DE (old HL not needed)
-
-;     ; read status reg S#2
-; .readS2:
-;     ld      a, 2
-;     di
-;     out     (PORT_1), a     ; select s#2
-;     ld      a, 15 + 128
-;     out     (PORT_1), a
-;     in      a, (PORT_1)
-;     ld      b, a            ; value of S#2 to B
-;     xor     a ; ld a, 0          ; back to s#0, enable ints
-;     out     (PORT_1), a
-;     ld      a, 15 + 128
-;     ei
-;     out     (PORT_1), a
-
-;     ; S#2:
-;     ; CE = bit 0
-;     ; TR = bit 7
-
-;     ; if (CE == 0) ret 
-;     ld      a, b
-;     and     0000 0001 b
-;     ret     z
+    ; if (CE == 0) ret 
+    ld      a, b
+    and     0000 0001 b
+    ret     z
     
-;     ; if (TR == 0) { readS2; } else { dataTransmit; readS2; }
-;     ld      a, b
-;     and     1000 000 b
-;     jp      z, .readS2
+    ; if (TR == 0) { readS2; } else { dataTransmit; readS2; }
+    ld      a, b
+    and     1000 000 b
+    jp      z, .readS2
 
-; .dataTransmit:
-;     ld      c, 0x9b
-;     outi
-;     jp      .readS2
+.dataTransmit:
+
+    ; --- set R#44 (CLR) to next data
+    
+    ld      c, 0x99
+    ;ld      d, 32 ; 8x8 pixels in SC5
+;.loop_test:
+    ;ld a, 0x84 ; date
+    di
+        ;out (0x99),a
+        outi
+        ld a, 44 + 128 ; register number + 128
+    ei
+    out (0x99),a
+
+    ; dec     d
+    ; jp      nz, .loop_test
+
+    jp      .readS2
 
 
-; Dummy_HMMC_Parameters:    ; R#36 to R#46
-;    dw    0, 0 	    ; Destiny X (9 bits), Destiny Y (10 bits)
-;    dw    1, 0		; number of cols (9 bits), number of lines (10 bits)
-;    db    0          ; R#44 color register
-;    db    0, VDP_COMMAND_HMMC
 
     
 

@@ -108,43 +108,43 @@ Execute:
 
 
 
-    ; ; test HMMC (not working)
-    ; ld      hl, HMMC_Parameters
-    ; ld      de, Image_Test_8x8
-    ; call    Execute_VDP_HMMC
+    ; test HMMC (square at 128,128) (working, but probably slow)
+    ld      hl, HMMC_Parameters
+    ld      de, Image_Test_8x8
+    call    Execute_VDP_HMMC
 
 
-    ; ----------------- test LINE cmd spedd
+;     ; ----------------- test LINE cmd spedd
 
-    ; wait until the start of a frame
-    call    Wait_Vblank
+;     ; wait until the start of a frame
+;     call    Wait_Vblank
 
-    ; save current JIFFY
-    ld      a, (BIOS_JIFFY)
-    ld      ixl, a
+;     ; save current JIFFY
+;     ld      a, (BIOS_JIFFY)
+;     ld      ixl, a
 
-    ; MAX: 15 lines of 128 x 128 in one frame
-    ; MAX: 9 lines of 255 x 128 in one frame
-    ld      b, 9      ; number of repetitions
-.loop:
-    ; test LINE
-    ld      hl, LINE_Parameters
-    push    bc
-        call    Execute_VDP_LINE
-    pop     bc
-    djnz    .loop
+;     ; MAX: 15 lines of 128 x 128 in one frame
+;     ; MAX: 9 lines of 255 x 128 in one frame
+;     ld      b, 9      ; number of repetitions
+; .loop:
+;     ; test LINE
+;     ld      hl, LINE_Parameters
+;     push    bc
+;         call    Execute_VDP_LINE
+;     pop     bc
+;     djnz    .loop
 
-    ; check if it took more than one frame
-    ld      a, (BIOS_JIFFY)
-    cp      ixl
-    jp      z, .doBeeps ; if(a == ixl) doBeeps
+;     ; check if it took more than one frame
+;     ld      a, (BIOS_JIFFY)
+;     cp      ixl
+;     jp      z, .doBeeps ; if(a == ixl) doBeeps
 
-    jp      $
+;     jp      $
 
-; beeps means it took less than one frame
-.doBeeps:
-    call    BIOS_BEEP
-    jp      .doBeeps
+; ; beeps means it took less than one frame
+; .doBeeps:
+;     call    BIOS_BEEP
+;     jp      .doBeeps
 
 
 .endProgram:
@@ -165,14 +165,14 @@ Image_Test_16x8: ; red diamond
     db  0x00, 0x00, 0x00, 0x88, 0x88, 0x00, 0x00, 0x00
 
 Image_Test_8x8:
-    db  0x11, 0x23, 0x45, 0x67
-    db  0x89, 0xab, 0xcd, 0xef
-    db  0x01, 0x23, 0x45, 0x67
-    db  0x89, 0xab, 0xcd, 0xef
-    db  0x01, 0x23, 0x45, 0x67
-    db  0x89, 0xab, 0xcd, 0xef
-    db  0x01, 0x23, 0x45, 0x67
-    db  0x89, 0xab, 0xcd, 0xef
+    db  0xff, 0xff, 0xff, 0xff
+    db  0xf0, 0x00, 0x00, 0x0f
+    db  0xf0, 0x00, 0x00, 0x0f
+    db  0xf0, 0x00, 0x00, 0x0f
+    db  0xf0, 0x00, 0x00, 0x0f
+    db  0xf0, 0x00, 0x00, 0x0f
+    db  0xf0, 0x00, 0x00, 0x0f
+    db  0xff, 0xff, 0xff, 0xff
 
 HMMM_Parameters:
 ;    db 0,0,0,1       ; R#32, R#33, R#34, R#35
@@ -232,7 +232,6 @@ PSET_Parameters:
 .Command:    db    VDP_COMMAND_PSET
 PSET_Parameters_size: equ $ - PSET_Parameters
 
-; not working
 HMMC_Parameters:    ; R#36 to R#46
    dw    128, 128 	; Destiny X (9 bits), Destiny Y (10 bits)
    dw    8, 8		; number of cols (9 bits), number of lines (10 bits)
