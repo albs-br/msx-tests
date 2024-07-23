@@ -253,37 +253,6 @@ YMMM_Parameters:
    db    0000 0000b         ; R#45: destination memory and direction from base coordinate
    db    VDP_COMMAND_YMMM   ; R#46: command number
 
-VDP_COMMAND_HMMC:       equ 1111 0000 b	; High speed move CPU to VRAM (copies data from your ram to the vram)
-VDP_COMMAND_YMMM:       equ 1110 0000 b	; High speed move VRAM to VRAM, Y coordinate only
-VDP_COMMAND_HMMM:       equ 1101 0000 b	; High speed move VRAM to VRAM
-VDP_COMMAND_HMMV:       equ 1100 0000 b	; High speed move VDP to VRAM (fills an area with one single color)
-
-; Logical commands (four lower bits specifies logic operation)
-VDP_COMMAND_LMMC:       equ 1011 0000 b	; Logical move CPU to VRAM (copies data from your ram to the vram)
-VDP_COMMAND_LMCM:       equ 1010 0000 b	; Logical move VRAM to CPU
-VDP_COMMAND_LMMM:       equ 1001 0000 b	; Logical move VRAM to VRAM
-VDP_COMMAND_LMMV:       equ 1000 0000 b	; Logical move VDP to VRAM (fills an area with one single color)
-
-VDP_COMMAND_LINE:       equ 0111 0000 b
-VDP_COMMAND_SRCH:       equ 0110 0000 b
-VDP_COMMAND_PSET:       equ 0101 0000 b
-VDP_COMMAND_POINT:      equ 0100 0000 b
-
-VDP_COMMAND_STOP:       equ 0000 0000 b
-
-
-; Logical operations:
-VDP_LOGIC_OPERATION_IMP:    equ 0000 b
-VDP_LOGIC_OPERATION_AND:    equ 0001 b
-VDP_LOGIC_OPERATION_OR:     equ 0010 b
-VDP_LOGIC_OPERATION_XOR:    equ 0011 b
-VDP_LOGIC_OPERATION_NOT:    equ 0100 b
-
-VDP_LOGIC_OPERATION_TIMP:   equ 1000 b
-VDP_LOGIC_OPERATION_TAND:   equ 1001 b
-VDP_LOGIC_OPERATION_TOR:    equ 1010 b
-VDP_LOGIC_OPERATION_TXOR:   equ 1011 b
-VDP_LOGIC_OPERATION_TNOT:   equ 1100 b
 
 ; https://msx.org/forum/msx-talk/development/doubts-about-9938-commands
 

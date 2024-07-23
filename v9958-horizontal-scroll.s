@@ -59,15 +59,21 @@ Execute:
     call 	BIOS_LDIRVM        						; Block transfer to VRAM from memory
 
 
-    ; TODO: not working:
-    ; ; setup horizontal scroll parameters on R#25
+    ; --- not working (R#25 was added on MSX 2+, probably RDVDP routine is not able to 
+    ; read it, as other BIOS routines weren't updated to MSX 2+)
+    ; setup horizontal scroll parameters on R#25
     ; ld      a, 25
     ; call    BIOS_RDVDP
-    ; and     0111 1100 b     ; keep bits 2-6
-    ; or      0000 0000 b     ; set bit 0 (SP2) and bit 1 (MSK)
+    ; and     0111 1100 b     ; keep bits 2-6, reset bit 7
+    ; or      0000 0010 b     ; reset bit 0 (SP2) and set bit 1 (MSK)
     ; ld      b, a    ; data
     ; ld      c, 25   ; register #
     ; call    BIOS_WRTVDP
+
+    ; setup horizontal scroll parameters on R#25
+    ld      b, 0000 0010 b          ; data: reset bit 0 (SP2) and set bit 1 (MSK)
+    ld      c, 25   ; register #
+    call    BIOS_WRTVDP
 
     xor     a
     ld      (Scroll_R26), a
@@ -79,8 +85,8 @@ Execute:
 
 .loop:
 
-    ; call    Wait_15_Vblanks
-    call    Wait_Vblank
+    call    Wait_15_Vblanks
+    ;call    Wait_Vblank
 
     ; call    .do_Scroll_R26
 
