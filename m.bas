@@ -8,10 +8,11 @@
 81 ' P: player current sprite pattern
 82 ' Z: flag to skip frame animation 
 83 ' D: direction (0: right, 8: left)
-84 ' C: walk cycle counter
+84 ' C: walking cycle counter
 85 ' V, W: (X, Y) of player center (aux var to make collision check faster)
 86 ' J: jump control var (-1: not jumping)
 87 ' B(J): array of delta Ys to jump
+88 ' E: flag for coin color control
 
 98  p=0 : z=0 : D = 0
 100 x=128-8 : y=192-32 : V = X+8 : W = Y+8
@@ -28,6 +29,8 @@
 
 180 'ON SPRITE GOSUB 1200
 190 GOSUB 1200
+
+200 ON INTERVAL=20 GOSUB 1500 : INTERVAL ON
 
 500 IF J<>-1 THEN gosub 1000
 505 A = STICK(0)
@@ -73,17 +76,21 @@
 1100 J=-1
 1110 RETURN
 
+1199 ' place new coin in screen
 1200 BEEP : R=RND(-TIME) : R=INT(RND(1)*14)+1 : K = INT((RND(1)*4)) + 7
 1205 'PRINT R, K
 1207 'print x, y
 1208 R = R * 16 : K = K * 16
 1209 G = R + 16 : H = K + 16
-1210 PUT SPRITE 2, (R, K), 10, 0
-1215 'SPRITE ON
-1217 'goto 1217
-1220 RETURN
+1210 PUT SPRITE 2, (R, K), 1, 16
+1220 PUT SPRITE 3, (R, K), 10, 17
+1290 RETURN
 
-9001 ' --- Slot 0
+1499 ' change coin color
+1500 if e=0	then VPOKE 6927, 10 : e=1 : RETURN
+1510 VPOKE 6927, 6 : e=0 : return
+
+9001 ' --- player standing facing right
 9010 ' color 6
 9020 DATA &H07,&H0F,&H0E,&H14,&H16,&H18,&H00,&H0F
 9030 DATA &H1F,&H3F,&H0D,&H07,&H0F,&H0E,&H1C,&H3C
@@ -95,7 +102,7 @@
 9090 DATA &H00,&H00,&HA0,&HB8,&HDC,&H80,&HF0,&H00
 9100 DATA &H00,&H00,&H4C,&H1C,&H0C,&H00,&H00,&H00
 9110 ' 
-9120 ' --- Slot 1
+9120 ' --- player walking cycle 1 right
 9130 ' color 6
 9140 DATA &H07,&H0F,&H0E,&H14,&H16,&H18,&H00,&H3F
 9150 DATA &H3F,&H0E,&H0F,&H1F,&H3F,&H7C,&H70,&H38
@@ -107,7 +114,7 @@
 9210 DATA &H00,&H00,&HA0,&HB8,&HDC,&H80,&HF0,&H00
 9220 DATA &H0E,&H06,&H00,&H00,&H00,&H00,&H00,&H00
 9230 ' 
-9240 ' --- Slot 2
+9240 ' --- player walking cycle 2 right
 9250 ' color 6
 9260 DATA &H07,&H0F,&H0E,&H14,&H16,&H18,&H00,&H0F
 9270 DATA &H1F,&H1F,&H1F,&H1C,&H0C,&H07,&H07,&H07
@@ -119,7 +126,7 @@
 9330 DATA &H00,&H00,&HA0,&HB8,&HDC,&H80,&HF0,&H00
 9340 DATA &H00,&H90,&H00,&H80,&H00,&H00,&H00,&H00
 9350 ' 
-9360 ' --- Slot 3
+9360 ' --- player walking cycle 3 right
 9370 ' color 6
 9380 DATA &H00,&H03,&H07,&H07,&H0A,&H0B,&H0C,&H00
 9390 DATA &H07,&H07,&H07,&H1F,&H1F,&H3E,&H21,&H01
@@ -131,7 +138,7 @@
 9450 DATA &H00,&H00,&H00,&HD0,&HDC,&HEE,&HC0,&HF8
 9460 DATA &H08,&H1C,&H18,&H00,&H00,&H00,&H00,&H00
 
-9500 ' --- Slot 0
+9500 ' --- player standing facing left
 9510 ' color 6
 9520 DATA &H03,&H1F,&H02,&H02,&H04,&H1E,&H00,&H03
 9530 DATA &H1F,&H3F,&H0D,&H07,&H0F,&H0E,&H1C,&H3C
@@ -143,7 +150,7 @@
 9590 DATA &H00,&H00,&H80,&HD0,&H90,&HE0,&HE0,&H00
 9600 DATA &H00,&H00,&H4C,&H1C,&H0C,&H00,&H00,&H00
 9610 ' 
-9620 ' --- Slot 1
+9620 ' --- player walking cycle 1 left
 9630 ' color 6
 9640 DATA &H03,&H1F,&H02,&H02,&H04,&H1E,&H00,&H03
 9650 DATA &H0F,&H1F,&H27,&H3F,&H3F,&H3E,&H00,&H00
@@ -155,7 +162,7 @@
 9710 DATA &H00,&H00,&H80,&HD0,&H90,&HE0,&HE0,&H00
 9720 DATA &H03,&H87,&H03,&H00,&H00,&H00,&H00,&H00
 9730 ' 
-9740 ' --- Slot 2
+9740 ' --- player walking cycle 2 left
 9750 ' color 6
 9760 DATA &H03,&H1F,&H02,&H02,&H04,&H1E,&H00,&H03
 9770 DATA &H07,&H06,&H0F,&H0E,&H07,&H07,&H0F,&H01
@@ -167,7 +174,7 @@
 9830 DATA &H00,&H00,&H80,&HD0,&H90,&HE0,&HE0,&H00
 9840 DATA &H00,&H00,&H00,&HC0,&HC0,&H00,&H00,&H00
 9850 ' 
-9860 ' --- Slot 3
+9860 ' --- player walking cycle 3 left
 9870 ' color 6
 9880 DATA &H00,&H07,&H3F,&H04,&H04,&H08,&H3C,&H00
 9890 DATA &H07,&H07,&H07,&H0F,&H0F,&H07,&H03,&H07
@@ -178,7 +185,20 @@
 9940 DATA &H10,&H38,&H18,&H00,&H00,&H00,&H00,&H00
 9950 DATA &H00,&H00,&H00,&H00,&HA0,&H20,&HC0,&HC0
 9960 DATA &H00,&H10,&H18,&H00,&H00,&H00,&H00,&H00
-9970 DATA *
+
+10000 ' --- Coin (pattern # 16)
+10010 ' color 1
+10020 DATA &H00,&H00,&H00,&H00,&H03,&H04,&H04,&H04
+10030 DATA &H04,&H04,&H04,&H04,&H04,&H03,&H00,&H00
+10040 DATA &H00,&H00,&H60,&H30,&H30,&H98,&H98,&H98
+10050 DATA &H98,&H98,&H98,&H98,&H98,&H30,&H30,&H60
+10060 ' color 10
+10070 DATA &H00,&H00,&H07,&H0F,&H0C,&H1B,&H1B,&H1B
+10080 DATA &H1B,&H1B,&H1B,&H1B,&H1B,&H0C,&H0F,&H07
+10090 DATA &H00,&H00,&H80,&HC0,&HC0,&H60,&H60,&H60
+10100 DATA &H60,&H60,&H60,&H60,&H60,&HC0,&HC0,&H80
+
+20000 DATA *
 
 30000 ' -- LOAD SPRITES
 30010 S=BASE(9)
