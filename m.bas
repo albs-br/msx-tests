@@ -9,7 +9,9 @@
 82 ' Z: flag to skip frame animation 
 83 ' D: direction (0: right, 8: left)
 84 ' C: walk cycle counter
-85 ' V, W: aux var to make collision check faster
+85 ' V, W: (X, Y) of player center (aux var to make collision check faster)
+86 ' J: jump control var (-1: not jumping)
+87 ' B(J): array of delta Ys to jump
 
 98  p=0 : z=0 : D = 0
 100 x=128-8 : y=192-32 : V = X+8 : W = Y+8
@@ -37,31 +39,37 @@
 542 if V >= R and V < G and W >= k and W < H then gosub 1200
 550 goto 500
 
-599' if MID$(s$, (x+17)/16+1, 1) = "." then x=x+2
+599 ' move right
 600 d=0 : if x<=236 then x=x+3 : V = X+8
+611 IF J <> -1 THEN P = 0 : RETURN
 622 IF Z = 0 THEN Z = 1 : RETURN
 645 Z = 0 : c=c+2 : if c=8 then c=2
 667 P = c
 690 RETURN
 
-699' if MID$(s$, (x-2)/16+1, 1) = "." then x=x-2
+699 ' move left
 700 d=8 : if x>=3 then x=x-3 : V = X+8
+722 IF J <> -1 THEN P = 8 : RETURN
 745 IF Z = 0 THEN Z = 1 : RETURN
 767 Z = 0 : c=c+2 : if c=8 then c=2
 778 P = c + 8
 790 RETURN
 
+799 ' spacebar pressed
 800 IF J=-1 THEN J=0
 810 RETURN
 
+899 ' no arrow pressed
 900 P=D
 910 GOTO 530
 
+999 ' jump logic
 1000 Y = Y + B(J) : W = Y+8
 1010 IF J=28 THEN 1100
 1020 J=J+1
 1030 RETURN
 
+1099 ' end jump
 1100 J=-1
 1110 RETURN
 

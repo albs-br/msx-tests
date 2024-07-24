@@ -78,6 +78,7 @@ Execute:
 .loop:
 
     call    Wait_15_Vblanks
+    ;call    Wait_Vblank
 
     ; set horizontal offset register (R#18), four low bits
     ld      a, (CurrentOffset)
