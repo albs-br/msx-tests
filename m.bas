@@ -73,14 +73,18 @@
 1100 J=-1
 1110 RETURN
 
-1199 ' place new coin in screen
-1200 BEEP : R=RND(-TIME) : R=INT(RND(1)*14)+1 : K = INT((RND(1)*4)) + 7
-1205 'PRINT R, K
-1207 'print x, y
-1208 R = R * 16 : K = (K * 16) - 1
-1209 G = R + 16 : H = K + 16
-1210 PUT SPRITE 2, (R, K), 1, 16
-1220 PUT SPRITE 3, (R, K), 10, 17
+1199 ' animate sprite with number of coins collected
+1200 for I=4 to 12 step 2 
+1205 	put sprite 2, (R, K-I), 15, 16
+1214 	put sprite 3, (R, K-I), 15, 17
+1221 next I
+1229 ' place new coin in screen 
+1230 BEEP : R=RND(-TIME) : R=INT(RND(1)*14)+1 : K = INT((RND(1)*4)) + 7
+1238 R = R * 16 : K = (K * 16) - 1
+1239 G = R + 16 : H = K + 16
+1240 PUT SPRITE 2, (R, K), 1, 16
+1250 PUT SPRITE 3, (R, K), 10, 17
+1253 ' cycle bg color
 1255 if F=1 THEN F=4 : color 2, 2, F : RETURN
 1272 if F=4 THEN F=7 : color 2, 2, F : RETURN
 1285 if F=7 THEN F=1 : color 2, 2, F : RETURN
