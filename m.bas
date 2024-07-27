@@ -4,6 +4,8 @@
 16 DIM B(27) : FOR I=0 TO 26 : READ A : B(I)=A : NEXT I
 17 DATA -6, -6, -5, -5, -5, -4, -4, -3, -3, -2, -2, -1, -1, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 5, 6, 6
 
+20 dim t(6)
+
 40 GOSUB 60000
 50 GOSUB 30000
 60 GOSUB 40000
@@ -22,12 +24,14 @@
 91 ' R, K: (x, y) of coin top left
 92 ' G, H: (x, y) of coin bottom right
 93 ' S: number of coins collected 
+94 ' u: time the game started
 
 99 ' init game
 100 p = 0 : z = 0 : D = 0 : f = 1 : S = 0
 105 x = 128-8 : y = 192-32-1 : V = X+8 : W = Y+8
 110 ON STRIG GOSUB 800 : STRIG(0) ON 
 115 J = -1
+120 u = time
 
 
 190 GOSUB 1200
@@ -99,17 +103,37 @@
 1285 if F=7 THEN F=1 : color 2, 2, F : RETURN
 1290 RETURN
 
-
-2000 ' end of game
-2010 for i=1 to 20
-2020   BEEP
-2030 next i
-2040 RETURN
-
-
 1499 ' change coin color
 1500 if e=0	then VPOKE 6927, 10 : e=1 : RETURN
 1510 VPOKE 6927, 6 : e=0 : return
+
+
+
+2000 ' end of game
+
+2100 ' print time taken
+2110 z = time - u
+2115 if z < 0 then return
+2120 r$ = str$(z)
+2130 if mid$(r$, 1, 1) = " " then r$ = mid$(r$, 2, len(r$))
+2135 if len(r$) > 4 then RETURN
+2137 for a = 1 to 50
+2138   if c=15 then c=4 else c=15
+2140   j = 0
+2150   for i = len(r$) to 1 step -1
+2160     t(i) = val(mid$(r$, i, 1))
+2180     put sprite j+4, (112+(j*8), 88), C, 22+t(i)
+2185     j = j + 1
+2186   next i
+2191 next a
+2192 play "abcde"
+2193 j = 0
+2195 for i = len(r$) to 1 step -1
+2196    put sprite j+4, (0, 0), 0, 0
+2197    j = j + 1
+2199 next i
+2500 RETURN
+
 
 8000 ' -------------- NAMTBL
 8002 data 2, 2, 2, 2, 2, 2, 2, 5, 2, 2, 2, 5, 2, 2, 5, 5, 5, 5, 2, 5, 2, 2, 2, 5, 2, 2, 2, 2, 2, 2, 2, 2 
