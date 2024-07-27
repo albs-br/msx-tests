@@ -90,7 +90,7 @@
 1205 	put sprite 2, (R+4, K-I), 15, 21+S
 1214 	put sprite 3, (R+5, K-I+1), 1, 21+S
 1221 next I
-1225 IF S = 10 then GOSUB 2000
+1225 IF S = 10 then GOto 2000
 1229 ' place new coin in screen 
 1230 BEEP : R=RND(-TIME) : R=INT(RND(1)*14)+1 : K = INT((RND(1)*4)) + 7
 1238 R = R * 16 : K = (K * 16) - 1
@@ -113,16 +113,16 @@
 
 2100 ' print time taken
 2110 z = time - u
-2115 if z < 0 then return
+2115 if z < 0 then goto 100
 2120 r$ = str$(z)
 2130 if mid$(r$, 1, 1) = " " then r$ = mid$(r$, 2, len(r$))
-2135 if len(r$) > 4 then RETURN
+2135 if len(r$) > 4 then goto 100
 2137 for a = 1 to 50
 2138   if c=15 then c=4 else c=15
 2140   j = 0
 2150   for i = len(r$) to 1 step -1
 2160     t(i) = val(mid$(r$, i, 1))
-2180     put sprite j+4, (112+(j*8), 88), C, 22+t(i)
+2180     put sprite j+4, (112+(j*8), 72), C, 22+t(i)
 2185     j = j + 1
 2186   next i
 2191 next a
@@ -132,7 +132,7 @@
 2196    put sprite j+4, (0, 0), 0, 0
 2197    j = j + 1
 2199 next i
-2500 RETURN
+2500 goto 100
 
 
 8000 ' -------------- NAMTBL
