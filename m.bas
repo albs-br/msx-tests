@@ -47,15 +47,15 @@
 
 599 ' move right
 600 d=0 : if x<=236 then x=x+3 : V = X+8
-611 IF J <> -1 THEN P = 0 : RETURN
+611 IF J <> -1 THEN RETURN
 622 IF Z = 0 THEN Z = 1 : RETURN
-645 Z = 0 : c=c+2 : if c=8 then c=2
+645 Z = 0 : c=c+2 : if c=8 then c= 2
 667 P = c
 690 RETURN
 
 699 ' move left
 700 d=8 : if x>=3 then x=x-3 : V = X+8
-722 IF J <> -1 THEN P = 8 : RETURN
+722 IF J <> -1 THEN RETURN
 745 IF Z = 0 THEN Z = 1 : RETURN
 767 Z = 0 : c=c+2 : if c=8 then c=2
 778 P = c + 8
@@ -63,10 +63,11 @@
 
 799 ' spacebar pressed
 800 IF J=-1 THEN J=0
+805 if D=0 then P=20 else P=18
 810 RETURN
 
 899 ' no arrow pressed
-900 P=D
+900 IF J = -1 THEN P=D
 910 GOTO 530
 
 999 ' jump logic
@@ -85,11 +86,9 @@
 1205 	put sprite 2, (R+4, K-I), 15, 21+S
 1214 	put sprite 3, (R+5, K-I+1), 1, 21+S
 1221 next I
-1225 IF S = 10 then GOTO 2000
+1225 IF S = 10 then GOSUB 2000
 1229 ' place new coin in screen 
 1230 BEEP : R=RND(-TIME) : R=INT(RND(1)*14)+1 : K = INT((RND(1)*4)) + 7
-1235 'PRINT R, K
-1237 'print x, y
 1238 R = R * 16 : K = (K * 16) - 1
 1239 G = R + 16 : H = K + 16
 1240 PUT SPRITE 2, (R, K), 1, 16
@@ -104,8 +103,8 @@
 2000 ' end of game
 2010 for i=1 to 20
 2020   BEEP
-2030   next i
-2040 goto 100
+2030 next i
+2040 RETURN
 
 
 1499 ' change coin color
@@ -250,7 +249,7 @@
 10090 DATA &H00,&H00,&H80,&HC0,&HC0,&H60,&H60,&H60
 10100 DATA &H60,&H60,&H60,&H60,&H60,&HC0,&HC0,&H80
 
-10101 ' --- player jumping left
+10101 ' --- player jumping left (pattern # 18)
 10102 ' color 6
 10103 DATA &H00,&H07,&H3F,&HE4,&HE4,&H88,&H7C,&H20
 10104 DATA &H1F,&H9F,&H9F,&HED,&HFF,&HFF,&H07,&H00
@@ -262,7 +261,7 @@
 10110 DATA &H00,&H00,&H00,&H00,&HA0,&H20,&HC0,&HC0
 10111 DATA &H00,&H00,&H03,&H07,&H02,&H00,&H00,&H00
 10112 ' 
-10113 ' --- player jumping right
+10113 ' --- player jumping right (pattern # 20)
 10114 ' color 6
 10115 DATA &H00,&H03,&H07,&H07,&H0A,&H0B,&H0C,&H00
 10116 DATA &H3F,&H7F,&H3F,&H0F,&H1F,&H3F,&H7F,&H4F
