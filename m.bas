@@ -117,14 +117,18 @@
 2120 r$ = str$(z)
 2130 if mid$(r$, 1, 1) = " " then r$ = mid$(r$, 2, len(r$))
 2135 if len(r$) > 4 then goto 100
-2137 for a = 1 to 50
+2137 for a = 1 to 30
 2138   if c=15 then c=4 else c=15
 2140   j = 0
 2150   for i = len(r$) to 1 step -1
 2160     t(i) = val(mid$(r$, i, 1))
-2180     put sprite j+4, (112+(j*8), 72), C, 22+t(i)
+2180     put sprite j+4, (112+(j*8), 72-a), C, 22+t(i)
 2185     j = j + 1
 2186   next i
+2187   PUT SPRITE 28, (112, 56-a), C, 32
+2188   PUT SPRITE 29, (128, 56-a), C, 33
+2189   PUT SPRITE 30, (113, 57-a), C, 32
+2190   PUT SPRITE 31, (129, 57-a), C, 33
 2191 next a
 2192 play "abcde"
 2193 j = 0
@@ -132,6 +136,10 @@
 2196    put sprite j+4, (0, 0), 0, 0
 2197    j = j + 1
 2199 next i
+2300 PUT SPRITE 28, (0, 0), 0, 0
+2310 PUT SPRITE 29, (0, 0), 0, 0
+2320 PUT SPRITE 30, (0, 0), 0, 0
+2330 PUT SPRITE 31, (0, 0), 0, 0
 2500 goto 100
 
 
@@ -393,6 +401,23 @@
 
 11000 data *
 
+11100 ' --- "TIME" sprite (pattern # 32)
+11101 ' color 15
+11102 DATA &H00,&H00,&H00,&H00,&H00,&H00,&H00,&H00
+11103 DATA &HFE,&H92,&H10,&H10,&H10,&H10,&H38,&H00
+11104 DATA &H00,&H00,&H00,&H00,&H00,&H00,&H00,&H00
+11105 DATA &H73,&H21,&H21,&H21,&H21,&H21,&H73,&H00
+11106 ' 
+11107 ' --- Slot 1
+11108 ' color 15
+11109 DATA &H00,&H00,&H00,&H00,&H00,&H00,&H00,&H00
+11110 DATA &H1B,&HB1,&H51,&H11,&H11,&H11,&HBB,&H00
+11111 DATA &H00,&H00,&H00,&H00,&H00,&H00,&H00,&H00
+11112 DATA &HF0,&H13,&H03,&HC0,&H00,&H13,&HF3,&H00
+
+11113 DATA *
+
+
 12000 ' -------------- Tile patterns
 12010 '--- bricks
 12020 DATA &B11111111
@@ -526,10 +551,15 @@
 31000 ' -- LOAD SPRPAT (numbers)
 31010 FOR I=0 to 7
 31050   READ R$
-31065   IF R$="*" THEN return
+31065   IF R$="*" THEN goto 32000
 31080   VPOKE S+I, VAL(R$)
 31090 NEXT I
 31100 S=S+32 : GOTO 31010
+
+32000 '  -- LOAD SPARPAT ("TIME" sprite)
+32060 S = BASE(9) + (32 * 32)
+32120 READ R$: IF R$="*" THEN RETURN ELSE VPOKE S,VAL(R$):S=S+1:GOTO 32120
+
 
 40000 ' -- LOAD PATTBL
 40010 S=BASE(12)
