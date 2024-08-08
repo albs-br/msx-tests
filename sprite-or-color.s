@@ -206,12 +206,16 @@ SpriteAttributes_top:
     db  64+16,      100,        2 * 4,      0
     db  64+16,      100,        3 * 4,      0
 
-    ; sprites 4 and 5
-    db  64+16, 100 + 16,        4 * 4,      0
+    ; sprite 4
+    db  64+16+1, 100 + 16,        4 * 4,      0
     ; db  90+16,    100+2,        5 * 4,      0
 
-    ; ; sprite 6
-    ; db  90+16, 100+2+16,        6 * 4,      0
+    ; sprite 5 and 6
+    db  64+32,      100,        5 * 4,      0
+    db  64+32,      100,        6 * 4,      0
+
+    ; sprite 7
+    db  64+16, 100 + 32,        7 * 4,      0
 
 .size:  equ $ - SpriteAttributes_top
 
