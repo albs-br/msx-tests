@@ -99,18 +99,25 @@ Execute:
     ; Read input
     ld      a, 8                    ; 8th line
     call    BIOS_SNSMAT             ; Read Data Of Specified Line From Keyboard Matrix
-    bit     0, a                    ; 0th bit (space bar)
+    bit     4, a                    ; 4th bit (left)
     call   	z, .left
     ; TODO
 
 
 
     ; Update SPRATR buffer
-    ; TODO
-
+    ld      hl, (Player.X)
+    ; convert from 16 bits to 6 bits (0-63)
     jp      .loop
 
 .left:
+    ; if (Player.X - 1) == 0 ret else Player.X--;
+    ld      hl, (Player.X)
+    dec     hl
+    ld      de, 0
+    call    BIOS_DCOMPR
+    ld      (Player.X), hl
+
     ret
 
 End:
