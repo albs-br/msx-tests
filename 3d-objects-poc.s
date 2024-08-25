@@ -86,7 +86,32 @@ Execute:
 
 .loop:
 
-    jp      loop
+    call    Wait_Vblank
+
+    ; Update SPRATR from buffer
+    ld      a, 0000 0000 b
+    ld      hl, SPRATR
+    call    SetVdp_Write
+    ld      hl, SPRATR_Buffer
+    ld      c, PORT_0
+    outi outi outi outi ; update 1 sprite
+
+    ; Read input
+    ld      a, 8                    ; 8th line
+    call    BIOS_SNSMAT             ; Read Data Of Specified Line From Keyboard Matrix
+    bit     0, a                    ; 0th bit (space bar)
+    call   	z, .left
+    ; TODO
+
+
+
+    ; Update SPRATR buffer
+    ; TODO
+
+    jp      .loop
+
+.left:
+    ret
 
 End:
 
@@ -127,8 +152,8 @@ SPRPAT_Data:
 .size:  equ $ - SPRPAT_Data
 
 SPRCOL_Data:
-    db      0x08 b
-    db      0x08 b
+    db      0x08
+    db      0x08
 .size:  equ $ - SPRCOL_Data
 
     db      "End ROM started at 0x4000"
@@ -151,11 +176,15 @@ SPRCOL_Data:
 
 SavedJiffy:     rb 1
 
+SPRATR_Buffer:  rb 128
+
 Player:
-.X:         dw 1 ; 0-65535
-.Y:         dw 1 ; 0-65535
-.angle:     dw 1 ; 0-359 degrees
+.X:             rw 1 ; 0-65535
+.Y:             rw 1 ; 0-65535
+.angle:         rw 1 ; 0-359 degrees
+.walk_DX:       rw 1 ; 8.8 fixed point
+.walk_DY:       rw 1 ; 8.8 fixed point
 
 Object_0:
-.X:         dw 1 ; 0-65535
-.Y:         dw 1 ; 0-65535
+.X:             rw 1 ; 0-65535
+.Y:             rw 1 ; 0-65535
