@@ -11,6 +11,14 @@ Seg_P8000_SW:	equ	0x7000	        ; Segment switch for page 0x8000-BFFFh (ASCII 1
     INCLUDE "Include/MsxConstants.s"
     INCLUDE "Include/CommonRoutines.s"
 
+; Default VRAM tables for Screen 4
+NAMTBL:     equ 0x1800  ; to 0x1aff (768 bytes)
+PATTBL:     equ 0x0000  ; to 0x17ff (6144 bytes)
+COLTBL:     equ 0x2000  ; to 0x37ff (6144 bytes)
+SPRPAT:     equ 0x3800  ; to 0x3fff (2048 bytes)
+SPRCOL:     equ 0x1c00  ; to 0x1dff (512 bytes)
+SPRATR:     equ 0x1e00  ; to 0x1e7f (128 bytes)
+
 Execute:
     call    EnableRomPage2
 
@@ -30,70 +38,98 @@ Execute:
 
     call    SetColor0ToNonTransparent
 
+    ; load NAMTBL (third part)
+    ld		hl, NAMTBL_Data             ; RAM address (source)
+    ld		de, NAMTBL + (32*16)	    ; VRAM address (destiny)
+    ld		bc, NAMTBL_Data.size	    ; Block length
+    call 	BIOS_LDIRVM        		    ; Block transfer to VRAM from memory
 
-    
+    ; load PATTBL (third part)
+    ld		hl, PATTBL_Data             ; RAM address (source)
+    ld		de, PATTBL + (32*16*8)		; VRAM address (destiny)
+    ld		bc, PATTBL_Data.size	    ; Block length
+    call 	BIOS_LDIRVM        		    ; Block transfer to VRAM from memory
+
+    ; load COLTBL (third part)
+    ld		hl, COLTBL_Data             ; RAM address (source)
+    ld		de, COLTBL + (32*16*8)		; VRAM address (destiny)
+    ld		bc, COLTBL_Data.size	    ; Block length
+    call 	BIOS_LDIRVM        		    ; Block transfer to VRAM from memory
+
+    ; load SPRPAT
+    ld		hl, SPRPAT_Data             ; RAM address (source)
+    ld		de, SPRPAT   		        ; VRAM address (destiny)
+    ld		bc, SPRPAT_Data.size	    ; Block length
+    call 	BIOS_LDIRVM        		    ; Block transfer to VRAM from memory
+
+    ; load SPRCOL
+    ld		hl, SPRCOL_Data             ; RAM address (source)
+    ld		de, SPRCOL   		        ; VRAM address (destiny)
+    ld		bc, SPRCOL_Data.size	    ; Block length
+    call 	BIOS_LDIRVM        		    ; Block transfer to VRAM from memory
+
+   
     call    BIOS_ENASCR
 
-; --------- 
+; ------------------------------------
 
-.start:
-
-    ld      a, (BIOS_JIFFY)
-    ld      b, a
-.waitVBlank:
-    ld      a, (BIOS_JIFFY)
-    cp      b
-    jp      z, .waitVBlank
-
-    ld      (SavedJiffy), a     ; save low byte of Jiffy
-
-
-    ; ----- Routine here
+    ; Init vars
+    ld      hl, 32768
+    ld      (Player.X), hl
+    ld      (Player.Y), hl
+    xor     a
+    ld      (Player.angle), a
 
 
 
+; ------------------------------------
 
-    
-    ; check if routine take more then one frame
-    ld      a, (BIOS_JIFFY)
-    ld      b, a
-    ld      a, (SavedJiffy)
-    cp      b
-    jp      z, .lessThanOneFrame
+.loop:
 
-; --- more than one frame
-.moreThanOneFrame:
-    ; make screen color red
-    ld 		a, 8      	            ; Foreground color
-    ld 		(BIOS_FORCLR), a    
-    ld 		a, 8  		            ; Background color
-    ld 		(BIOS_BAKCLR), a     
-    ld 		a, 8      	            ; Border color
-    ld 		(BIOS_BDRCLR), a    
-    call 	BIOS_CHGCLR        		; Change Screen Color
-
-.moreThanOneFrame_loop:    
-    call    BIOS_BEEP
-    jp      .moreThanOneFrame_loop
-
-.lessThanOneFrame:
-    ; make screen color green
-    ld 		a, 12      	            ; Foreground color
-    ld 		(BIOS_FORCLR), a    
-    ld 		a, 12  		            ; Background color
-    ld 		(BIOS_BAKCLR), a     
-    ld 		a, 12      	            ; Border color
-    ld 		(BIOS_BDRCLR), a    
-    call 	BIOS_CHGCLR        		; Change Screen Color
-
-    call    BIOS_BEEP
-    jp      $
+    jp      loop
 
 End:
 
 ; Palette:
 ;     ; INCBIN "Images/title-screen.pal"
 ;     INCBIN "Images/plane_rotating.pal"
+
+NAMTBL_Data:
+    db      1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    db      1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    db      1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    db      1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    db      1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    db      1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    db      1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    db      1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+.size:  equ $ - NAMTBL_Data
+
+PATTBL_Data:
+    db      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+    db      0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
+.size:  equ $ - PATTBL_Data
+
+COLTBL_Data:
+    db      0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11
+    db      0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
+.size:  equ $ - COLTBL_Data
+
+SPRPAT_Data:
+    db      11000000 b
+    db      11000000 b
+    db      00000000 b
+    db      00000000 b
+    db      00000000 b
+    db      00000000 b
+    db      00000000 b
+    db      00000000 b
+.size:  equ $ - SPRPAT_Data
+
+SPRCOL_Data:
+    db      0x08 b
+    db      0x08 b
+.size:  equ $ - SPRCOL_Data
 
     db      "End ROM started at 0x4000"
 
@@ -115,3 +151,11 @@ End:
 
 SavedJiffy:     rb 1
 
+Player:
+.X:         dw 1 ; 0-65535
+.Y:         dw 1 ; 0-65535
+.angle:     dw 1 ; 0-359 degrees
+
+Object_0:
+.X:         dw 1 ; 0-65535
+.Y:         dw 1 ; 0-65535
