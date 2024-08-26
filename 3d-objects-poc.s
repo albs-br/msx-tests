@@ -115,9 +115,12 @@ Execute:
     ; Read input
     ld      a, 8                    ; 8th line
     call    BIOS_SNSMAT             ; Read Data Of Specified Line From Keyboard Matrix
+    
     bit     4, a                    ; 4th bit (left)
     call   	z, .left
-    ; TODO
+
+    ; bit     7, a                    ; 7th bit (right )
+    ; call   	z, .right
 
 
 
