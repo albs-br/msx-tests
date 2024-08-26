@@ -20,6 +20,18 @@ SPRCOL:     equ 0x1c00  ; to 0x1dff (512 bytes)
 SPRATR:     equ 0x1e00  ; to 0x1e7f (128 bytes)
 
 Execute:
+    ; init interrupt mode and stack pointer (in case the ROM isn't the first thing to be loaded)
+	di                          ; disable interrupts
+	im      1                   ; interrupt mode 1
+    ld      sp, (BIOS_HIMEM)    ; init SP
+
+    call    BIOS_DISSCR
+
+    ld      hl, RamStart        ; RAM start address
+    ld      de, RamEnd + 1      ; RAM end address
+    call    ClearRam_WithParameters
+
+
     call    EnableRomPage2
 
 	; enable page 1
@@ -29,8 +41,6 @@ Execute:
     ; change to screen 4
     ld      a, 4
     call    BIOS_CHGMOD
-
-    call    BIOS_DISSCR
 
     call    ClearVram_MSX2
 
@@ -68,7 +78,13 @@ Execute:
     ld		bc, SPRCOL_Data.size	    ; Block length
     call 	BIOS_LDIRVM        		    ; Block transfer to VRAM from memory
 
-   
+    ; load SPRATR_Buffer
+    ld		hl, SPRATR_Data             ; RAM address (source)
+    ld		de, SPRATR_Buffer   		; VRAM address (destiny)
+    ld		bc, SPRATR_Data.size	    ; Block length
+    ldir        		                ; Block transfer to VRAM from memory
+
+
     call    BIOS_ENASCR
 
 ; ------------------------------------
@@ -106,19 +122,54 @@ Execute:
 
 
     ; Update SPRATR buffer
-    ld      hl, (Player.X)
+    ld      hl, SPRATR_Buffer
+
+    ld      a, (Player.Y + 1) ; high byte
     ; convert from 16 bits to 6 bits (0-63)
+    srl     a               ; shift right register
+    srl     a
+    add     128
+    ld      (hl), a
+
+    inc     hl
+    ld      a, (Player.X + 1) ; high byte
+    ; convert from 16 bits to 6 bits (0-63)
+    srl     a               ; shift right register
+    srl     a
+    ld      (hl), a
+
+
+
+
     jp      .loop
 
 .left:
-    ; if (Player.X - 1) == 0 ret else Player.X--;
+    ; if (Player.X == 0) ret; else Player.X--;
     ld      hl, (Player.X)
-    dec     hl
     ld      de, 0
     call    BIOS_DCOMPR
+    ret     z
+
+    ld      bc, -256
+    add     hl, bc
+    ; dec     hl
     ld      (Player.X), hl
 
     ret
+
+; .right:
+;     ; if (Player.X == 0) ret; else Player.X--;
+;     ld      hl, (Player.X)
+;     ld      de, 0
+;     call    BIOS_DCOMPR
+;     ret     z
+
+;     ld      bc, -256
+;     add     hl, bc
+;     ; dec     hl
+;     ld      (Player.X), hl
+
+;     ret
 
 End:
 
@@ -159,9 +210,15 @@ SPRPAT_Data:
 .size:  equ $ - SPRPAT_Data
 
 SPRCOL_Data:
-    db      0x08
-    db      0x08
+    db      0x08, 0x08, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    db      0x04, 0x04, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 .size:  equ $ - SPRCOL_Data
+
+SPRATR_Data:
+    ;       y, x, pattern, unused
+    db      0, 0, 0, 0
+    db      0, 0, 0, 0
+.size:  equ $ - SPRATR_Data
 
     db      "End ROM started at 0x4000"
 
@@ -181,6 +238,8 @@ SPRCOL_Data:
 ; RAM
 	org     0xc000, 0xe5ff
 
+RamStart:
+
 SavedJiffy:     rb 1
 
 SPRATR_Buffer:  rb 128
@@ -188,10 +247,12 @@ SPRATR_Buffer:  rb 128
 Player:
 .X:             rw 1 ; 0-65535
 .Y:             rw 1 ; 0-65535
-.angle:         rw 1 ; 0-359 degrees
+.angle:         rw 1 ; 0-359 degrees, 0 is up
 .walk_DX:       rw 1 ; 8.8 fixed point
 .walk_DY:       rw 1 ; 8.8 fixed point
 
 Object_0:
 .X:             rw 1 ; 0-65535
 .Y:             rw 1 ; 0-65535
+
+RamEnd:
