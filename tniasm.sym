@@ -19,7 +19,7 @@ ClearVram_MSX2: equ 040EDh ; last def. pass 3
 BIOS_INSFLG: equ 0FCA8h ; last def. pass 3
 HTIMI: equ 0FD9Fh ; last def. pass 3
 BIOS_WINWID: equ 0FCA5h ; last def. pass 3
-COLTBL_Data: equ 044EAh ; last def. pass 3
+COLTBL_Data: equ 0450Ch ; last def. pass 3
 BIOS_H_ERRP: equ 0FEFDh ; last def. pass 3
 RamEnd: equ 0C08Fh ; last def. pass 3
 SetNonInterlacedMode: equ 0414Ch ; last def. pass 3
@@ -116,7 +116,7 @@ BIOS_HIMEM: equ 0FC4Ah ; last def. pass 3
 Wait_15_Vblanks.loop: equ 0408Ah ; last def. pass 3
 Execute_VDP_PSET: equ 04203h ; last def. pass 3
 Wait_Vblank.loop: equ 0409Ah ; last def. pass 3
-SPRATR_Data: equ 04522h ; last def. pass 3
+SPRATR_Data: equ 04544h ; last def. pass 3
 BIOS_SETMLT: equ 081h ; last def. pass 3
 BIOS_QUEUEN: equ 0FB3Eh ; last def. pass 3
 BIOS_PROCNM: equ 0FD89h ; last def. pass 3
@@ -126,7 +126,7 @@ BIOS_KILBUF: equ 0156h ; last def. pass 3
 BIOS_DRWFLG: equ 0FCBBh ; last def. pass 3
 BIOS_DOT: equ 0F6B5h ; last def. pass 3
 BIOS_VOICCQ: equ 0FA75h ; last def. pass 3
-NAMTBL_Data: equ 043DAh ; last def. pass 3
+NAMTBL_Data: equ 043FCh ; last def. pass 3
 Execute: equ 0430Dh ; last def. pass 3
 BIOS_ESTBLS: equ 0FB1Dh ; last def. pass 3
 Player.walk_DX: equ 0C087h ; last def. pass 3
@@ -146,8 +146,8 @@ Wait_B_Vblanks: equ 04078h ; last def. pass 3
 REG3SAV: equ 0F3E2h ; last def. pass 3
 BIOS_SLTTBL: equ 0FCC5h ; last def. pass 3
 BIOS_DSCTMP: equ 0F698h ; last def. pass 3
-End: equ 043DAh ; last def. pass 3
-SPRPAT_Data: equ 044FAh ; last def. pass 3
+End: equ 043FCh ; last def. pass 3
+SPRPAT_Data: equ 0451Ch ; last def. pass 3
 BIOS_H_LOC: equ 0FE99h ; last def. pass 3
 BIOS_H_CVS: equ 0FE44h ; last def. pass 3
 BIOS_MIVCNT: equ 0F951h ; last def. pass 3
@@ -200,6 +200,7 @@ BIOS_USRDATA: equ 0F7F8h ; last def. pass 3
 BIOS_TEMP8: equ 0F69Fh ; last def. pass 3
 BIOS_BEEP: equ 0C0h ; last def. pass 3
 BIOS_MAXFIL: equ 0F85Fh ; last def. pass 3
+Execute.rotateLeft: equ 043D1h ; last def. pass 3
 BIOS_H_DSPF: equ 0FDB3h ; last def. pass 3
 BIOS_GETPLT: equ 0149h ; last def. pass 3
 BIOS_INIGRP: equ 072h ; last def. pass 3
@@ -290,6 +291,7 @@ BIOS_ONGSBF: equ 0FBD8h ; last def. pass 3
 BIOS_H_LOF: equ 0FE9Eh ; last def. pass 3
 BIOS_GRPCGP: equ 0F3CBh ; last def. pass 3
 SPRCOL_Data.size: equ 020h ; last def. pass 3
+Execute.rotate_return: equ 043F8h ; last def. pass 3
 BIOS_VOICAQ: equ 0F975h ; last def. pass 3
 BIOS_BOTTOM: equ 0FC48h ; last def. pass 3
 LoadPalette: equ 0403Fh ; last def. pass 3
@@ -339,7 +341,7 @@ BIOS_LFPROG: equ 0F954h ; last def. pass 3
 BIOS_H_LOPD: equ 0FED5h ; last def. pass 3
 REG11SAV: equ 0FFEAh ; last def. pass 3
 BIOS_DPPAGE: equ 0FAF5h ; last def. pass 3
-PATTBL_Data: equ 044DAh ; last def. pass 3
+PATTBL_Data: equ 044FCh ; last def. pass 3
 BIOS_DIMFLG: equ 0F662h ; last def. pass 3
 BIOS_H_SNGF: equ 0FF39h ; last def. pass 3
 BIOS_H_FRQI: equ 0FF93h ; last def. pass 3
@@ -452,6 +454,7 @@ BIOS_GTPDL: equ 0DEh ; last def. pass 3
 BIOS_ONEFLG: equ 0F6BBh ; last def. pass 3
 BIOS_CHGCAP: equ 0132h ; last def. pass 3
 BIOS_DONUM: equ 0F665h ; last def. pass 3
+Execute.rotateRight: equ 043E6h ; last def. pass 3
 BIOS_CMASK: equ 0F92Ch ; last def. pass 3
 BIOS_RNDX: equ 0F857h ; last def. pass 3
 BIOS_SKPCNT: equ 0F94Fh ; last def. pass 3
@@ -509,7 +512,7 @@ PATTBL: equ 00h ; last def. pass 3
 BIOS_ARYTA2: equ 0F7B5h ; last def. pass 3
 BIOS_PRMPRV: equ 0F74Ch ; last def. pass 3
 REG13SAV: equ 0FFECh ; last def. pass 3
-Execute.left: equ 043C8h ; last def. pass 3
+Execute.rotateLeft_set359: equ 043E0h ; last def. pass 3
 BIOS_H_FILE: equ 0FD7Bh ; last def. pass 3
 BIOS_PATWRK: equ 0FC40h ; last def. pass 3
 BIOS_H_TRMN: equ 0FF61h ; last def. pass 3
@@ -533,6 +536,7 @@ BIOS_ENSTOP: equ 0FBB0h ; last def. pass 3
 BIOS_DSPFNK: equ 0CFh ; last def. pass 3
 BIOS_MODE: equ 0FAFCh ; last def. pass 3
 Execute_VDP_YMMM.vdpReady: equ 042A7h ; last def. pass 3
+Execute.rotateRight_set0: equ 043F5h ; last def. pass 3
 BIOS_H_MERG: equ 0FE67h ; last def. pass 3
 WRTVDP_without_DI_EI: equ 042F9h ; last def. pass 3
 BIOS_AUTLIN: equ 0F6ABh ; last def. pass 3
@@ -602,7 +606,7 @@ VDP_COMMAND_SRCH: equ 060h ; last def. pass 3
 BIOS_ENASCR: equ 044h ; last def. pass 3
 BIOS_H_ERAF: equ 0FDB8h ; last def. pass 3
 BIOS_COMMSK: equ 0FB1Eh ; last def. pass 3
-SPRCOL_Data: equ 04502h ; last def. pass 3
+SPRCOL_Data: equ 04524h ; last def. pass 3
 BIOS_H_DEVN: equ 0FEC1h ; last def. pass 3
 RamStart: equ 0C000h ; last def. pass 3
 BIOS_CLIKFL: equ 0FBD9h ; last def. pass 3

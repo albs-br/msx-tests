@@ -104,7 +104,7 @@ Execute:
 
     call    Wait_Vblank
 
-    ; Update SPRATR from buffer
+    ; --- Update SPRATR from buffer
     ld      a, 0000 0000 b
     ld      hl, SPRATR
     call    SetVdp_Write
@@ -112,19 +112,31 @@ Execute:
     ld      c, PORT_0
     outi outi outi outi ; update 1 sprite
 
-    ; Read input
+    ; --- Read input
     ld      a, 8                    ; 8th line
     call    BIOS_SNSMAT             ; Read Data Of Specified Line From Keyboard Matrix
     
-    bit     4, a                    ; 4th bit (left)
-    call   	z, .left
+    push    af
+        bit     4, a                    ; 4th bit (left)
+        call   	z, .rotateLeft
+    pop     af
 
-    ; bit     7, a                    ; 7th bit (right )
-    ; call   	z, .right
+    push    af
+        bit     7, a                    ; 7th bit (right)
+        call   	z, .rotateRight
+    pop     af
 
+    ; push    af
+    ;     bit     5, a                    ; 5th bit (up)
+    ;     call   	z, .walkForward
+    ; pop     af
 
+    ; push    af
+    ;     bit     6, a                    ; 6th bit (down)
+    ;     call   	z, .walkBackwards
+    ; pop     af
 
-    ; Update SPRATR buffer
+    ; --- Update SPRATR buffer
     ld      hl, SPRATR_Buffer
 
     ld      a, (Player.Y + 1) ; high byte
@@ -146,21 +158,44 @@ Execute:
 
     jp      .loop
 
-.left:
-    ; if (Player.X == 0) ret; else Player.X--;
-    ld      hl, (Player.X)
+.rotateLeft:
+    ; if (Player.angle == 0) Player.angle = 359; else Player.angle--;
+    ld      hl, (Player.angle)
     ld      de, 0
-    call    BIOS_DCOMPR
-    ret     z
+    call    BIOS_DCOMPR         ; Compare Contents Of HL & DE, Set Z-Flag IF (HL == DE), Set CY-Flag IF (HL < DE)
+    jr      z, .rotateLeft_set359
 
-    ld      bc, -256
-    add     hl, bc
-    ; dec     hl
-    ld      (Player.X), hl
+    dec     hl
+    jp      .rotate_return
+
+.rotateLeft_set359:
+    ld      hl, 359
+    jp      .rotate_return
+
+
+
+.rotateRight:
+    ; if (Player.angle == 360) Player.angle = 0; else Player.angle++;
+    ld      hl, (Player.angle)
+    ld      de, 360
+    call    BIOS_DCOMPR         ; Compare Contents Of HL & DE, Set Z-Flag IF (HL == DE), Set CY-Flag IF (HL < DE)
+    jr      z, .rotateRight_set0
+
+    inc     hl
+    jp      .rotate_return
+
+.rotateRight_set0:
+    ld      hl, 0
+
+.rotate_return:
+    ld      (Player.angle), hl
+
+    ; TODO
+    ; --- Update .walk_DX and DY based on angle
 
     ret
 
-; .right:
+; .left:
 ;     ; if (Player.X == 0) ret; else Player.X--;
 ;     ld      hl, (Player.X)
 ;     ld      de, 0
@@ -173,6 +208,7 @@ Execute:
 ;     ld      (Player.X), hl
 
 ;     ret
+
 
 End:
 
