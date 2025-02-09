@@ -21,6 +21,17 @@
 
 
 
+ClearRam_WithParameters:
+.loop:
+    xor     a                   ; same as ld a, 0, but faster
+    ld      (hl), a
+
+    inc     hl
+    call    BIOS_DCOMPR         ; Compare Contents Of HL & DE, Set Z-Flag IF (HL == DE), Set CY-Flag IF (HL < DE)
+    ret     z
+    jp      .loop
+
+
 ; Input:
 ;   A: Color number
 ;   B: high nibble: red 0-7; low nibble: blue 0-7

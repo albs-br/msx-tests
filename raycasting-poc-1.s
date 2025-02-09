@@ -1,4 +1,4 @@
-FNAME "raycasting-poc.rom"      ; output file
+FNAME "raycasting-poc-1.rom"      ; output file
 
 PageSize:	    equ	0x4000	        ; 16kB
 
@@ -91,7 +91,7 @@ GameLoop:
     ld      a, 0000 0000 b
     ld      hl, NAMTBL
     call    SetVdp_Write
-    ;ld      b, 32 * 16 ; only top 16 lines
+    ;ld      b, 32 * 16 ; only top 16 tiles
     ld      c, PORT_0
     ld      hl, NAMTBL_Buffer
     ; 32 x 16 outi
