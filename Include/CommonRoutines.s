@@ -379,6 +379,7 @@ Screen11:
 SetSprites16x16:
     ld      a, (REG1SAV)
     or      0000 0010 b
+    ld      (REG1SAV), a
     ld      b, a
     ld      c, 1            ; register #
     call    BIOS_WRTVDP
@@ -387,6 +388,7 @@ SetSprites16x16:
 SetSpritesMagnified:
     ld      a, (REG1SAV)
     or      0000 0001 b
+    ld      (REG1SAV), a
     ld      b, a
     ld      c, 1            ; register #
     call    BIOS_WRTVDP
@@ -399,6 +401,7 @@ Set192Lines:
     ; call    BIOS_WRTVDP
     ld      a, (REG9SAV)
     and     0111 1111 b
+    ld      (REG9SAV), a
     ld      b, a
     ld      c, 9            ; register #
     call    BIOS_WRTVDP
@@ -408,6 +411,7 @@ Set212Lines:
     ; set LN (bit 7) of R#9 to 1
     ld      a, (REG9SAV)
     or      1000 0000 b
+    ld      (REG9SAV), a
     ld      b, a
     ld      c, 9            ; register #
     call    BIOS_WRTVDP
@@ -417,6 +421,7 @@ SetNonInterlacedMode:
     ; reset IL (bit 3) and EO (bit 2) flags of R#9
     ld      a, (REG9SAV)
     and     1111 0011 b
+    ld      (REG9SAV), a
     ld      b, a
     ld      c, 9            ; register #
     call    BIOS_WRTVDP
@@ -426,6 +431,7 @@ SetInterlacedMode:
     ; set IL (bit 3) and EO (bit 2) flags of R#9
     ld      a, (REG9SAV)
     or      0000 1100 b
+    ld      (REG9SAV), a
     ld      b, a
     ld      c, 9            ; register #
     call    BIOS_WRTVDP
@@ -439,7 +445,8 @@ SetColor0ToNonTransparent:
     ; set color 0 to non transparent
     ld      a, (REG8SAV)
     or      0010 0000 b
-    ld      b, 0010 1000 b  ; data
+    ld      (REG8SAV), a
+    ld      b, a  ; data
     ld      c, 0x08         ; register #
     call    BIOS_WRTVDP
     ret
@@ -448,6 +455,7 @@ SetColor0ToTransparent:
     ; set color 0 to transparent
     ld      a, (REG8SAV)
     and     1101 1111 b
+    ld      (REG8SAV), a
     ld      b, a
     ld      c, 8            ; register #
     call    BIOS_WRTVDP
@@ -456,6 +464,7 @@ SetColor0ToTransparent:
 DisableSprites:
     ld      a, (REG8SAV)
     or      0000 0010 b
+    ld      (REG8SAV), a
     ld      b, a
     ld      c, 8            ; register #
     call    BIOS_WRTVDP
@@ -464,6 +473,7 @@ DisableSprites:
 EnableSprites:
     ld      a, (REG8SAV)
     and     1111 1101 b
+    ld      (REG8SAV), a
     ld      b, a
     ld      c, 8            ; register #
     call    BIOS_WRTVDP
