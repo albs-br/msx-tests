@@ -65,7 +65,13 @@ Execute:
 
     call    BIOS_ENASCR
 
-    jp      $ ; endless loop
+.loop:
+    ; --- restore bg on page n+1
+
+    ; --- copy player 1 sprite to page n+2
+
+
+    jp      .loop ; endless loop
 
 ; ----------
 
@@ -144,3 +150,24 @@ Bg_Bottom:
 ; RAM
 	org     0xc000, 0xe5ff                   ; for machines with 16kb of RAM (use it if you need 16kb RAM, will crash on 8kb machines, such as the Casio PV-7)
 
+; ----------------------------
+Player_1:
+.Restore_BG_X:              rb 1
+.Restore_BG_Y:              rb 1
+.Restore_BG_WidthInPixels:  rb 1
+.Restore_BG_WidthInPixels:  rb 1
+
+;frame data
+;.frame_data_slices:     rb (Frame_Data_Slice.size) * 256
+
+
+
+; ----------------------------
+
+; for each slice:
+Frame_Data_Slice:
+.offset:    rb 1 ; offset in bytes from top left of frame/last slice start
+.length:    rb 1 ; length in bytes (can be changed to pointer to unrolled OUTI's)
+.address:   rw 1 ; address of bytes to be plotted to screen
+
+.size: $ - Frame_Data_Slice
