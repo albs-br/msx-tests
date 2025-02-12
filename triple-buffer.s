@@ -129,8 +129,15 @@ Execute:
         otir
     pop     hl
     jp      .loop
+
     ; ---
+
 .endFrame:
+
+
+    ld      hl, Restore_BG_HMMM_Parameters
+    call    Execute_VDP_HMMM	    ; High speed move VRAM to VRAM
+
 
     jp      $ ;.loop ; endless loop
 
@@ -494,10 +501,29 @@ Data:
 	db	0,	51,	51
 	db	48,	51,	48
 
+    db 0 ; end of frame
+
+Restore_BG_HMMM_Parameters:
+.Source_X:   dw    0 	            ; Source X (9 bits)
+.Source_Y:   dw    0 + (256*3) 	    ; Source Y (10 bits)
+.Destiny_X:  dw    0 	    ; Destiny X (9 bits)
+.Destiny_Y:  dw    0 	    ; Destiny Y (10 bits)
+.Cols:       dw    32       ; number of cols (9 bits)
+.Lines:      dw    64       ; number of lines (10 bits)
+.NotUsed:    db    0
+.Options:    db    0        ; select destination memory and direction from base coordinate
+.Command:    db    VDP_COMMAND_HMMM
+Restore_BG_HMMM_Parameters_size: equ $ - Restore_BG_HMMM_Parameters
+
+
 
     db      "End ROM started at 0x4000"
 
 	ds PageSize - ($ - 0x4000), 255	; Fill the unused area with 0xFF
+
+
+
+
 
 
 
