@@ -69,7 +69,7 @@ Execute:
     ; ------------- Copy player 1 sprite to page 0
 
     ; init vars
-    ld      hl, 0
+    ld      hl, 0x0000
     ld      (Last_NAMTBL_Addr), hl
 
     ld      hl, List
@@ -104,7 +104,10 @@ Execute:
 
         ; set R#14 to 0
         ; set remaining bits of VRAM addr to HL
-        xor     a
+        xor     a ; page 0
+        ; ld a, 0000 0010 b ; page 1
+        ; ld a, 0000 0100 b ; page 2
+        ; ld a, 0000 0110 b ; page 3
         di
             ; write bits a14-16 of address to R#14
             out     (PORT_1), a ; data
