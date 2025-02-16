@@ -255,6 +255,12 @@ Bg_Bottom:
 
 Last_NAMTBL_Addr:   rw 1
 
+; value     showing         drawing sprites         restoring bg
+; -----     -------         ---------------         ------------
+;   0           0                   1                   2
+;   1           1                   2                   0
+;   2           2                   0                   1
+TripleBuffer_Step:  rb 1
 
 ; ----------------------------
 ; Player_1:
