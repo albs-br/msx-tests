@@ -39,7 +39,7 @@ Execute:
     call    LoadPalette
 
    
-    ; --- Write to VRAM bitmap area
+    ; --- Load background on all 4 pages
 
     ; SC 5 - page 0
     ld      a, 0000 0000 b
@@ -62,6 +62,36 @@ Execute:
     call    LoadImageTo_SC5_Page
 
 
+    ; ---------
+
+    ; set VDP R#2 (NAMTBL base address; bits a10-16)
+    ; bits:    16 15        7
+    ;           | |         |
+    ; 0x08000 = 0 1000 0000 0000 0000
+    ; R#2 : 0 a16 a15 1 1 1 1 1
+
+    ld      a, 0001 1111 b  ; page 0 (0x00000)
+    ; ld      a, 0011 1111 b  ; page 1 (0x08000)
+    ; ld      a, 0101 1111 b  ; page 2 (0x10000)
+    ; ld      a, 0111 1111 b  ; page 3 (0x18000)
+    di
+        ; write bits a10-16 of address to R#2
+        out     (PORT_1), a ; data
+        ld      a, 2 + 128
+        out     (PORT_1), a ; register #
+    ei
+
+    ; --- set current NAMTBL to page 1 (0x08000)
+    ; ; bits:    16 15        7
+    ; ;           | |         |
+    ; ; 0x08000 = 0 1000 0000 0000 0000
+    ; ; R#2 : 0 a16 a15 1 1 1 1 1
+    ; ld      b, 0001 1111 b  ; page 0 (0x00000)
+    ; ;ld      b, 0011 1111 b  ; page 1 (0x08000)
+    ; ld      c, 2            ; register #
+    ; call    BIOS_WRTVDP
+
+
 
     call    BIOS_ENASCR
 
@@ -72,7 +102,7 @@ Execute:
     ld      hl, 0x0000
     ld      (Last_NAMTBL_Addr), hl
 
-    ld      hl, List
+    ld      hl, Frame_0.List
     
 .loop:
 
@@ -104,7 +134,7 @@ Execute:
 
         ; set R#14 to 0
         ; set remaining bits of VRAM addr to HL
-        xor     a ; page 0
+        ld a, 0000 0000 b ; page 0
         ; ld a, 0000 0010 b ; page 1
         ; ld a, 0000 0100 b ; page 2
         ; ld a, 0000 0110 b ; page 3
@@ -125,7 +155,7 @@ Execute:
 
 
         ; HL = Data + slice addr
-        ld      hl, Data
+        ld      hl, Frame_0.Data
         add     hl, de
 
         ld      c, PORT_0
@@ -196,17 +226,19 @@ LoadImageTo_SC5_Page:
 Palette:
     INCBIN "Images/mk.pal"
 
+; --------------------------------------------------------
+
 ; --- Slice index list
 ; increment in bytes, length in bytes, address of the slice on the Data
-List:
-    INCLUDE "Images/scorpion_frame_1_list.s"
 
-    
-    
+Frame_0:
+    .List:  INCLUDE "Images/scorpion_frame_0_list.s"
+    .Data:  INCLUDE "Images/scorpion_frame_0_data.s"
+Frame_1:
+    .List:  INCLUDE "Images/scorpion_frame_1_list.s"
+    .Data:  INCLUDE "Images/scorpion_frame_1_data.s"
 
-; --- Slice data
-Data:
-    INCLUDE "Images/scorpion_frame_1_data.s"
+; --------------------------------------------------------
 
 Restore_BG_HMMM_Parameters:
 .Source_X:   dw    0 	            ; Source X (9 bits)
@@ -255,11 +287,11 @@ Bg_Bottom:
 
 Last_NAMTBL_Addr:   rw 1
 
-; value     showing         drawing sprites         restoring bg
-; -----     -------         ---------------         ------------
-;   0           0                   1                   2
-;   1           1                   2                   0
-;   2           2                   0                   1
+;   value     active          drawing sprites         restoring bg
+;   -----     -------         ---------------         ------------
+;   0         0               1                       2
+;   1         1               2                       0
+;   2         2               0                       1
 TripleBuffer_Step:  rb 1
 
 ; ----------------------------
