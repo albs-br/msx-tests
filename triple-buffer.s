@@ -62,15 +62,94 @@ Execute:
     call    LoadImageTo_SC5_Page
 
 
-    ; ---------
 
+
+
+
+
+
+    call    BIOS_ENASCR
+
+    ; ---- Triple buffer logic
+
+Triple_Buffer_Loop:
+    ld      a, (TripleBuffer_Vars.Step)
+    or      a
+    jp      z, Triple_Buffer_Step_0 ; if(Step == 0) Triple_Buffer_Step_0();
+    dec     a
+    jp      z, Triple_Buffer_Step_1 ; else if(Step == 1) Triple_Buffer_Step_1();
+    jp      Triple_Buffer_Step_2    ; else Triple_Buffer_Step_2();
+
+;--------------------------------------------------------------------
+; Constants:
+R2_PAGE_0:      equ 0001 1111 b     ; page 0 (0x00000)
+R2_PAGE_1:      equ 0011 1111 b     ; page 1 (0x08000)
+R2_PAGE_2:      equ 0101 1111 b     ; page 2 (0x10000)
+R2_PAGE_3:      equ 0111 1111 b     ; page 3 (0x18000)
+
+R14_PAGE_0:     equ 0000 0000 b ; page 0
+R14_PAGE_1:     equ 0000 0010 b ; page 1
+R14_PAGE_2:     equ 0000 0100 b ; page 2
+R14_PAGE_3:     equ 0000 0110 b ; page 3
+
+Y_BASE_PAGE_0:      equ 0   ; page 0
+Y_BASE_PAGE_1:      equ 256 ; page 1
+Y_BASE_PAGE_2:      equ 512 ; page 2
+Y_BASE_PAGE_3:      equ 768 ; page 3
+
+;--------------------------------------------------------------------
+
+Triple_Buffer_Step_0:
+
+    ; --- set active page 0
+    ld      a, R2_PAGE_0
+    call    SetActivePage
+
+    ; --- restore bg on page 2 (first we trigger VDP command to get some parallel access to VRAM)
+    ld      hl, Y_BASE_PAGE_2
+    call    RestoreBg
+    
+    ; --- draw sprites on page 1
+    ld      a, R14_PAGE_1
+    call    DrawSprites
+
+    ; --- update triple buffer vars
+    ld      a, 1
+    ld      (TripleBuffer_Vars.Step), a
+    
+    ; ld      a, R2_PAGE_1
+    ; ld      (Triple_Buffer.PageActive), a
+    
+    ; ld      a, R14_PAGE_2
+    ; ld      (Triple_Buffer.PageDrawingSprites), a
+    
+    ; ld      hl, Y_BASE_PAGE_0
+    ; ld      (Triple_Buffer.PageRefreshingBg_Y_Base), hl
+
+
+
+
+    jp      Triple_Buffer_Loop
+
+
+;--------------------------------------------------------------------
+Triple_Buffer_Step_1:
+    jp      Triple_Buffer_Loop
+;--------------------------------------------------------------------
+Triple_Buffer_Step_2:
+    jp      Triple_Buffer_Loop
+;--------------------------------------------------------------------
+
+; Input:
+;   A: value of R#2 to set active page (constants: R2_PAGE_n)
+SetActivePage:
     ; set VDP R#2 (NAMTBL base address; bits a10-16)
     ; bits:    16 15        7
     ;           | |         |
     ; 0x08000 = 0 1000 0000 0000 0000
     ; R#2 : 0 a16 a15 1 1 1 1 1
 
-    ld      a, 0001 1111 b  ; page 0 (0x00000)
+    ; ld      a, 0001 1111 b  ; page 0 (0x00000)
     ; ld      a, 0011 1111 b  ; page 1 (0x08000)
     ; ld      a, 0101 1111 b  ; page 2 (0x10000)
     ; ld      a, 0111 1111 b  ; page 3 (0x18000)
@@ -81,22 +160,26 @@ Execute:
         out     (PORT_1), a ; register #
     ei
 
-    ; --- set current NAMTBL to page 1 (0x08000)
-    ; ; bits:    16 15        7
-    ; ;           | |         |
-    ; ; 0x08000 = 0 1000 0000 0000 0000
-    ; ; R#2 : 0 a16 a15 1 1 1 1 1
-    ; ld      b, 0001 1111 b  ; page 0 (0x00000)
-    ; ;ld      b, 0011 1111 b  ; page 1 (0x08000)
-    ; ld      c, 2            ; register #
-    ; call    BIOS_WRTVDP
+    ret
+
+;--------------------------------------------------------------------
 
 
+; Input:
+;   A: value of R#14 to set VDP to write/read VRAM (constants: R14_PAGE_n)
+DrawSprites:
 
-    call    BIOS_ENASCR
-
-
-    ; ------------- Copy player 1 sprite to page 0
+    ; set R#14
+    ; ld a, 0000 0000 b ; page 0
+    ; ld a, 0000 0010 b ; page 1
+    ; ld a, 0000 0100 b ; page 2
+    ; ld a, 0000 0110 b ; page 3
+    di
+        ; write bits a14-16 of address to R#14
+        out     (PORT_1), a ; data
+        ld      a, 14 + 128
+        out     (PORT_1), a ; register #
+    ei
 
     ; init vars
     ld      hl, 0x0000
@@ -134,15 +217,15 @@ Execute:
 
         ; set R#14 to 0
         ; set remaining bits of VRAM addr to HL
-        ld a, 0000 0000 b ; page 0
+        ; ld a, 0000 0000 b ; page 0
         ; ld a, 0000 0010 b ; page 1
         ; ld a, 0000 0100 b ; page 2
         ; ld a, 0000 0110 b ; page 3
         di
-            ; write bits a14-16 of address to R#14
-            out     (PORT_1), a ; data
-            ld      a, 14 + 128
-            out     (PORT_1), a ; register #
+            ; ; write bits a14-16 of address to R#14
+            ; out     (PORT_1), a ; data
+            ; ld      a, 14 + 128
+            ; out     (PORT_1), a ; register #
 
             ; write the other address bits to VDP PORT_1
             ld      a, l
@@ -163,16 +246,21 @@ Execute:
     pop     hl
     jp      .loop
 
+
     ; ---
 
 .endFrame:
 
+    ret
+    
+; ----------
 
-    ; ld      hl, Restore_BG_HMMM_Parameters
-    ; call    Execute_VDP_HMMM	    ; High speed move VRAM to VRAM
 
+RestoreBg:
+    ld      hl, Restore_BG_HMMM_Parameters
+    call    Execute_VDP_HMMM	    ; High speed move VRAM to VRAM
+    ret
 
-    jp      $ ;.loop ; endless loop
 
 ; ----------
 
@@ -287,12 +375,17 @@ Bg_Bottom:
 
 Last_NAMTBL_Addr:   rw 1
 
-;   value     active          drawing sprites         restoring bg
+;   step      page            page drawing            page
+;   value     active          sprites                 restoring bg
 ;   -----     -------         ---------------         ------------
 ;   0         0               1                       2
 ;   1         1               2                       0
 ;   2         2               0                       1
-TripleBuffer_Step:  rb 1
+TripleBuffer_Vars:
+    .Step:                  rb 1
+    ; .PageActive:            rb 1
+    ; .PageDrawingSprites:    rb 1
+    ; .PageRefreshingBg_Y_Base:   rw 1    ; page 0: 0;    page 1: 256;    page 2: 512
 
 ; ----------------------------
 ; Player_1:
