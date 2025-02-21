@@ -72,6 +72,22 @@ Execute:
 
     ; ---- Triple buffer logic
 
+    ; init vars
+    ld      hl, Restore_BG_HMMM_Parameters
+    ld      de, TripleBuffer_Vars.RestoreBG_HMMM_Command
+    ld      bc, Restore_BG_HMMM_Parameters_size
+    ldir
+
+    ld      hl, Frame_0.List
+    ld      a, l
+    ld      (Player_1_Vars.CurrentFrame_List_Addr), a
+    ld      a, h
+    ld      (Player_1_Vars.CurrentFrame_List_Addr + 1), a
+
+
+    xor     a
+    ld      (TripleBuffer_Vars.Step), a
+
 Triple_Buffer_Loop:
     ld      a, (TripleBuffer_Vars.Step)
     or      a
@@ -102,19 +118,25 @@ Y_BASE_PAGE_3:      equ 768 ; page 3
 Triple_Buffer_Step_0:
 
     ; --- set active page 0
-    ld      a, R2_PAGE_0
+    ld      a, R2_PAGE_1 ; TODO: fix
     call    SetActivePage
 
     ; --- restore bg on page 2 (first we trigger VDP command to get some parallel access to VRAM)
-    ld      hl, Y_BASE_PAGE_2
+    ld      hl, Y_BASE_PAGE_1 ; TODO: fix
     call    RestoreBg
     
     ; --- draw sprites on page 1
+    ;ld      hl, Frame_0.List
+    ld      a, (Player_1_Vars.CurrentFrame_List_Addr)
+    ld      l, a
+    ld      a, (Player_1_Vars.CurrentFrame_List_Addr + 1)
+    ld      h, a
+    ld      ix, Frame_0.Data ; TODO: fix
     ld      a, R14_PAGE_1
     call    DrawSprites
 
     ; --- update triple buffer vars
-    ld      a, 1
+    ld      a, 0
     ld      (TripleBuffer_Vars.Step), a
     
     ; ld      a, R2_PAGE_1
@@ -167,6 +189,8 @@ SetActivePage:
 
 ; Input:
 ;   A: value of R#14 to set VDP to write/read VRAM (constants: R14_PAGE_n)
+;   HL: addr of frame list
+;   IX: addr of frame data
 DrawSprites:
 
     ; set R#14
@@ -182,10 +206,10 @@ DrawSprites:
     ei
 
     ; init vars
-    ld      hl, 0x0000
-    ld      (Last_NAMTBL_Addr), hl
+    ld      de, 0x0000
+    ld      (Last_NAMTBL_Addr), de
 
-    ld      hl, Frame_0.List
+    ; ld      hl, Frame_0.List
     
 .loop:
 
@@ -238,7 +262,9 @@ DrawSprites:
 
 
         ; HL = Data + slice addr
-        ld      hl, Frame_0.Data
+        ; ld      hl, Frame_0.Data
+        push    ix
+        pop     hl
         add     hl, de
 
         ld      c, PORT_0
@@ -256,8 +282,17 @@ DrawSprites:
 ; ----------
 
 
+; Input:
+;   HL: Y of base of page (constants: Y_BASE_PAGE_n)
 RestoreBg:
-    ld      hl, Restore_BG_HMMM_Parameters
+
+    ; set destiny_Y to value in HL
+    ld      a, l
+    ld      (TripleBuffer_Vars.RestoreBG_HMMM_Command + 6), a
+    ld      a, h
+    ld      (TripleBuffer_Vars.RestoreBG_HMMM_Command + 7), a
+
+    ld      hl, TripleBuffer_Vars.RestoreBG_HMMM_Command
     call    Execute_VDP_HMMM	    ; High speed move VRAM to VRAM
     ret
 
@@ -330,11 +365,11 @@ Frame_1:
 
 Restore_BG_HMMM_Parameters:
 .Source_X:   dw    0 	            ; Source X (9 bits)
-.Source_Y:   dw    0 + (256*3) 	    ; Source Y (10 bits)
+.Source_Y:   dw    0 	            ; Source Y (10 bits)
 .Destiny_X:  dw    0 	    ; Destiny X (9 bits)
 .Destiny_Y:  dw    0 	    ; Destiny Y (10 bits)
-.Cols:       dw    32       ; number of cols (9 bits)
-.Lines:      dw    64       ; number of lines (10 bits)
+.Cols:       dw    48       ; number of cols (9 bits)
+.Lines:      dw    97       ; number of lines (10 bits)
 .NotUsed:    db    0
 .Options:    db    0        ; select destination memory and direction from base coordinate
 .Command:    db    VDP_COMMAND_HMMM
@@ -386,9 +421,11 @@ TripleBuffer_Vars:
     ; .PageActive:            rb 1
     ; .PageDrawingSprites:    rb 1
     ; .PageRefreshingBg_Y_Base:   rw 1    ; page 0: 0;    page 1: 256;    page 2: 512
+    .RestoreBG_HMMM_Command: rb Restore_BG_HMMM_Parameters_size
 
 ; ----------------------------
-; Player_1:
+Player_1_Vars:
+.CurrentFrame_List_Addr:      rw 1
 ; .Restore_BG_X:              rb 1
 ; .Restore_BG_Y:              rb 1
 ; .Restore_BG_WidthInPixels:  rb 1
