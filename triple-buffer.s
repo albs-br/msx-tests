@@ -79,11 +79,15 @@ Execute:
     ldir
 
     ld      hl, Frame_0.List
-    ld      a, l
-    ld      (Player_1_Vars.CurrentFrame_List_Addr), a
-    ld      a, h
-    ld      (Player_1_Vars.CurrentFrame_List_Addr + 1), a
+    ld      (Player_1_Vars.CurrentFrame_List_Addr), hl
 
+    ld      hl, Frame_0.Data
+    ld      (Player_1_Vars.CurrentFrame_Data_Addr), hl
+
+    ld      hl, Player_1_Animation_List
+    ld      (Player_1_Vars.Animation_CurrentFrame_List), hl
+    ld      hl, Player_1_Animation_Data
+    ld      (Player_1_Vars.Animation_CurrentFrame_Data), hl
 
     xor     a
     ld      (TripleBuffer_Vars.Step), a
@@ -118,37 +122,36 @@ Y_BASE_PAGE_3:      equ 768 ; page 3
 Triple_Buffer_Step_0:
 
     ; --- set active page 0
-    ld      a, R2_PAGE_1 ; TODO: fix
+    ld      a, R2_PAGE_0
     call    SetActivePage
 
     ; --- restore bg on page 2 (first we trigger VDP command to get some parallel access to VRAM)
-    ld      hl, Y_BASE_PAGE_1 ; TODO: fix
+    ld      hl, Y_BASE_PAGE_2
     call    RestoreBg
     
     ; --- draw sprites on page 1
-    ;ld      hl, Frame_0.List
-    ld      a, (Player_1_Vars.CurrentFrame_List_Addr)
-    ld      l, a
-    ld      a, (Player_1_Vars.CurrentFrame_List_Addr + 1)
-    ld      h, a
-    ld      ix, Frame_0.Data ; TODO: fix
+    
+    ; ;ld      hl, Frame_0.List
+    ; ld      a, (Player_1_Vars.CurrentFrame_List_Addr)
+    ; ld      l, a
+    ; ld      a, (Player_1_Vars.CurrentFrame_List_Addr + 1)
+    ; ld      h, a
+    
+    ; ;ld      ix, Frame_0.Data ; TODO: fix
+    ; ld      a, (Player_1_Vars.CurrentFrame_Data_Addr)
+    ; ld      ixl, a
+    ; ld      a, (Player_1_Vars.CurrentFrame_Data_Addr + 1)
+    ; ld      ixh, a
+    
+    call    GetCurrentFrameAndGoToNext
+    
     ld      a, R14_PAGE_1
     call    DrawSprites
 
     ; --- update triple buffer vars
-    ld      a, 0
+    ld      a, 1
     ld      (TripleBuffer_Vars.Step), a
     
-    ; ld      a, R2_PAGE_1
-    ; ld      (Triple_Buffer.PageActive), a
-    
-    ; ld      a, R14_PAGE_2
-    ; ld      (Triple_Buffer.PageDrawingSprites), a
-    
-    ; ld      hl, Y_BASE_PAGE_0
-    ; ld      (Triple_Buffer.PageRefreshingBg_Y_Base), hl
-
-
 
 
     jp      Triple_Buffer_Loop
@@ -156,10 +159,107 @@ Triple_Buffer_Step_0:
 
 ;--------------------------------------------------------------------
 Triple_Buffer_Step_1:
+
+    ; --- set active page 1
+    ld      a, R2_PAGE_1
+    call    SetActivePage
+
+    ; --- restore bg on page 0
+    ld      hl, Y_BASE_PAGE_0
+    call    RestoreBg
+    
+    ; --- draw sprites on page 2
+    call    GetCurrentFrameAndGoToNext
+    
+    ld      a, R14_PAGE_2
+    call    DrawSprites
+
+    ; --- update triple buffer vars
+    ld      a, 2
+    ld      (TripleBuffer_Vars.Step), a
+    
     jp      Triple_Buffer_Loop
+
 ;--------------------------------------------------------------------
+
 Triple_Buffer_Step_2:
+
+    ; --- set active page 2
+    ld      a, R2_PAGE_2
+    call    SetActivePage
+
+    ; --- restore bg on page 1
+    ld      hl, Y_BASE_PAGE_1
+    call    RestoreBg
+    
+    ; --- draw sprites on page 0
+    call    GetCurrentFrameAndGoToNext
+    
+    ld      a, R14_PAGE_0
+    call    DrawSprites
+
+    ; --- update triple buffer vars
+    xor     a
+    ld      (TripleBuffer_Vars.Step), a
+    
     jp      Triple_Buffer_Loop
+
+;--------------------------------------------------------------------
+
+GetCurrentFrameAndGoToNext:
+
+    ;ld      hl, Frame_0.List
+    ld      hl, (Player_1_Vars.CurrentFrame_List_Addr)
+    
+    ;ld      ix, Frame_0.Data
+    ld      ix, (Player_1_Vars.CurrentFrame_Data_Addr)
+
+    ; go to next frame
+    push    hl
+        ld      hl, (Player_1_Vars.Animation_CurrentFrame_List)
+        inc     hl
+        inc     hl
+
+        ld      de, (Player_1_Vars.Animation_CurrentFrame_Data)
+        inc     de
+        inc     de
+
+        ld      a, (hl)
+        or      a
+        jp      z, .returnToFirstFrame
+
+        jp      .continue
+.returnToFirstFrame:
+        ld      hl, Player_1_Animation_List
+        ld      de, Player_1_Animation_Data
+
+.continue:
+
+        ; save new frame
+        ld      (Player_1_Vars.Animation_CurrentFrame_List), hl
+        ld      (Player_1_Vars.Animation_CurrentFrame_Data), de
+
+        ; get value on addr pointed by HL
+        ; Player_1_Vars.CurrentFrame_List_Addr = (HL)
+        ld      c, (hl)
+        inc     hl
+        ld      b, (hl)
+        ld      (Player_1_Vars.CurrentFrame_List_Addr), bc
+
+
+        ; get value on addr pointed by DE
+        ; Player_1_Vars.CurrentFrame_Data_Addr = (DE)
+        ld      a, (de)
+        ld      l, a
+        inc     de
+        ld      a, (de)
+        ld      h, a
+        ld      (Player_1_Vars.CurrentFrame_Data_Addr), hl
+
+    pop     hl
+
+    ret
+
 ;--------------------------------------------------------------------
 
 ; Input:
@@ -351,6 +451,14 @@ Palette:
 
 ; --------------------------------------------------------
 
+Player_1_Animation_List:
+    dw Frame_0.List, Frame_1.List
+    dw 0 ; end of data
+
+Player_1_Animation_Data:
+    dw Frame_0.Data, Frame_1.Data
+    dw 0 ; end of data
+
 ; --- Slice index list
 ; increment in bytes, length in bytes, address of the slice on the Data
 
@@ -365,10 +473,10 @@ Frame_1:
 
 Restore_BG_HMMM_Parameters:
 .Source_X:   dw    0 	            ; Source X (9 bits)
-.Source_Y:   dw    0 	            ; Source Y (10 bits)
+.Source_Y:   dw    0 + (256*3)      ; Source Y (10 bits)
 .Destiny_X:  dw    0 	    ; Destiny X (9 bits)
 .Destiny_Y:  dw    0 	    ; Destiny Y (10 bits)
-.Cols:       dw    48       ; number of cols (9 bits)
+.Cols:       dw    58       ; number of cols (9 bits)
 .Lines:      dw    97       ; number of lines (10 bits)
 .NotUsed:    db    0
 .Options:    db    0        ; select destination memory and direction from base coordinate
@@ -425,11 +533,14 @@ TripleBuffer_Vars:
 
 ; ----------------------------
 Player_1_Vars:
-.CurrentFrame_List_Addr:      rw 1
-; .Restore_BG_X:              rb 1
-; .Restore_BG_Y:              rb 1
-; .Restore_BG_WidthInPixels:  rb 1
-; .Restore_BG_HeightInPixels:  rb 1
+    .Animation_CurrentFrame_List:      rw 1
+    .Animation_CurrentFrame_Data:      rw 1
+    .CurrentFrame_List_Addr:      rw 1
+    .CurrentFrame_Data_Addr:      rw 1
+    ; .Restore_BG_X:              rb 1
+    ; .Restore_BG_Y:              rb 1
+    ; .Restore_BG_WidthInPixels:  rb 1
+    ; .Restore_BG_HeightInPixels:  rb 1
 
 ; ;frame data
 ; ;.frame_data_slices:     rb (Frame_Data_Slice.size) * 256
