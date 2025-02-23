@@ -214,6 +214,12 @@ GetCurrentFrameAndGoToNext:
     ;ld      ix, Frame_0.Data
     ld      ix, (Player_1_Vars.CurrentFrame_Data_Addr)
 
+    ; go to next animation frame only at each n VDP frames
+    ld      a, (BIOS_JIFFY)
+    and     0000 0111 b
+    ret     nz
+
+    
     ; go to next frame
     push    hl
         ld      hl, (Player_1_Vars.Animation_CurrentFrame_List)
@@ -452,11 +458,11 @@ Palette:
 ; --------------------------------------------------------
 
 Player_1_Animation_List:
-    dw Frame_0.List, Frame_1.List
+    dw Frame_0.List, Frame_1.List, Frame_2.List, Frame_3.List, Frame_4.List, Frame_5.List, Frame_6.List
     dw 0 ; end of data
 
 Player_1_Animation_Data:
-    dw Frame_0.Data, Frame_1.Data
+    dw Frame_0.Data, Frame_1.Data, Frame_2.Data, Frame_3.Data, Frame_4.Data, Frame_5.Data, Frame_6.Data
     dw 0 ; end of data
 
 ; --- Slice index list
@@ -468,6 +474,21 @@ Frame_0:
 Frame_1:
     .List:  INCLUDE "Images/scorpion_frame_1_list.s"
     .Data:  INCLUDE "Images/scorpion_frame_1_data.s"
+Frame_2:
+    .List:  INCLUDE "Images/scorpion_frame_2_list.s"
+    .Data:  INCLUDE "Images/scorpion_frame_2_data.s"
+Frame_3:
+    .List:  INCLUDE "Images/scorpion_frame_3_list.s"
+    .Data:  INCLUDE "Images/scorpion_frame_3_data.s"
+Frame_4:
+    .List:  INCLUDE "Images/scorpion_frame_4_list.s"
+    .Data:  INCLUDE "Images/scorpion_frame_4_data.s"
+Frame_5:
+    .List:  INCLUDE "Images/scorpion_frame_5_list.s"
+    .Data:  INCLUDE "Images/scorpion_frame_5_data.s"
+Frame_6:
+    .List:  INCLUDE "Images/scorpion_frame_6_list.s"
+    .Data:  INCLUDE "Images/scorpion_frame_6_data.s"
 
 ; --------------------------------------------------------
 
