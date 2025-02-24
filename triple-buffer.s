@@ -299,6 +299,8 @@ SetActivePage:
 ;   IX: addr of frame data
 DrawSprites:
 
+    ld      (TripleBuffer_Vars.BaseDataAddr), ix
+
     ; set R#14
     ; ld a, 0000 0000 b ; page 0
     ; ld a, 0000 0010 b ; page 1
@@ -369,8 +371,9 @@ DrawSprites:
 
         ; HL = Data + slice addr
         ; ld      hl, Frame_0.Data
-        push    ix
-        pop     hl
+        ; push    ix
+        ; pop     hl
+        ld      hl, (TripleBuffer_Vars.BaseDataAddr)
         add     hl, de
 
         ld      c, PORT_0
@@ -469,6 +472,7 @@ Player_1_Animation_Data:
 ; increment in bytes, length in bytes, address of the slice on the Data
 
 Frame_0:
+;   .Header:    INCLUDE "Images/scorpion_frame_0_header.s" ; dw yOffset; db width; db height
     .List:  INCLUDE "Images/scorpion_frame_0_list.s"
     .Data:  INCLUDE "Images/scorpion_frame_0_data.s"
 Frame_1:
@@ -547,6 +551,7 @@ Last_NAMTBL_Addr:   rw 1
 ;   2         2               0                       1
 TripleBuffer_Vars:
     .Step:                  rb 1
+    .BaseDataAddr:          rw 1
     ; .PageActive:            rb 1
     ; .PageDrawingSprites:    rb 1
     ; .PageRefreshingBg_Y_Base:   rw 1    ; page 0: 0;    page 1: 256;    page 2: 512
