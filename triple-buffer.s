@@ -89,16 +89,50 @@ Execute:
     ld      hl, Player_1_Animation_Data
     ld      (Player_1_Vars.Animation_CurrentFrame_Data), hl
 
+
+    ; ld      a, 0
+    ; ld      (Player_1_Vars.Restore_BG_X), a
+    ; ld      (Player_1_Vars.Restore_BG_Y), a
+    ; ld      a, 58
+    ; ld      (Player_1_Vars.Restore_BG_WidthInPixels), a
+    ; ld      a, 97
+    ; ld      (Player_1_Vars.Restore_BG_HeightInPixels), a
+
+
+    ld      hl, 0+(128*100) ; line number 100
+    ; ld      hl, 0x0000
+    ld      (Player_1_Vars.VRAM_NAMTBL_Addr), hl
+
     xor     a
     ld      (TripleBuffer_Vars.Step), a
 
 Triple_Buffer_Loop:
+
+    ; call    Wait_VBlank
+
+    ; -------
+    ; ld      hl, (BIOS_JIFFY)
+    ; ld      de, (Jiffy_FrameStart)
+    ; xor     a
+    ; sbc     hl, de
+    ; ld      (Total_Frames), hl
+
+    ; ld      hl, (BIOS_JIFFY)
+    ; ld      (Jiffy_FrameStart), hl
+
+    ; ld      hl, Frame_Counter
+    ; inc     (hl)
+
+    ; -------
+
+
     ld      a, (TripleBuffer_Vars.Step)
     or      a
     jp      z, Triple_Buffer_Step_0 ; if(Step == 0) Triple_Buffer_Step_0();
     dec     a
     jp      z, Triple_Buffer_Step_1 ; else if(Step == 1) Triple_Buffer_Step_1();
     jp      Triple_Buffer_Step_2    ; else Triple_Buffer_Step_2();
+
 
 ;--------------------------------------------------------------------
 ; Constants:
@@ -146,7 +180,8 @@ Triple_Buffer_Step_0:
     call    GetCurrentFrameAndGoToNext
     
     ld      a, R14_PAGE_1
-    call    DrawSprites
+    ld      de, (Player_1_Vars.VRAM_NAMTBL_Addr)
+    call    DrawSprite
 
     ; --- update triple buffer vars
     ld      a, 1
@@ -172,7 +207,8 @@ Triple_Buffer_Step_1:
     call    GetCurrentFrameAndGoToNext
     
     ld      a, R14_PAGE_2
-    call    DrawSprites
+    ld      de, (Player_1_Vars.VRAM_NAMTBL_Addr)
+    call    DrawSprite
 
     ; --- update triple buffer vars
     ld      a, 2
@@ -196,7 +232,8 @@ Triple_Buffer_Step_2:
     call    GetCurrentFrameAndGoToNext
     
     ld      a, R14_PAGE_0
-    call    DrawSprites
+    ld      de, (Player_1_Vars.VRAM_NAMTBL_Addr)
+    call    DrawSprite
 
     ; --- update triple buffer vars
     xor     a
@@ -214,10 +251,6 @@ GetCurrentFrameAndGoToNext:
     ;ld      ix, Frame_0.Data
     ld      ix, (Player_1_Vars.CurrentFrame_Data_Addr)
 
-    ; go to next animation frame only at each n VDP frames
-    ld      a, (BIOS_JIFFY)
-    and     0000 0111 b
-    ret     nz
 
     
     ; go to next frame
@@ -297,10 +330,12 @@ SetActivePage:
 ;   A: value of R#14 to set VDP to write/read VRAM (constants: R14_PAGE_n)
 ;   HL: addr of frame list
 ;   IX: addr of frame data
-DrawSprites:
+;   DE: VRAM NAMTBL addr position
+DrawSprite:
 
     ld      (TripleBuffer_Vars.BaseDataAddr), ix
 
+    ld      (TripleBuffer_Vars.R14_Value), a
     ; set R#14
     ; ld a, 0000 0000 b ; page 0
     ; ld a, 0000 0010 b ; page 1
@@ -314,9 +349,12 @@ DrawSprites:
     ei
 
     ; init vars
-    ld      de, 0x0000
+    ; ld      de, 0+(128*100) ;0x0000
+    ; ld      d, 0100 0000 b ; set bit 6 of VRAM high addr (read/write flag) to avoid OR 64 after
+    ; ld      e, 0
     ld      (Last_NAMTBL_Addr), de
 
+    ld      iyl, 0 ; reset flag
     ; ld      hl, Frame_0.List
     
 .loop:
@@ -342,10 +380,10 @@ DrawSprites:
         ; HL = (Last_NAMTBL_Addr) + increment
         ld      hl, (Last_NAMTBL_Addr)
         ld      b, 0
-        add     hl, bc
+        add     hl, bc  ; BC = increment
         ld      (Last_NAMTBL_Addr), hl
 
-        ld      b, a
+        ld      b, a    ; B = length
 
         ; set R#14 to 0
         ; set remaining bits of VRAM addr to HL
@@ -361,12 +399,27 @@ DrawSprites:
 
             ; write the other address bits to VDP PORT_1
             ld      a, l
-            nop
+            
+            ;nop
+            ld      c, PORT_0 ; do this instead of nop to save cycles
+
+
             out     (PORT_1), a ; addr low
             ld      a, h
+
             or      64
         ei
-        out     (PORT_1),a ; addr high
+        out     (PORT_1), a ; addr high
+
+        ld      a, iyl
+        or      a
+        jp      nz, .continue
+
+        ;bit     6, h
+        ld      a, h
+        and     0100 0000 b
+        jr      nz, .cross16kb
+.continue:
 
 
         ; HL = Data + slice addr
@@ -376,7 +429,7 @@ DrawSprites:
         ld      hl, (TripleBuffer_Vars.BaseDataAddr)
         add     hl, de
 
-        ld      c, PORT_0
+        ; ld      c, PORT_0
         otir
     pop     hl
     jp      .loop
@@ -387,7 +440,25 @@ DrawSprites:
 .endFrame:
 
     ret
-    
+
+.cross16kb:
+
+    ld      a, (TripleBuffer_Vars.R14_Value)
+    ;or      0000 0001 b
+    inc     a
+
+    ; set R#14
+    di
+        ; write bits a14-16 of address to R#14
+        out     (PORT_1), a ; data
+        ld      a, 14 + 128
+        out     (PORT_1), a ; register #
+    ei
+
+    ld      iyl, 1 ; set flag (to not set R#14 again)
+
+    jp      .continue
+
 ; ----------
 
 
@@ -395,11 +466,57 @@ DrawSprites:
 ;   HL: Y of base of page (constants: Y_BASE_PAGE_n)
 RestoreBg:
 
+    ; ; Destiny_Y = Y of base of page + Player.Restore_BG_Y
+    ; ld      d, 0
+    ; ld      a, (Player_1_Vars.Restore_BG_Y)
+    ; ld      e, a
+    ; add     hl, de
+    ; ld      (TripleBuffer_Vars.RestoreBG_HMMM_Command + 6), hl
+
+    ; ld      h, 0
+    
+    ; ; X is the same for both source and destiny
+    ; ld      a, (Player_1_Vars.Restore_BG_X)
+    ; ld      l, a
+    ; ld      (TripleBuffer_Vars.RestoreBG_HMMM_Command + 0), hl
+    ; ld      (TripleBuffer_Vars.RestoreBG_HMMM_Command + 4), hl
+
+    ; ; Source_Y is always on the page 3
+    ; ; Source_Y = (256 * 3) + Player.Restore_BG_Y
+    ; ld      a, (Player_1_Vars.Restore_BG_Y)
+    ; ld      l, a
+    ; ld      de, 768
+    ; add     hl, de
+    ; ld      (TripleBuffer_Vars.RestoreBG_HMMM_Command + 2), hl
+
+
+    ; ld      a, (Player_1_Vars.Restore_BG_WidthInPixels)
+    ; ld      l, a
+    ; ld      (TripleBuffer_Vars.RestoreBG_HMMM_Command + 8), hl
+
+    ; ld      a, (Player_1_Vars.Restore_BG_HeightInPixels)
+    ; ld      l, a
+    ; ld      (TripleBuffer_Vars.RestoreBG_HMMM_Command + 10), hl
+
+    ; .Source_X:   dw    0 	            ; Source X (9 bits)
+    ; .Source_Y:   dw    0 + (256*3)      ; Source Y (10 bits)
+    ; .Destiny_X:  dw    0 	    ; Destiny X (9 bits)
+    ; .Destiny_Y:  dw    0 	    ; Destiny Y (10 bits)
+    ; .Cols:       dw    58       ; number of cols (9 bits)
+    ; .Lines:      dw    97       ; number of lines (10 bits)
+    ; .NotUsed:    db    0
+    ; .Options:    db    0        ; select destination memory and direction from base coordinate
+    ; .Command:    db    VDP_COMMAND_HMMM
+
+
+
+
     ; set destiny_Y to value in HL
-    ld      a, l
-    ld      (TripleBuffer_Vars.RestoreBG_HMMM_Command + 6), a
-    ld      a, h
-    ld      (TripleBuffer_Vars.RestoreBG_HMMM_Command + 7), a
+    ; ld      a, l
+    ; ld      (TripleBuffer_Vars.RestoreBG_HMMM_Command + 6), a
+    ; ld      a, h
+    ; ld      (TripleBuffer_Vars.RestoreBG_HMMM_Command + 7), a
+    ld      (TripleBuffer_Vars.RestoreBG_HMMM_Command + 6), hl
 
     ld      hl, TripleBuffer_Vars.RestoreBG_HMMM_Command
     call    Execute_VDP_HMMM	    ; High speed move VRAM to VRAM
@@ -461,11 +578,23 @@ Palette:
 ; --------------------------------------------------------
 
 Player_1_Animation_List:
-    dw Frame_0.List, Frame_1.List, Frame_2.List, Frame_3.List, Frame_4.List, Frame_5.List, Frame_6.List
+    dw Frame_0.List, Frame_0.List, Frame_0.List, Frame_0.List, Frame_0.List, Frame_0.List
+    dw Frame_1.List, Frame_1.List, Frame_1.List, Frame_1.List, Frame_1.List, Frame_1.List
+    dw Frame_2.List, Frame_2.List, Frame_2.List, Frame_2.List, Frame_2.List, Frame_2.List
+    dw Frame_3.List, Frame_3.List, Frame_3.List, Frame_3.List, Frame_3.List, Frame_3.List
+    dw Frame_4.List, Frame_4.List, Frame_4.List, Frame_4.List, Frame_4.List, Frame_4.List
+    dw Frame_5.List, Frame_5.List, Frame_5.List, Frame_5.List, Frame_5.List, Frame_5.List
+    dw Frame_6.List, Frame_6.List, Frame_6.List, Frame_6.List, Frame_6.List, Frame_6.List
     dw 0 ; end of data
 
 Player_1_Animation_Data:
-    dw Frame_0.Data, Frame_1.Data, Frame_2.Data, Frame_3.Data, Frame_4.Data, Frame_5.Data, Frame_6.Data
+    dw Frame_0.Data, Frame_0.Data, Frame_0.Data, Frame_0.Data, Frame_0.Data, Frame_0.Data
+    dw Frame_1.Data, Frame_1.Data, Frame_1.Data, Frame_1.Data, Frame_1.Data, Frame_1.Data
+    dw Frame_2.Data, Frame_2.Data, Frame_2.Data, Frame_2.Data, Frame_2.Data, Frame_2.Data
+    dw Frame_3.Data, Frame_3.Data, Frame_3.Data, Frame_3.Data, Frame_3.Data, Frame_3.Data
+    dw Frame_4.Data, Frame_4.Data, Frame_4.Data, Frame_4.Data, Frame_4.Data, Frame_4.Data
+    dw Frame_5.Data, Frame_5.Data, Frame_5.Data, Frame_5.Data, Frame_5.Data, Frame_5.Data
+    dw Frame_6.Data, Frame_6.Data, Frame_6.Data, Frame_6.Data, Frame_6.Data, Frame_6.Data
     dw 0 ; end of data
 
 ; --- Slice index list
@@ -502,7 +631,7 @@ Restore_BG_HMMM_Parameters:
 .Destiny_X:  dw    0 	    ; Destiny X (9 bits)
 .Destiny_Y:  dw    0 	    ; Destiny Y (10 bits)
 .Cols:       dw    58       ; number of cols (9 bits)
-.Lines:      dw    97       ; number of lines (10 bits)
+.Lines:      dw    105       ; number of lines (10 bits)
 .NotUsed:    db    0
 .Options:    db    0        ; select destination memory and direction from base coordinate
 .Command:    db    VDP_COMMAND_HMMM
@@ -552,6 +681,7 @@ Last_NAMTBL_Addr:   rw 1
 TripleBuffer_Vars:
     .Step:                  rb 1
     .BaseDataAddr:          rw 1
+    .R14_Value:             rb 1
     ; .PageActive:            rb 1
     ; .PageDrawingSprites:    rb 1
     ; .PageRefreshingBg_Y_Base:   rw 1    ; page 0: 0;    page 1: 256;    page 2: 512
@@ -559,14 +689,15 @@ TripleBuffer_Vars:
 
 ; ----------------------------
 Player_1_Vars:
-    .Animation_CurrentFrame_List:      rw 1
-    .Animation_CurrentFrame_Data:      rw 1
-    .CurrentFrame_List_Addr:      rw 1
-    .CurrentFrame_Data_Addr:      rw 1
-    ; .Restore_BG_X:              rb 1
-    ; .Restore_BG_Y:              rb 1
-    ; .Restore_BG_WidthInPixels:  rb 1
-    ; .Restore_BG_HeightInPixels:  rb 1
+    .Animation_CurrentFrame_List:       rw 1
+    .Animation_CurrentFrame_Data:       rw 1
+    .CurrentFrame_List_Addr:            rw 1
+    .CurrentFrame_Data_Addr:            rw 1
+    .VRAM_NAMTBL_Addr:                  rw 1
+    ; .Restore_BG_X:                      rb 1
+    ; .Restore_BG_Y:                      rb 1
+    ; .Restore_BG_WidthInPixels:          rb 1
+    ; .Restore_BG_HeightInPixels:         rb 1
 
 ; ;frame data
 ; ;.frame_data_slices:     rb (Frame_Data_Slice.size) * 256
@@ -574,6 +705,12 @@ Player_1_Vars:
 
 
 ; ; ----------------------------
+
+; Debug:
+Jiffy_FrameStart:   rw 1
+Total_Frames:       rw 1
+Frame_Counter:      rb 1
+
 
 ; ; for each slice:
 ; Frame_Data_Slice:
