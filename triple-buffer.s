@@ -74,7 +74,7 @@ Execute:
 
     ; init vars
     ld      hl, Restore_BG_HMMM_Parameters
-    ld      de, TripleBuffer_Vars.RestoreBG_HMMM_Command
+    ld      de, TripleBuffer_Vars_RestoreBG_HMMM_Command
     ld      bc, Restore_BG_HMMM_Parameters_size
     ldir
 
@@ -90,16 +90,17 @@ Execute:
     ld      (Player_1_Vars.Animation_CurrentFrame_Data), hl
 
 
-    ; ld      a, 0
-    ; ld      (Player_1_Vars.Restore_BG_X), a
-    ; ld      (Player_1_Vars.Restore_BG_Y), a
-    ; ld      a, 58
-    ; ld      (Player_1_Vars.Restore_BG_WidthInPixels), a
-    ; ld      a, 97
-    ; ld      (Player_1_Vars.Restore_BG_HeightInPixels), a
+    ld      a, 128 - (58/2)
+    ld      (Player_1_Vars.Restore_BG_X), a
+    ld      a, 100
+    ld      (Player_1_Vars.Restore_BG_Y), a
+    ld      a, 58
+    ld      (Player_1_Vars.Restore_BG_WidthInPixels), a
+    ld      a, 105
+    ld      (Player_1_Vars.Restore_BG_HeightInPixels), a
 
 
-    ld      hl, 0+(128*100) ; line number 100
+    ld      hl, 0 + ((128 - (58/2))/2) + (128*100) ; colu number 128 - (58/2); line number 100
     ; ld      hl, 0x0000
     ld      (Player_1_Vars.VRAM_NAMTBL_Addr), hl
 
@@ -467,36 +468,39 @@ DrawSprite:
 RestoreBg:
 
     ; ; Destiny_Y = Y of base of page + Player.Restore_BG_Y
-    ; ld      d, 0
-    ; ld      a, (Player_1_Vars.Restore_BG_Y)
-    ; ld      e, a
-    ; add     hl, de
-    ; ld      (TripleBuffer_Vars.RestoreBG_HMMM_Command + 6), hl
+    ld      d, 0
+    ld      a, (Player_1_Vars.Restore_BG_Y)
+    ld      e, a
+    add     hl, de
+    ld      (TripleBuffer_Vars_RestoreBG_HMMM_Command.Destiny_Y), hl
 
-    ; ld      h, 0
     
-    ; ; X is the same for both source and destiny
-    ; ld      a, (Player_1_Vars.Restore_BG_X)
-    ; ld      l, a
-    ; ld      (TripleBuffer_Vars.RestoreBG_HMMM_Command + 0), hl
-    ; ld      (TripleBuffer_Vars.RestoreBG_HMMM_Command + 4), hl
+    ; X is the same for both source and destiny
+    ld      h, 0
+    ld      a, (Player_1_Vars.Restore_BG_X)
+    ld      l, a
+    ld      (TripleBuffer_Vars_RestoreBG_HMMM_Command.Source_X), hl
+    ld      (TripleBuffer_Vars_RestoreBG_HMMM_Command.Destiny_X), hl
 
-    ; ; Source_Y is always on the page 3
-    ; ; Source_Y = (256 * 3) + Player.Restore_BG_Y
-    ; ld      a, (Player_1_Vars.Restore_BG_Y)
-    ; ld      l, a
-    ; ld      de, 768
-    ; add     hl, de
-    ; ld      (TripleBuffer_Vars.RestoreBG_HMMM_Command + 2), hl
+    ; Source_Y is always on the page 3
+    ; Source_Y = (256 * 3) + Player.Restore_BG_Y
+    ld      h, 0
+    ld      a, (Player_1_Vars.Restore_BG_Y)
+    ld      l, a
+    ld      de, 768
+    add     hl, de
+    ld      (TripleBuffer_Vars_RestoreBG_HMMM_Command.Source_Y), hl
 
 
-    ; ld      a, (Player_1_Vars.Restore_BG_WidthInPixels)
-    ; ld      l, a
-    ; ld      (TripleBuffer_Vars.RestoreBG_HMMM_Command + 8), hl
+    ld      h, 0
+    ld      a, (Player_1_Vars.Restore_BG_WidthInPixels)
+    ld      l, a
+    ld      (TripleBuffer_Vars_RestoreBG_HMMM_Command.Cols), hl
 
-    ; ld      a, (Player_1_Vars.Restore_BG_HeightInPixels)
-    ; ld      l, a
-    ; ld      (TripleBuffer_Vars.RestoreBG_HMMM_Command + 10), hl
+    ld      h, 0
+    ld      a, (Player_1_Vars.Restore_BG_HeightInPixels)
+    ld      l, a
+    ld      (TripleBuffer_Vars_RestoreBG_HMMM_Command.Lines), hl
 
     ; .Source_X:   dw    0 	            ; Source X (9 bits)
     ; .Source_Y:   dw    0 + (256*3)      ; Source Y (10 bits)
@@ -512,13 +516,9 @@ RestoreBg:
 
 
     ; set destiny_Y to value in HL
-    ; ld      a, l
-    ; ld      (TripleBuffer_Vars.RestoreBG_HMMM_Command + 6), a
-    ; ld      a, h
-    ; ld      (TripleBuffer_Vars.RestoreBG_HMMM_Command + 7), a
-    ld      (TripleBuffer_Vars.RestoreBG_HMMM_Command + 6), hl
+    ; ld      (TripleBuffer_Vars_RestoreBG_HMMM_Command.Destiny_Y), hl
 
-    ld      hl, TripleBuffer_Vars.RestoreBG_HMMM_Command
+    ld      hl, TripleBuffer_Vars_RestoreBG_HMMM_Command
     call    Execute_VDP_HMMM	    ; High speed move VRAM to VRAM
     ret
 
@@ -685,7 +685,18 @@ TripleBuffer_Vars:
     ; .PageActive:            rb 1
     ; .PageDrawingSprites:    rb 1
     ; .PageRefreshingBg_Y_Base:   rw 1    ; page 0: 0;    page 1: 256;    page 2: 512
-    .RestoreBG_HMMM_Command: rb Restore_BG_HMMM_Parameters_size
+
+TripleBuffer_Vars_RestoreBG_HMMM_Command:
+    .Source_X:   rw 1
+    .Source_Y:   rw 1
+    .Destiny_X:  rw 1
+    .Destiny_Y:  rw 1
+    .Cols:       rw 1
+    .Lines:      rw 1
+    .NotUsed:    rb 1
+    .Options:    rb 1
+    .Command:    rb 1
+
 
 ; ----------------------------
 Player_1_Vars:
@@ -694,10 +705,10 @@ Player_1_Vars:
     .CurrentFrame_List_Addr:            rw 1
     .CurrentFrame_Data_Addr:            rw 1
     .VRAM_NAMTBL_Addr:                  rw 1
-    ; .Restore_BG_X:                      rb 1
-    ; .Restore_BG_Y:                      rb 1
-    ; .Restore_BG_WidthInPixels:          rb 1
-    ; .Restore_BG_HeightInPixels:         rb 1
+    .Restore_BG_X:                      rb 1
+    .Restore_BG_Y:                      rb 1
+    .Restore_BG_WidthInPixels:          rb 1
+    .Restore_BG_HeightInPixels:         rb 1
 
 ; ;frame data
 ; ;.frame_data_slices:     rb (Frame_Data_Slice.size) * 256
