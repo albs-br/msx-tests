@@ -334,6 +334,32 @@ SetActivePage:
 ;   DE: VRAM NAMTBL addr position
 DrawSprite:
 
+    
+    push    af, hl
+        
+        ; HL -= 5
+        ld      bc, 5 ; frame header is 5 bytes before frame list
+        xor     a
+        sbc     hl, bc
+        
+        ; --- adjust VRAM NAMTBL address based on yOffset
+        
+        ; HL = (HL)
+        ld      a, (hl)
+        ld      c, a
+        inc     hl
+        ld      a, (hl)
+        ld      h, a
+        ld      l, c
+
+        ; ---- DE -= HL
+        add     hl, de ; HL = HL + DE
+        ; DE = HL
+        ex      de, hl
+        
+
+    pop     hl, af
+
     ld      (TripleBuffer_Vars.BaseDataAddr), ix
 
     ld      (TripleBuffer_Vars.R14_Value), a
@@ -601,25 +627,31 @@ Player_1_Animation_Data:
 ; increment in bytes, length in bytes, address of the slice on the Data
 
 Frame_0:
-;   .Header:    INCLUDE "Images/scorpion_frame_0_header.s" ; dw yOffset; db width; db height
-    .List:  INCLUDE "Images/scorpion_frame_0_list.s"
-    .Data:  INCLUDE "Images/scorpion_frame_0_data.s"
+    .Header:    INCLUDE "Images/scorpion_frame_0_header.s" ; dw yOffset; db width; db height; db MEgaROM page number
+    .List:      INCLUDE "Images/scorpion_frame_0_list.s"
+    .Data:      INCLUDE "Images/scorpion_frame_0_data.s"
 Frame_1:
+    .Header:    INCLUDE "Images/scorpion_frame_1_header.s"
     .List:  INCLUDE "Images/scorpion_frame_1_list.s"
     .Data:  INCLUDE "Images/scorpion_frame_1_data.s"
 Frame_2:
+    .Header:    INCLUDE "Images/scorpion_frame_2_header.s"
     .List:  INCLUDE "Images/scorpion_frame_2_list.s"
     .Data:  INCLUDE "Images/scorpion_frame_2_data.s"
 Frame_3:
+    .Header:    INCLUDE "Images/scorpion_frame_3_header.s"
     .List:  INCLUDE "Images/scorpion_frame_3_list.s"
     .Data:  INCLUDE "Images/scorpion_frame_3_data.s"
 Frame_4:
+    .Header:    INCLUDE "Images/scorpion_frame_4_header.s"
     .List:  INCLUDE "Images/scorpion_frame_4_list.s"
     .Data:  INCLUDE "Images/scorpion_frame_4_data.s"
 Frame_5:
+    .Header:    INCLUDE "Images/scorpion_frame_5_header.s"
     .List:  INCLUDE "Images/scorpion_frame_5_list.s"
     .Data:  INCLUDE "Images/scorpion_frame_5_data.s"
 Frame_6:
+    .Header:    INCLUDE "Images/scorpion_frame_6_header.s"
     .List:  INCLUDE "Images/scorpion_frame_6_list.s"
     .Data:  INCLUDE "Images/scorpion_frame_6_data.s"
 
