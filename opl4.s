@@ -3,21 +3,21 @@
 ; Converted to TNI Asm by Andre Baptista
 
 FNAME "opl4.rom"      ; output file
- 
- 
+
+
 ENASLT: equ         0x0024
 GTTRIG: equ 	    0x00D8
-                               
+
 ; Compilation address
     org 0x4000
-                                               
-; Cartridge Header						   
+
+; Cartridge Header
     db "AB"
     dw BEGIN
     dw 0, 0, 0, 0, 0, 0
-		   
-		   
-		   
+
+
+
 BEGIN:                                 
 
 			di
