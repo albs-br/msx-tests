@@ -91,6 +91,10 @@
                     //     "value": "-script C:\\Users\\albs_\\source\\repos\\msx-tests\\add_v9990.tcl",
                     //     "quoting": "weak"
                     // },
+                    {
+                        "value": "-script C:\\Users\\albs_\\source\\repos\\msx-tests\\add_opl4.tcl",
+                        "quoting": "weak"
+                    },
                 ],
             "label": "run openmsx",
             "type": "shell",
