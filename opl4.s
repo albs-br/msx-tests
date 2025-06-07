@@ -343,12 +343,11 @@ headers_begin:
 			;so 0x200000 + 0x1200 = 0x201200 ... where data should start
 		   
 			;header sample 0
-sample_0_size:	equ	sample_0_end - sample_0
 			db     0x20, 0x12, 0x00                                                                                   ;8 bits & start address at wave memory
-			db    (sample_0_size) >> 8
-			db    (sample_0_size) and 0xff
-			db    ((sample_0_size) xor 0xffFF) >> 8
-			db    ((sample_0_size) xor 0xffFF) and 0xff
+			db    (sample_0.size) >> 8
+			db    (sample_0.size) and 0xff
+			db    ((sample_0.size) xor 0xffFF) >> 8
+			db    ((sample_0.size) xor 0xffFF) and 0xff
 			db    0x00, 0xf0, 0x00, 0x00, 0x00   ;also works 0x00, 0xf0, 0x00, 0x0f, 0x00
 		   
 
@@ -356,12 +355,11 @@ sample_0_size:	equ	sample_0_end - sample_0
 			;header sample 1
 			; sample_header	sample_1, (sample_1_end - sample_1)
 
-sample_1_size:	equ	sample_1_end - sample_1
 			db    sample_1 >> 16, (sample_1 >> 8) and 0xff, sample_1 and 0xff                                                                           ;8 bits & start address at wave memory
-			db    (sample_1_size) >> 8
-			db    (sample_1_size) and 0xff
-			db    ((sample_1_size) xor 0xffFF) >> 8
-			db    ((sample_1_size) xor 0xffFF) and 0xff
+			db    (sample_1.size) >> 8
+			db    (sample_1.size) and 0xff
+			db    ((sample_1.size) xor 0xffFF) >> 8
+			db    ((sample_1.size) xor 0xffFF) and 0xff
 			db    0x00, 0xf0, 0x00, 0x00, 0x00   ;also works 0x00, 0xf0, 0x00, 0x0f, 0x00
 
 
@@ -369,12 +367,11 @@ sample_1_size:	equ	sample_1_end - sample_1
 			;header sample 2
 			; sample_header	sample_2, (sample_2_end - sample_2)
 
-sample_2_size:	equ	sample_2_end - sample_2
 			db    sample_2 >> 16, (sample_2 >> 8) and 0xff, sample_2 and 0xff                                                                           ;8 bits & start address at wave memory
-			db    (sample_2_size) >> 8
-			db    (sample_2_size) and 0xff
-			db    ((sample_2_size) xor 0xffFF) >> 8
-			db    ((sample_2_size) xor 0xffFF) and 0xff
+			db    (sample_2.size) >> 8
+			db    (sample_2.size) and 0xff
+			db    ((sample_2.size) xor 0xffFF) >> 8
+			db    ((sample_2.size) xor 0xffFF) and 0xff
 			db    0x00, 0xf0, 0x00, 0x00, 0x00   ;also works 0x00, 0xf0, 0x00, 0x0f, 0x00
 
 headers_end:  
@@ -388,20 +385,21 @@ headers_end:
 		   
 			;page 2 & more               
 			org    0x201200
-sample_0:          
+sample_0:
 			; incbin    "Sound/opl4/ApplauseModerate2_11Kh_signed8bits.raw"
 			incbin    "Sound/opl4/mk1-00048.raw"
-sample_0_end:
+.size: equ $ - sample_0
 		   
 sample_1:          
 			; incbin    "Sound/opl4/bitvision_female_british.raw"
 			incbin    "Sound/opl4/mk1-00192.raw"
-sample_1_end:
+.size: equ $ - sample_1
 		   
 sample_2:          
 			; incbin    "Sound/opl4/hello_signed_8bits_11000hz.raw"
 			incbin    "Sound/opl4/mk1-00193.raw"
-sample_2_end:
+.size: equ $ - sample_2
+
 			ds     0x201200 + (16384 * 4) - $
                
                
