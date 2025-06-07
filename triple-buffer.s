@@ -100,7 +100,7 @@ Execute:
     ld      (Player_1_Vars.Restore_BG_HeightInPixels), a
 
 
-    ld      hl, 0 + ((128 - (58/2))/2) + (128*100) ; colu number 128 - (58/2); line number 100
+    ld      hl, 0 + ((128 - (58/2))/2) + (128*100) ; column number 128 - (58/2); line number 100
     ; ld      hl, 0x0000
     ld      (Player_1_Vars.VRAM_NAMTBL_Addr), hl
 
