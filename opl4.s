@@ -354,7 +354,6 @@ sample_0_size:	equ	sample_0_end - sample_0
 
 
 			;header sample 1
-
 			; sample_header	sample_1, (sample_1_end - sample_1)
 
 sample_1_size:	equ	sample_1_end - sample_1
@@ -390,15 +389,18 @@ headers_end:
 			;page 2 & more               
 			org    0x201200
 sample_0:          
-			incbin    "Sound/opl4/ApplauseModerate2_11Kh_signed8bits.raw"
+			; incbin    "Sound/opl4/ApplauseModerate2_11Kh_signed8bits.raw"
+			incbin    "Sound/opl4/mk1-00048.raw"
 sample_0_end:
 		   
 sample_1:          
-			incbin    "Sound/opl4/bitvision_female_british.raw"
+			; incbin    "Sound/opl4/bitvision_female_british.raw"
+			incbin    "Sound/opl4/mk1-00192.raw"
 sample_1_end:
 		   
 sample_2:          
-			incbin    "Sound/opl4/hello_signed_8bits_11000hz.raw"
+			; incbin    "Sound/opl4/hello_signed_8bits_11000hz.raw"
+			incbin    "Sound/opl4/mk1-00193.raw"
 sample_2_end:
 			ds     0x201200 + (16384 * 4) - $
                
