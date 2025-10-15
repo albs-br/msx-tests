@@ -197,7 +197,7 @@ Triple_Buffer_Step_0:
 Triple_Buffer_Step_1:
 
     ; --- set active page 1
-    ld      a, R2_PAGE_1
+    ld      a, SC8_R2_PAGE_1
     call    SetActivePage
 
     ; --- restore bg on page 0

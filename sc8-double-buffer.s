@@ -12,6 +12,20 @@ Seg_P8000_SW:	equ	0x7000	        ; Segment switch for page 0x8000-BFFFh (ASCII 1
     INCLUDE "Include/CommonRoutines.s"
 
 Execute:
+    ; init interrupt mode and stack pointer (in case the ROM isn't the first thing to be loaded)
+	di                          ; disable interrupts
+	im      1                   ; interrupt mode 1
+    ld      sp, (BIOS_HIMEM)    ; init SP
+
+    ; call    ClearRam
+
+    ; PSG: silence
+	call	BIOS_GICINI
+
+    ; disable keyboard click
+    xor     a
+    ld 		(BIOS_CLIKSW), a     ; Key Press Click Switch 0:Off 1:On (1B/RW)
+    
     call    EnableRomPage2
 
 	; enable page 1
@@ -42,25 +56,82 @@ Execute:
     ld      hl, 0x0000
     call    LoadImageTo_SC8_Page
 
-    ; ; SC 8 - line 64 of page 1 (line 320 overall)
-    ; ld      a, 0000 0000 b
-    ; ld      hl, 0x0000
-    ; call    LoadImageTo_SC8_Page
+    ; SC 8 - line 64 of page 1 (line 320 overall)
+    ld      a, 0000 0001 b
+    ld      hl, 0x4000
+    call    LoadImageTo_SC8_Page
 
 
-
+    ; draw a white line on page 1
+    ld      a, 0000 0001 b
+    ld      hl, 0x8400
+        call    SetVdp_Write
+        ld      hl, Bg_Top
+        ld      c, PORT_0
+        ld      d, 128 ; 256 bytes
+    .loop_10:    
+        ld      a, 255 ; white pixel
+        out     (c), a
+        dec     d
+        jp      nz, .loop_10
 
 
     call    BIOS_ENASCR
 
 
+; ---- Init Vars
+    ld      a, 0
+    ld      (ActivePage), a
+
+
+
+    
+    
+    
+    ; call SetActivePage_0
+    ; jp $
+
+.MainLoop:
+    call    Wait_Vblank
+
+    ; if(ActivePage == 0) SetActivePage_1(); else SetActivePage_0();
+    ld      a, (ActivePage)
+    or      a
+    push    af
+        call    z, SetActivePage_0
+    pop     af
+    call    nz, SetActivePage_1
+
+
+    jp      .MainLoop
+
+;--------------------------------------------------------------------
+
+SetActivePage_0:
+    ld      a, SC8_R2_PAGE_0
+    call    SetActivePage
 
     ; --- Set R#23 (Vertical scroll register)
-    ld      b, 128  ; data
+    ld      b, 0  ; data
     ld      c, 23   ; register #
     call    BIOS_WRTVDP
 
-    jp $ ; [debug]
+    ld      a, 1
+    ld      (ActivePage), a
+    ret
+
+SetActivePage_1:
+    ld      a, SC8_R2_PAGE_1
+    call    SetActivePage
+
+    ; --- Set R#23 (Vertical scroll register)
+    ld      b, 64  ; data
+    ld      c, 23   ; register #
+    call    BIOS_WRTVDP
+
+    ld      a, 0
+    ld      (ActivePage), a
+    ret
 
 ;--------------------------------------------------------------------
 
@@ -155,7 +226,7 @@ LoadImageTo_SC8_Page:
 ; ------- Page 1
 	org	0x8000, 0xBFFF
 Bg_Top:
-    INCBIN "Images/streets of fight 3MUGZC - top.SR8"
+    INCBIN "Images/msx-streets-preview_stage_0-top.SR8"
 .size:      equ $ - Bg_Top
 	ds PageSize - ($ - 0x8000), 255
 
@@ -168,3 +239,9 @@ Bg_Top:
 ; RAM
 	org     0xc000, 0xe5ff                   ; for machines with 16kb of RAM (use it if you need 16kb RAM, will crash on 8kb machines, such as the Casio PV-7)
 
+ActivePage:         rb 1
+
+;--------------------------------------------------------------------
+; Constants:
+SC8_R2_PAGE_0:      equ 0001 1111 b     ; page 0 (0x00000)
+SC8_R2_PAGE_1:      equ 0011 1111 b     ; page 1 (0x10000)
