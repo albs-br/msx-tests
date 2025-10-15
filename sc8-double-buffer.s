@@ -49,22 +49,40 @@ Execute:
 
     
  
-    ; --- Load background on first page
+    ; --- Load background on page 0
 
     ; SC 8 - line 0 of page 0
+    ld      b, 1 ; Megarom page number
     ld      a, 0000 0000 b
     ld      hl, 0x0000
     call    LoadImageTo_SC8_Page
 
-    ; SC 8 - line 64 of page 1 (line 320 overall)
-    ld      a, 0000 0001 b
+    ; SC 8 - line 64 of page 0
+    ld      b, 2 ; Megarom page number
+    ld      a, 0000 0000 b
     ld      hl, 0x4000
     call    LoadImageTo_SC8_Page
 
 
+    ; --- Load background on page 1
+
+    ; SC 8 - line 64 of page 1 (line 320 overall)
+    ld      b, 1 ; Megarom page number
+    ld      a, 0000 0001 b
+    ld      hl, 0x4000
+    call    LoadImageTo_SC8_Page
+
+    ; SC 8 - line 128 of page 1
+    ld      b, 2 ; Megarom page number
+    ld      a, 0000 0001 b
+    ld      hl, 0x8000
+    call    LoadImageTo_SC8_Page
+
+
+
     ; draw a white line on page 1
     ld      a, 0000 0001 b
-    ld      hl, 0x8400
+    ld      hl, 0x8000
         call    SetVdp_Write
         ld      hl, Bg_Top
         ld      c, PORT_0
@@ -163,11 +181,12 @@ SetActivePage:
 
 
 ; Input:
+;   B: Megarom page number
 ;   AHL: 17-bit VRAM address
 LoadImageTo_SC8_Page:
 	; enable page 1
     push    af
-        ld	    a, 1
+        ld	    a, b
         ld	    (Seg_P8000_SW), a
     pop     af
 
@@ -232,6 +251,9 @@ Bg_Top:
 
 ; ------- Page 2
 	org	0x8000, 0xBFFF
+Bg_Middle:
+    INCBIN "Images/msx-streets-preview_stage_0-middle.SR8"
+.size:      equ $ - Bg_Middle
 	ds PageSize - ($ - 0x8000), 255
 
 
