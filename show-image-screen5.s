@@ -26,24 +26,14 @@ Execute:
 
     call    ClearVram_MSX2
 
-    call    Set192Lines
+    ; call    Set192Lines
+    call    Set212Lines
 
     call    SetColor0ToNonTransparent
 
 
     
-	; enable page 2
-    ld	    a, 2
-	ld	    (Seg_P8000_SW), a
-    ; load 32-byte palette data
-    ;ld      hl, ImageData_2.palette ; PaletteData
-                    ; ; debug
-                    ; ld      a, (hl)
-                    ; ld      (debug_0), a
-                    ; inc     hl
-                    ; ld      a, (hl)
-                    ; ld      (debug_1), a
-                    ; ld      hl, ImageData_2.palette ; PaletteData
+	; loa palette
     ld      hl, Palette
     call    LoadPalette
 
@@ -56,14 +46,14 @@ Execute:
     ld		bc, ImageData.size					    ; Block length
     call 	BIOS_LDIRVM        						; Block transfer to VRAM from memory
             
-	; ; enable page 2
-    ; ld	    a, 2
-	; ld	    (Seg_P8000_SW), a
-    ; ; write to VRAM bitmap area
-    ; ld		hl, ImageData_2      				    ; RAM address (source)
-    ; ld		de, 16384			                    ; VRAM address (destiny)
-    ; ld		bc, ImageData_2.size					; Block length
-    ; call 	BIOS_LDIRVM        						; Block transfer to VRAM from memory
+	; enable page 2
+    ld	    a, 2
+	ld	    (Seg_P8000_SW), a
+    ; write to VRAM bitmap area
+    ld		hl, ImageData_2      				    ; RAM address (source)
+    ld		de, 16384			                    ; VRAM address (destiny)
+    ld		bc, ImageData_2.size					; Block length
+    call 	BIOS_LDIRVM        						; Block transfer to VRAM from memory
 
 ;     ; ---- load sc5 image with width = 103 pixels (52 bytes), and height = 71 lines
 ; 	; enable page 1
@@ -111,7 +101,8 @@ End:
 Palette:
     ; INCBIN "Images/title-screen.pal"
     ; INCBIN "Images/plane_rotating.pal"
-    INCBIN "Images/sea_bg.pal"
+    ; INCBIN "Images/sea_bg.pal"
+    INCBIN "Images/msx-streets-preview_stage_1.pl5", 7 ; skip 7 first bytes (header)
 
     db      "End ROM started at 0x4000"
 
@@ -126,18 +117,20 @@ ImageData:
     ;INCBIN "Images/metalslug-xaa"
     ; INCBIN "Images/msxmas title scr.SC5"
     ; INCBIN "Images/plane_rotating_0_size_103x71_position_5_3.sc5_small"
-    INCBIN "Images/sea_bg.sc5"
+    ; INCBIN "Images/sea_bg.sc5"
+    INCBIN "Images/msx-streets-preview_stage_1.sc5", 7, 16 * 1024 ; skip 7 first bytes (header), get next 16 kb
+
 .size:      equ $ - ImageData
 	ds PageSize - ($ - 0x8000), 255
 
-; ; ------- Page 2
-; 	org	0x8000, 0xBFFF
-; ImageData_2:
-;     INCBIN "Images/aerofighters-xab"
-;     ;INCBIN "Images/metalslug-xab"
-; .size:      equ $ - ImageData_2
-; .palette:   equ $ - 32
-; 	ds PageSize - ($ - 0x8000), 255
+; ------- Page 2
+	org	0x8000, 0xBFFF
+ImageData_2:
+    ; INCBIN "Images/aerofighters-xab"
+    ;INCBIN "Images/metalslug-xab"
+    INCBIN "Images/msx-streets-preview_stage_1.sc5", (16 * 1024) + 7 ; get remaining bytes
+.size:      equ $ - ImageData_2
+	ds PageSize - ($ - 0x8000), 255
 
 
 
