@@ -102,7 +102,7 @@ Palette:
     ; INCBIN "Images/title-screen.pal"
     ; INCBIN "Images/plane_rotating.pal"
     ; INCBIN "Images/sea_bg.pal"
-    INCBIN "Images/msx-streets-preview_stage_1.pl5", 7 ; skip 7 first bytes (header)
+    INCBIN "Images/msx-streets-preview_stage_1.pl", 7 ; skip 7 first bytes (header)
 
     db      "End ROM started at 0x4000"
 
