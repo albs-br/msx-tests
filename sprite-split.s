@@ -179,7 +179,7 @@ Execute:
         
         ; enable line interrupts
         ld  	a, (REG0SAV)
-        or  	16
+        or  	0001 0000 b ; 16
         ld  	(REG0SAV), a ; it's a good practice to update the REGnSAV values
         ld  	b, a		; data to write
         ld  	c, 0		; register number

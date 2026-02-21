@@ -69,8 +69,7 @@ Execute:
     ;     call    Set_SC4
     ; ei
 
-
-    ld      a, 01010101 b               ; data
+    ld      a, 00001111 b               ; data
     ld		hl, SC4_PATTBL              ; VRAM address
     ld      bc, 512 * 8                 ; Length of the area to be written
     call    BIOS_BIGFIL                 ; Fill VRAM with value
@@ -94,11 +93,14 @@ Execute:
     ;     call    Set_SC8
     ; ei
 
-    ld      a, 128                      ; data
+    ; SC8 pixel format: ggg rrr bb
+    ld      a, 0001 1100 b                       ; data
     ld		hl, SC8_NAMTBL + (128 * 256); VRAM address
     ld      bc, 256 * 64                ; Length of the area to be written
     call    BIOS_BIGFIL                 ; Fill VRAM with value
 
+; call    BIOS_ENASCR ; DEBUG
+; jp $ ; debug
 
     ; --------------------
 
@@ -256,15 +258,49 @@ Set_SC4:
 ; ---- set screen mode to SC4
     ; R#0   0 DG 0 IE1 M5 M4 M3 0
     ld      b, 0001 0100 b  ; data
+    ld      a, b
+    ld  	(REG0SAV), a ; it's a good practice to update the REGnSAV values
     ld      c, 0            ; register #
     call  	WRTVDP_without_DI_EI		; Write B value to C register
 
     ; R#1   0 1 1 M1 M2 0 1 0
     ld      b, 0110 0010  b  ; data
+    ld      a, b
+    ld  	(REG1SAV), a ; it's a good practice to update the REGnSAV values
     ld      c, 1            ; register #
     call  	WRTVDP_without_DI_EI		; Write B value to C register
 
-    ; TODO: set all table base addresses
+    ; ---- set all table base addresses
+    
+    ; set NAMTBL base addr
+    ; R#2   0 A16 (...) A10
+    ld      b, 0000 0110 b  ; data
+    ld      a, b
+    ld  	(REG2SAV), a ; it's a good practice to update the REGnSAV values
+    ld      c, 2            ; register #
+    call  	WRTVDP_without_DI_EI		; Write B value to C register
+    
+    ; set COLTBL base addr
+    ; R#3   A13 (...) A6
+    ld      b, 1111 1111 b  ; data
+    ld      a, b
+    ld  	(REG3SAV), a ; it's a good practice to update the REGnSAV values
+    ld      c, 3            ; register #
+    call  	WRTVDP_without_DI_EI		; Write B value to C register
+    ; R#10  0 0 0 0 0 A16 A15 A14
+    ld      b, 0000 0000 b  ; data
+    ld      a, b
+    ld  	(REG10SAV), a ; it's a good practice to update the REGnSAV values
+    ld      c, 10           ; register #
+    call  	WRTVDP_without_DI_EI		; Write B value to C register
+
+    ; set PATTBL base addr
+    ; R#4   0 0 A16 (...) A11
+    ld      b, 0000 0011 b  ; data
+    ld      a, b
+    ld  	(REG4SAV), a ; it's a good practice to update the REGnSAV values
+    ld      c, 4            ; register #
+    call  	WRTVDP_without_DI_EI		; Write B value to C register
 
     ret
 
@@ -272,21 +308,29 @@ Set_SC8:
 ; ---- set screen mode to SC8
     ; R#0   0 DG 0 IE1 M5 M4 M3 0
     ld      b, 0001 1110 b  ; data
+    ld      a, b
+    ld  	(REG0SAV), a ; it's a good practice to update the REGnSAV values
     ld      c, 0            ; register #
     call  	WRTVDP_without_DI_EI		; Write B value to C register
 
     ; R#1   0 1 1 M1 M2 0 1 0
     ld      b, 0110 0010 b  ; data
+    ld      a, b
+    ld  	(REG1SAV), a ; it's a good practice to update the REGnSAV values
     ld      c, 1            ; register #
     call  	WRTVDP_without_DI_EI		; Write B value to C register
 
-    ; set page 0
+    ; set NAMTBL base addr, set page 0
     ; R#2   0 0 A16 1 1 1 1 1
     ld      b, 0001 1111 b  ; data
+    ld      a, b
+    ld  	(REG2SAV), a ; it's a good practice to update the REGnSAV values
     ld      c, 2            ; register #
     call  	WRTVDP_without_DI_EI		; Write B value to C register
     ; R#3   
     ld      b, 1000 0000 b  ; data
+    ld      a, b
+    ld  	(REG3SAV), a ; it's a good practice to update the REGnSAV values
     ld      c, 3            ; register #
     call  	WRTVDP_without_DI_EI		; Write B value to C register
 
