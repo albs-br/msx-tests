@@ -33,7 +33,7 @@ Execute:
 
 
     
-	; loa palette
+	; load palette
     ld      hl, Palette
     call    LoadPalette
 
