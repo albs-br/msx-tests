@@ -153,6 +153,75 @@ SpritePatterns:
 	db	00000111 b
 	db	00000111 b
 	db	00000000 b
+
+; -----
+ ; Pattern 0
+	db	00000001 b
+	db	00000011 b
+	db	00000011 b
+	db	00000000 b
+	db	00001000 b
+	db	00011000 b
+	db	00110000 b
+	db	01110001 b
+	db	11110001 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	11111000 b
+	db	01111000 b
+	db	11100000 b
+	db	11111111 b
+	db	01111111 b
+	db	11111111 b
+	db	11111111 b
+	db	11111111 b
+	db	11111111 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+ ; Pattern 1
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000111 b
+	db	00000111 b
+	db	00100111 b
+	db	00001111 b
+	db	10001110 b
+	db	00001110 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000111 b
+	db	10000111 b
+	db	00011111 b
+	db	00000000 b
+	db	10000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+
 SpritePatterns.size: equ $ - SpritePatterns
 
 SpriteColors:
@@ -190,13 +259,51 @@ SpriteColors:
 	db	2
 	db	2
 	db	1
+; -----
+ ; Color 0
+	db	1
+	db	1
+	db	1
+	db	2
+	db	2
+	db	2
+	db	2
+	db	2
+	db	2
+	db	0
+	db	0
+	db	0
+	db	0
+	db	0
+	db	0
+	db	0
+ ; Color 1
+	db	2
+	db	2
+	db	2
+	db	1
+	db	1
+	db	1
+	db	1
+	db	1
+	db	1
+	db	0
+	db	0
+	db	0
+	db	0
+	db	0
+	db	0
+	db	0
+
 SpriteColors.size: equ $ - SpriteColors
 
 
 SpriteAttributes:
-    ;   y       x       pattern     unused
-    db  192/2,  256/2,  0,          0
-    db  192/2,  256/2,  4,          0
+    ;   y               x               pattern     unused
+    db  192/2,          256/2,          0,          0
+    db  192/2,          256/2,          4,          0
+    db  (192/2) + 32,   256/2,          8,          0
+    db  (192/2) + 32,   256/2,          12,          0
     db  216 ; hide all sprites from here
 SpriteAttributes.size: equ $ - SpriteAttributes
 
