@@ -153,8 +153,6 @@ SpritePatterns:
 	db	00000111 b
 	db	00000111 b
 	db	00000000 b
-
-; -----
  ; Pattern 0
 	db	00000001 b
 	db	00000011 b
@@ -221,7 +219,138 @@ SpritePatterns:
 	db	00000000 b
 	db	00000000 b
 	db	00000000 b
-
+ ; Pattern 0
+	db	00000000 b
+	db	10000000 b
+	db	10000000 b
+	db	11100000 b
+	db	01100000 b
+	db	11000000 b
+	db	11100000 b
+	db	11010000 b
+	db	00111000 b
+	db	00111000 b
+	db	00111000 b
+	db	11100000 b
+	db	00111100 b
+	db	11100000 b
+	db	00010110 b
+	db	11100110 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+ ; Pattern 1
+	db	00000000 b
+	db	00000000 b
+	db	01000000 b
+	db	00000000 b
+	db	10000000 b
+	db	00100000 b
+	db	00010000 b
+	db	00100000 b
+	db	11000000 b
+	db	11000000 b
+	db	11000000 b
+	db	00011000 b
+	db	11000000 b
+	db	00011100 b
+	db	11101000 b
+	db	00011000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+ ; Pattern 0
+	db	11111100 b
+	db	11111110 b
+	db	11111110 b
+	db	11111110 b
+	db	11111110 b
+	db	11111111 b
+	db	11111111 b
+	db	11111111 b
+	db	00001111 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	10000000 b
+	db	10000000 b
+	db	00000000 b
+	db	11100000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+ ; Pattern 1
+	db	00000010 b
+	db	00000001 b
+	db	00000001 b
+	db	00000001 b
+	db	00000001 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	11110000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	10000000 b
+	db	10000000 b
+	db	10000000 b
+	db	01000000 b
+	db	01000000 b
+	db	11100000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
+	db	00000000 b
 SpritePatterns.size: equ $ - SpritePatterns
 
 SpriteColors:
@@ -259,7 +388,6 @@ SpriteColors:
 	db	2
 	db	2
 	db	1
-; -----
  ; Color 0
 	db	1
 	db	1
@@ -294,16 +422,92 @@ SpriteColors:
 	db	0
 	db	0
 	db	0
+ ; Color 0
+	db	0
+	db	2
+	db	1
+	db	1
+	db	2
+	db	2
+	db	2
+	db	2
+	db	1
+	db	2
+	db	1
+	db	4
+	db	1
+	db	4
+	db	1
+	db	1
+ ; Color 1
+	db	0
+	db	2
+	db	2
+	db	1
+	db	1
+	db	1
+	db	1
+	db	1
+	db	4
+	db	4
+	db	4
+	db	1
+	db	4
+	db	1
+	db	2
+	db	2
+ ; Color 0
+	db	2
+	db	2
+	db	2
+	db	2
+	db	2
+	db	2
+	db	2
+	db	2
+	db	2
+	db	0
+	db	0
+	db	0
+	db	0
+	db	0
+	db	0
+	db	0
+ ; Color 1
+	db	1
+	db	1
+	db	1
+	db	1
+	db	1
+	db	1
+	db	1
+	db	1
+	db	4
+	db	0
+	db	0
+	db	0
+	db	0
+	db	0
+	db	0
+	db	0
 
 SpriteColors.size: equ $ - SpriteColors
 
 
 SpriteAttributes:
     ;   y               x               pattern     unused
-    db  192/2,          256/2,          0,          0
-    db  192/2,          256/2,          4,          0
-    db  (192/2) + 32,   256/2,          8,          0
-    db  (192/2) + 32,   256/2,          12,          0
+    db  192/2,          256/2,          0 * 4,      0
+    db  192/2,          256/2,          1 * 4,      0
+
+    db  (192/2) + 32,   256/2,          2 * 4,      0
+    db  (192/2) + 32,   256/2,          3 * 4,      0
+
+    db  192/2,          (256/2) + 32,   4 * 4,      0
+    db  192/2,          (256/2) + 32,   5 * 4,      0
+
+    db  (192/2) + 32,   (256/2) + 32,   6 * 4,      0
+    db  (192/2) + 32,   (256/2) + 32,   7 * 4,      0
+
     db  216 ; hide all sprites from here
 SpriteAttributes.size: equ $ - SpriteAttributes
 

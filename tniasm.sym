@@ -77,7 +77,7 @@ REG22SAV: equ 0FFF5h ; last def. pass 3
 BIOS_NSETRD: equ 016Eh ; last def. pass 3
 BIOS_JIFFY: equ 0FC9Eh ; last def. pass 3
 Wait_15_Vblanks: equ 04088h ; last def. pass 3
-SpriteColors: equ 04403h ; last def. pass 3
+SpriteColors: equ 04483h ; last def. pass 3
 REG2SAV: equ 0F3E1h ; last def. pass 3
 BIOS_H_GONE: equ 0FF43h ; last def. pass 3
 BIOS_PRSCNT: equ 0FB35h ; last def. pass 3
@@ -336,7 +336,7 @@ REG12SAV: equ 0FFEBh ; last def. pass 3
 BIOS_CALLF: equ 030h ; last def. pass 3
 PPI.A: equ 0A8h ; last def. pass 3
 BIOS_ARG: equ 0F847h ; last def. pass 3
-Palette: equ 04454h ; last def. pass 3
+Palette: equ 04524h ; last def. pass 3
 BIOS_CLS: equ 0C3h ; last def. pass 3
 BIOS_PRTFLG: equ 0F416h ; last def. pass 3
 BIOS_DISSCR: equ 041h ; last def. pass 3
@@ -349,8 +349,8 @@ BIOS_DAC: equ 0F7F6h ; last def. pass 3
 BIOS_H_MKD: equ 0FE3Ah ; last def. pass 3
 VDP_COMMAND_LMCM: equ 0A0h ; last def. pass 3
 Execute_VDP_HMMM: equ 041DEh ; last def. pass 3
-SpriteAttributes: equ 04443h ; last def. pass 3
-SpriteColors.size: equ 040h ; last def. pass 3
+SpriteAttributes: equ 04503h ; last def. pass 3
+SpriteColors.size: equ 080h ; last def. pass 3
 BIOS_INLIN: equ 0B1h ; last def. pass 3
 BIOS_SUBROM: equ 015Ch ; last def. pass 3
 BIOS_PATBAS: equ 0F926h ; last def. pass 3
@@ -526,7 +526,7 @@ BIOS_RDVDP: equ 013Eh ; last def. pass 3
 BIOS_RG6SAV: equ 0F3E5h ; last def. pass 3
 BIOS_CPCSUM: equ 0F93Dh ; last def. pass 3
 HKEYI: equ 0FD9Ah ; last def. pass 3
-SpriteAttributes.size: equ 011h ; last def. pass 3
+SpriteAttributes.size: equ 021h ; last def. pass 3
 BIOS_H_SCRE: equ 0FFC0h ; last def. pass 3
 BIOS_GRPHED: equ 0FCA6h ; last def. pass 3
 PPI.R: equ 0ABh ; last def. pass 3
@@ -542,7 +542,7 @@ BIOS_SETT32: equ 07Bh ; last def. pass 3
 BIOS_H_DSKO: equ 0FDEFh ; last def. pass 3
 BIOS_FILVRM: equ 056h ; last def. pass 3
 BIOS_WSLREG: equ 013Bh ; last def. pass 3
-SpritePatterns.size: equ 080h ; last def. pass 3
+SpritePatterns.size: equ 0100h ; last def. pass 3
 BIOS_BASROM: equ 0FBB1h ; last def. pass 3
 BIOS_H_OKNO: equ 0FF75h ; last def. pass 3
 BIOS_TEMP2: equ 0F6BCh ; last def. pass 3
