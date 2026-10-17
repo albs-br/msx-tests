@@ -19,7 +19,8 @@
 #RndNumbers: equ 0DF00h ; last def. pass 3
 
 
-ram_watch   add     0xc000      -type byte      -desc ActivePage      -format dec
+ram_watch   add     0xc000      -type byte      -desc CurrentOffset   -format dec
+ram_watch   add     0xc001      -type byte      -desc SpriteX         -format dec
 
 #ram_watch   add     0xc021      -type word      -desc Total_Frames      -format dec
 #ram_watch   add     0xc015      -type word      -desc Animation_CurrentFrame_List      -format hex
