@@ -25,6 +25,15 @@ Execute:
     ld	    a, 1
 	ld	    (Seg_P8000_SW), a
 
+    ; define screen colors
+    ld 		a, 15      	            ; Foreground color
+    ld 		(BIOS_FORCLR), a    
+    ld 		a, 0  		            ; Background color
+    ld 		(BIOS_BAKCLR), a     
+    ld 		a, 0      	            ; Border color
+    ld 		(BIOS_BDRCLR), a    
+    call 	BIOS_CHGCLR        		; Change Screen Color
+
     ; change to screen 5
     ld      a, 5
     call    BIOS_CHGMOD
@@ -75,12 +84,12 @@ Execute:
     ; load sprite color
 	ld	    hl, SPRCOL		                    ; VRAM start address
     ld      bc, 16 * 12                         ; number of bytes
-    ld      a, 1000 0000 b OR 0x07              ; value ; bit 7 = Early Clock (-32 pixels to the left)
+    ld      a, 1000 0000 b OR 0x08 ; 0x00              ; value ; bit 7 = Early Clock (-32 pixels to the left)
     call    BIOS_FILVRM                         ; Fill VRAM
 
 	ld	    hl, SPRCOL + (16*12)                ; VRAM start address
     ld      bc, 16 * 12                         ; number of bytes
-    ld      a, 0000 0000 b OR 0x07              ; value ; bit 7 = Early Clock (-32 pixels to the left)
+    ld      a, 0000 0000 b OR 0x06              ; value ; bit 7 = Early Clock (-32 pixels to the left)
     call    BIOS_FILVRM                         ; Fill VRAM
 
 
@@ -94,69 +103,90 @@ Execute:
     ld      a, 8
     ld      (CurrentOffset), a
 
-    ld      b, a    ; data
-    ld      c, 18   ; register #
-    call    BIOS_WRTVDP
-
-
-    ; set sprite X
-    ld      a, 16
-    ld      (SpriteX), a
+    call    UpdateScrollVariables
+    call    UpdateScroll
 
 
     call    BIOS_ENASCR
 
 
-;jp $
+; jp $
 
 ; --------- 
 
 .loop:
 
-
-    ld      a, (CurrentOffset)
-    ld      b, a    ; data
-    ld      c, 18   ; register #
-    call    BIOS_WRTVDP
-
-    ; update sprites X position
-    ld      a, 0000 0000 b
-    ld      hl, SPRATR + 1 ; sprite X position
-    call    SetVdp_Write
-    ld      c, PORT_0
-    ld      a, (SpriteX)
-    out     (c), a
-    
-
-; jp $
-
-    ld      b, 15
+    ld      b, 30
     call    Wait_B_Vblanks
     ;call    Wait_Vblank
 
 
 
 
-    ; set horizontal offset register (R#18), four low bits
+
+
+
+
+    ; next horizontal offset value
     ld      a, (CurrentOffset)
     inc     a
     and     0000 1111 b
     ld      (CurrentOffset), a
 
+
+
+    call    UpdateScrollVariables
+    call    UpdateScroll    
+
+
+    jp      .loop
+
+
+UpdateScrollVariables:
     ; if(CurrentOffset == 8) SpriteX = 16; else SpriteX++;
     cp      8
-    ld      a, (SpriteX)
+    ld      a, (LeftBorder_SpriteX)
     jp      nz, .incrementX
     ld      a, 16
     jp      .saveSpriteX
 .incrementX:
     inc     a
 .saveSpriteX:
-    ld      (SpriteX), a
+    ld      (LeftBorder_SpriteX), a
+    add     256-32
+    ld      (RightBorder_SpriteX), a
+
+    ret
 
 
 
-    jp      .loop
+UpdateScroll:
+
+    ; update horizontal scroll
+    ld      a, (CurrentOffset)
+    ld      b, a    ; data
+    ld      c, 18   ; register #
+    call    BIOS_WRTVDP
+
+    ; update left border sprites X position
+    ld      a, 0000 0000 b
+    ld      hl, SPRATR + 1 ; sprite X position
+    call    SetVdp_Write
+    ld      c, PORT_0
+    ld      a, (LeftBorder_SpriteX)
+    out     (c), a
+    
+    ; update right border  sprites X position
+    ld      a, 0000 0000 b
+    ld      hl, SPRATR + (12 * 4) + 1 ; sprite X position
+    call    SetVdp_Write
+    ld      c, PORT_0
+    ld      a, (RightBorder_SpriteX)
+    out     (c), a
+
+    ret
+
+
 
 End:
 
@@ -228,4 +258,5 @@ SPRATR_Data:
 	org     0xc000, 0xe5ff                   ; for machines with 16kb of RAM (use it if you need 16kb RAM, will crash on 8kb machines, such as the Casio PV-7)
 
 CurrentOffset:    rb 1
-SpriteX:          rb 1
+LeftBorder_SpriteX:          rb 1
+RightBorder_SpriteX:         rb 1
