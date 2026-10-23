@@ -144,7 +144,7 @@ Wait_B_Vblanks: equ 04078h ; last def. pass 3
 REG3SAV: equ 0F3E2h ; last def. pass 3
 BIOS_SLTTBL: equ 0FCC5h ; last def. pass 3
 BIOS_DSCTMP: equ 0F698h ; last def. pass 3
-End: equ 04416h ; last def. pass 3
+End: equ 0442Ch ; last def. pass 3
 BIOS_H_LOC: equ 0FE99h ; last def. pass 3
 BIOS_H_CVS: equ 0FE44h ; last def. pass 3
 BIOS_MIVCNT: equ 0F951h ; last def. pass 3
@@ -290,6 +290,7 @@ LoadPalette: equ 0403Fh ; last def. pass 3
 BIOS_CHGCLR: equ 062h ; last def. pass 3
 SetPaletteColor: equ 0401Ah ; last def. pass 3
 Wait_Vblank.waitVBlank: equ 0409Eh ; last def. pass 3
+UpdateScroll.updateRightSprites: equ 04416h ; last def. pass 3
 BIOS_HIGH: equ 0F408h ; last def. pass 3
 BIOS_BDRCLR: equ 0F3EBh ; last def. pass 3
 SPRATR: equ 07600h ; last def. pass 3
@@ -333,6 +334,7 @@ BIOS_LFPROG: equ 0F954h ; last def. pass 3
 BIOS_H_LOPD: equ 0FED5h ; last def. pass 3
 REG11SAV: equ 0FFEAh ; last def. pass 3
 BIOS_DPPAGE: equ 0FAF5h ; last def. pass 3
+UpdateScroll.updateLeftSprites: equ 043FCh ; last def. pass 3
 BIOS_DIMFLG: equ 0F662h ; last def. pass 3
 BIOS_H_SNGF: equ 0FF39h ; last def. pass 3
 BIOS_H_FRQI: equ 0FF93h ; last def. pass 3

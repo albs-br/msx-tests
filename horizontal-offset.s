@@ -84,12 +84,12 @@ Execute:
     ; load sprite color
 	ld	    hl, SPRCOL		                    ; VRAM start address
     ld      bc, 16 * 12                         ; number of bytes
-    ld      a, 1000 0000 b OR 0x08 ; 0x00              ; value ; bit 7 = Early Clock (-32 pixels to the left)
+    ld      a, 1000 0000 b OR 0x00              ; value ; bit 7 = Early Clock (-32 pixels to the left)
     call    BIOS_FILVRM                         ; Fill VRAM
 
 	ld	    hl, SPRCOL + (16*12)                ; VRAM start address
     ld      bc, 16 * 12                         ; number of bytes
-    ld      a, 0000 0000 b OR 0x06              ; value ; bit 7 = Early Clock (-32 pixels to the left)
+    ld      a, 0000 0000 b OR 0x00              ; value ; bit 7 = Early Clock (-32 pixels to the left)
     call    BIOS_FILVRM                         ; Fill VRAM
 
 
@@ -116,9 +116,9 @@ Execute:
 
 .loop:
 
-    ld      b, 30
+    ld      b, 15
     call    Wait_B_Vblanks
-    ;call    Wait_Vblank
+    ; call    Wait_Vblank
 
 
 
@@ -169,20 +169,38 @@ UpdateScroll:
     call    BIOS_WRTVDP
 
     ; update left border sprites X position
-    ld      a, 0000 0000 b
     ld      hl, SPRATR + 1 ; sprite X position
-    call    SetVdp_Write
-    ld      c, PORT_0
-    ld      a, (LeftBorder_SpriteX)
-    out     (c), a
+    ld      b, 12 ; 12 sprites
+.updateLeftSprites:
+    push    bc
+        push    hl
+            xor     a ;ld      a, 0000 0000 b
+            call    SetVdp_Write
+            ld      c, PORT_0
+            ld      a, (LeftBorder_SpriteX)
+            out     (c), a
+        pop     hl
+        ld      bc, 4
+        add     hl, bc
+    pop     bc
+    djnz    .updateLeftSprites
     
-    ; update right border  sprites X position
-    ld      a, 0000 0000 b
+    ; update right border sprites X position
     ld      hl, SPRATR + (12 * 4) + 1 ; sprite X position
-    call    SetVdp_Write
-    ld      c, PORT_0
-    ld      a, (RightBorder_SpriteX)
-    out     (c), a
+    ld      b, 12 ; 12 sprites
+.updateRightSprites:
+    push    bc
+        push    hl
+            xor     a ;ld      a, 0000 0000 b
+            call    SetVdp_Write
+            ld      c, PORT_0
+            ld      a, (RightBorder_SpriteX)
+            out     (c), a
+        pop     hl
+        ld      bc, 4
+        add     hl, bc
+    pop     bc
+    djnz    .updateRightSprites
 
     ret
 
