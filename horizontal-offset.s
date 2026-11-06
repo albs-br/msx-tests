@@ -78,6 +78,7 @@ Execute:
     ; load sprite pattern
 	ld	    hl, SPRPAT		                    ; VRAM start address
     ld      bc, 32                              ; number of bytes
+    ; ld      a, 0101 0101b                       ; value
     ld      a, 0xff                             ; value
     call    BIOS_FILVRM                         ; Fill VRAM
 
@@ -116,7 +117,7 @@ Execute:
 
 .loop:
 
-    ld      b, 15
+    ld      b, 5
     call    Wait_B_Vblanks
     ; call    Wait_Vblank
 
